@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar Enrollment Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Educational Disclaimer Banner -->
+    <header class="disclaimer-banner">
+        <span>⚠️ Educational Demo Project — Not an Official Aadhaar or UIDAI Website</span>
+    </header>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-badge">UID DEMO</span>
+            <h1>Aadhaar Enrollment System</h1>
+        </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home" class="nav-item active" data-section="home-section">Home</a></li>
+            <li><a href="#citizen" class="nav-item" data-section="citizen-section">Citizen Registration</a></li>
+            <li><a href="#center" class="nav-item" data-section="center-section">Center Registration</a></li>
+            <li><a href="#application" class="nav-item" data-section="application-section">New Application</a></li>
+            <li><a href="#track" class="nav-item" data-section="track-section">Track Status</a></li>
+            <li><a href="#records" class="nav-item" data-section="records-section">Admin Records</a></li>
+        </ul>
+    </nav>
+
+    <main class="page-container">
+
+        <!-- ==============================================
+             SECTION 1: HOME DASHBOARD
+        ============================================== -->
+        <section id="home-section" class="app-section active">
+            <div class="hero-card">
+                <h2>Welcome to Aadhaar Enrollment Management System</h2>
+                <p>A simple, beginner-friendly full-stack application demonstrating database relationships, citizen registrations, enrollment center mappings, and application lifecycle tracking.</p>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="backendStatusText">Checking backend connection...</span>
+                </div>
+            </div>
+
+            <div class="services-grid">
+                <!-- Card 1 -->
+                <div class="service-card" data-target="citizen-section">
+                    <div class="card-icon">👤</div>
+                    <h3>Citizen Registration</h3>
+                    <p>Register new citizens with name, date of birth, gender, and contact details.</p>
+                    <button class="card-btn">Register Citizen →</button>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="service-card" data-target="center-section">
+                    <div class="card-icon">🏛️</div>
+                    <h3>Enrollment Centers</h3>
+                    <p>Add and manage regional Aadhaar enrollment centers across districts and states.</p>
+                    <button class="card-btn">Add Center →</button>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="service-card" data-target="application-section">
+                    <div class="card-icon">📝</div>
+                    <h3>Aadhaar Application</h3>
+                    <p>Link a registered citizen to an enrollment center to generate a new application.</p>
+                    <button class="card-btn">Apply Now →</button>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="service-card" data-target="track-section">
+                    <div class="card-icon">🔍</div>
+                    <h3>Track Application</h3>
+                    <p>Check the live status of any application ID with visual colored badges.</p>
+                    <button class="card-btn">Track Status →</button>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="service-card" data-target="records-section">
+                    <div class="card-icon">📊</div>
+                    <h3>View Records</h3>
+                    <p>Admin dashboard to view all citizens, centers, applications, and update status.</p>
+                    <button class="card-btn">View Records →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 2: CITIZEN REGISTRATION
+        ============================================== -->
+        <section id="citizen-section" class="app-section">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Citizen Registration</h2>
+                    <p>Enter citizen details to record them into the MySQL database.</p>
+                </div>
+
+                <div id="citizenAlert" class="alert-box"></div>
+
+                <form id="registrationform">
+                    <div class="form-group">
+                        <label for="citizenname">Full Name <span class="required">*</span></label>
+                        <input type="text" id="citizenname" name="citizenname" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="DOB">Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="DOB" name="DOB" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender <span class="required">*</span></label>
+                        <select id="gender" name="gender" required>
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number (10 Digits) <span class="required">*</span></label>
+                        <div class="input-prefix-wrapper">
+                            <span class="prefix">+91</span>
+                            <input type="tel" id="mobile" name="mobile" maxlength="10" placeholder="9876543210" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="citizenSubmitBtn">Register Citizen</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 3: ENROLLMENT CENTER REGISTRATION
+        ============================================== -->
+        <section id="center-section" class="app-section">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Enrollment Center Registration</h2>
+                    <p>Register an authorized center for processing Aadhaar applications.</p>
+                </div>
+
+                <div id="centerAlert" class="alert-box"></div>
+
+                <form id="centerregistration">
+                    <div class="form-group">
+                        <label for="centerName">Center Name <span class="required">*</span></label>
+                        <input type="text" id="centerName" placeholder="e.g. Aadhaar Seva Kendra, MG Road" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="district">District <span class="required">*</span></label>
+                        <input type="text" id="district" placeholder="e.g. Indore" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State <span class="required">*</span></label>
+                        <input type="text" id="state" placeholder="e.g. Madhya Pradesh" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="centerSubmitBtn">Register Center</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 4: AADHAAR APPLICATION REGISTRATION
+        ============================================== -->
+        <section id="application-section" class="app-section">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>New Aadhaar Application</h2>
+                    <p>Associate a registered citizen with an enrollment center.</p>
+                </div>
+
+                <div id="applicationAlert" class="alert-box"></div>
+
+                <form id="applicationForm">
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="appCitizenSelect">Select Citizen <span class="required">*</span></label>
+                            <button type="button" class="btn-link" id="refreshCitizensDropdownBtn">↻ Refresh List</button>
+                        </div>
+                        <select id="appCitizenSelect" required>
+                            <option value="">-- Loading citizens from database... --</option>
+                        </select>
+                        <small class="help-text">Citizen not listed? <a href="#citizen" class="switch-link" data-target="citizen-section">Register citizen first</a>.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="appCenterSelect">Select Enrollment Center <span class="required">*</span></label>
+                            <button type="button" class="btn-link" id="refreshCentersDropdownBtn">↻ Refresh List</button>
+                        </div>
+                        <select id="appCenterSelect" required>
+                            <option value="">-- Loading centers from database... --</option>
+                        </select>
+                        <small class="help-text">Center not listed? <a href="#center" class="switch-link" data-target="center-section">Add center first</a>.</small>
+                    </div>
+
+                    <div class="info-note">
+                        ℹ️ <strong>System Automation:</strong> Application date will automatically be set to today and initial status will be set to <strong>Pending</strong>.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="appSubmitBtn">Submit Application</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 5: APPLICATION STATUS TRACKING
+        ============================================== -->
+        <section id="track-section" class="app-section">
+            <div class="form-card">
+                <div class="card-header">
+                    <h2>Track Application Status</h2>
+                    <p>Enter an Application ID to fetch verification status from the database.</p>
+                </div>
+
+                <form id="trackForm" class="search-form">
+                    <div class="form-group">
+                        <label for="trackAppId">Application ID <span class="required">*</span></label>
+                        <div class="search-input-group">
+                            <input type="number" id="trackAppId" placeholder="e.g. 1" min="1" required>
+                            <button type="submit" class="btn btn-primary" id="trackSubmitBtn">Track Status</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="trackAlert" class="alert-box"></div>
+
+                <!-- Result Card -->
+                <div id="trackResultCard" class="result-card hidden">
+                    <div class="result-header">
+                        <h3>Application Details</h3>
+                        <span id="trackStatusBadge" class="status-badge badge-pending">Pending</span>
+                    </div>
+                    <div class="result-body">
+                        <div class="result-row">
+                            <span class="result-label">Application ID:</span>
+                            <strong id="resAppId">#1</strong>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Citizen Name:</span>
+                            <span id="resCitizenName">-</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Mobile Number:</span>
+                            <span id="resMobile">-</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Enrollment Center:</span>
+                            <span id="resCenterName">-</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">District & State:</span>
+                            <span id="resLocation">-</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Application Date:</span>
+                            <span id="resAppDate">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 6, 7 & 8: VIEW RECORDS (ADMIN DASHBOARD)
+        ============================================== -->
+        <section id="records-section" class="app-section">
+            <div class="records-container">
+                <div class="card-header">
+                    <h2>Database Records Management</h2>
+                    <p class="admin-notice">🔒 Authorized Educational Demo View — Inspect relational data across MySQL tables.</p>
+                </div>
+
+                <!-- Sub Navigation Tabs -->
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" data-tab="tab-applications">Applications (<span id="countApps">0</span>)</button>
+                    <button class="sub-tab-btn" data-tab="tab-citizens">Citizens (<span id="countCitizens">0</span>)</button>
+                    <button class="sub-tab-btn" data-tab="tab-centers">Enrollment Centers (<span id="countCenters">0</span>)</button>
+                </div>
+
+                <!-- Sub-Tab 1: Applications Management (Section 8) -->
+                <div id="tab-applications" class="sub-tab-content active">
+                    <div class="table-toolbar">
+                        <input type="text" id="searchApplications" class="table-search" placeholder="Search by citizen, center, or ID...">
+                        <button class="btn btn-secondary" id="refreshApplicationsBtn">↻ Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="applicationsTable">
+                            <thead>
+                                <tr>
+                                    <th>App ID</th>
+                                    <th>Citizen Name</th>
+                                    <th>Mobile</th>
+                                    <th>Enrollment Center</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Admin Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsTableBody">
+                                <tr><td colspan="7" class="table-empty">Loading applications...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 2: Citizens Records (Section 6) -->
+                <div id="tab-citizens" class="sub-tab-content">
+                    <div class="table-toolbar">
+                        <input type="text" id="searchCitizens" class="table-search" placeholder="Search citizens by name, mobile, or ID...">
+                        <button class="btn btn-secondary" id="refreshCitizensBtn">↻ Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="citizensTable">
+                            <thead>
+                                <tr>
+                                    <th>Citizen ID</th>
+                                    <th>Full Name</th>
+                                    <th>Date of Birth</th>
+                                    <th>Gender</th>
+                                    <th>Mobile Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="citizensTableBody">
+                                <tr><td colspan="5" class="table-empty">Loading citizens...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 3: Enrollment Centers (Section 7) -->
+                <div id="tab-centers" class="sub-tab-content">
+                    <div class="table-toolbar">
+                        <input type="text" id="searchCenters" class="table-search" placeholder="Search centers by name, district, or state...">
+                        <button class="btn btn-secondary" id="refreshCentersBtn">↻ Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="centersTable">
+                            <thead>
+                                <tr>
+                                    <th>Center ID</th>
+                                    <th>Center Name</th>
+                                    <th>District</th>
+                                    <th>State</th>
+                                </tr>
+                            </thead>
+                            <tbody id="centersTableBody">
+                                <tr><td colspan="4" class="table-empty">Loading centers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Aadhaar Enrollment Management System &copy; 2026 — Educational Demo Project.</p>
+        <p><small>Designed with HTML5, CSS3, Vanilla JavaScript, Node.js, Express, and MySQL.</small></p>
+    </footer>
+
+    <!-- Frontend Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
