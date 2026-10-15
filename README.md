@@ -264,3 +264,7 @@ You can open `frontend/index.html` directly in any web browser:
 - Integrate document upload simulation (e.g. proof of address/identity placeholders).
 - Generate downloadable PDF application acknowledgment slips.
 - Add SMS/Email notification simulation upon application completion.
+
+
+
+

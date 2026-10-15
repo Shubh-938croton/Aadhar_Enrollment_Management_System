@@ -3,6 +3,8 @@ node_modules/
 
 # Environment Variables
 .env
+.env.example
+
 
 # System & Log Files
 *.log

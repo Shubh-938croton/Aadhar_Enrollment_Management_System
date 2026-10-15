@@ -1,0 +1,15 @@
+{
+  "name": "aadhaar-enrollment-management-system",
+  "version": "1.0.0",
+  "description": "Aadhaar Enrollment Management System",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "mysql2": "^3.24.4"
+  }
+}

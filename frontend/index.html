@@ -10,16 +10,16 @@
 
     <!-- Educational Disclaimer Banner -->
     <header class="disclaimer-banner">
-        <span>⚠️ Educational Demo Project — Not an Official Aadhaar or UIDAI Website</span>
+        <span>[DEMO] Educational Demo Project — Not an Official Aadhaar or UIDAI Website</span>
     </header>
 
     <!-- Main Navigation Bar -->
     <nav class="navbar">
         <div class="nav-brand">
-            <span class="brand-badge">UID DEMO</span>
+            <span class="brand-badge">DEMO</span>
             <h1>Aadhaar Enrollment System</h1>
         </div>
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">Menu</button>
         <ul class="nav-links" id="navLinks">
             <li><a href="#home" class="nav-item active" data-section="home-section">Home</a></li>
             <li><a href="#citizen" class="nav-item" data-section="citizen-section">Citizen Registration</a></li>
@@ -37,8 +37,8 @@
         ============================================== -->
         <section id="home-section" class="app-section active">
             <div class="hero-card">
-                <h2>Welcome to Aadhaar Enrollment Management System</h2>
-                <p>A simple, beginner-friendly full-stack application demonstrating database relationships, citizen registrations, enrollment center mappings, and application lifecycle tracking.</p>
+                <h2>Aadhaar Enrollment Management System</h2>
+                <p>A full-stack demonstration application managing citizens, enrollment centers, Aadhaar applications, and verification status tracking using MySQL.</p>
                 <div class="status-indicator">
                     <span class="status-dot"></span>
                     <span id="backendStatusText">Checking backend connection...</span>
@@ -48,42 +48,37 @@
             <div class="services-grid">
                 <!-- Card 1 -->
                 <div class="service-card" data-target="citizen-section">
-                    <div class="card-icon">👤</div>
-                    <h3>Citizen Registration</h3>
-                    <p>Register new citizens with name, date of birth, gender, and contact details.</p>
-                    <button class="card-btn">Register Citizen →</button>
+                    <h3>1. Citizen Registration</h3>
+                    <p>Register new citizens with name, date of birth, gender, and contact number.</p>
+                    <button class="card-btn">Open Form →</button>
                 </div>
 
                 <!-- Card 2 -->
                 <div class="service-card" data-target="center-section">
-                    <div class="card-icon">🏛️</div>
-                    <h3>Enrollment Centers</h3>
-                    <p>Add and manage regional Aadhaar enrollment centers across districts and states.</p>
-                    <button class="card-btn">Add Center →</button>
+                    <h3>2. Enrollment Centers</h3>
+                    <p>Register official enrollment centers across districts and states.</p>
+                    <button class="card-btn">Open Form →</button>
                 </div>
 
                 <!-- Card 3 -->
                 <div class="service-card" data-target="application-section">
-                    <div class="card-icon">📝</div>
-                    <h3>Aadhaar Application</h3>
-                    <p>Link a registered citizen to an enrollment center to generate a new application.</p>
-                    <button class="card-btn">Apply Now →</button>
+                    <h3>3. Aadhaar Application</h3>
+                    <p>Create a new enrollment application linking a citizen to an enrollment center.</p>
+                    <button class="card-btn">Open Form →</button>
                 </div>
 
                 <!-- Card 4 -->
                 <div class="service-card" data-target="track-section">
-                    <div class="card-icon">🔍</div>
-                    <h3>Track Application</h3>
-                    <p>Check the live status of any application ID with visual colored badges.</p>
-                    <button class="card-btn">Track Status →</button>
+                    <h3>4. Track Application</h3>
+                    <p>Check the live verification status of an application by ID.</p>
+                    <button class="card-btn">Open Tracker →</button>
                 </div>
 
                 <!-- Card 5 -->
                 <div class="service-card" data-target="records-section">
-                    <div class="card-icon">📊</div>
-                    <h3>View Records</h3>
-                    <p>Admin dashboard to view all citizens, centers, applications, and update status.</p>
-                    <button class="card-btn">View Records →</button>
+                    <h3>5. View Records</h3>
+                    <p>Administrative view of all registered citizens, centers, and applications.</p>
+                    <button class="card-btn">Open Records →</button>
                 </div>
             </div>
         </section>
@@ -95,7 +90,7 @@
             <div class="form-card">
                 <div class="card-header">
                     <h2>Citizen Registration</h2>
-                    <p>Enter citizen details to record them into the MySQL database.</p>
+                    <p>Enter citizen details to insert a record into the Citizens database table.</p>
                 </div>
 
                 <div id="citizenAlert" class="alert-box"></div>
@@ -141,7 +136,7 @@
             <div class="form-card">
                 <div class="card-header">
                     <h2>Enrollment Center Registration</h2>
-                    <p>Register an authorized center for processing Aadhaar applications.</p>
+                    <p>Register a processing center into the EnrollmentCenter database table.</p>
                 </div>
 
                 <div id="centerAlert" class="alert-box"></div>
@@ -174,7 +169,7 @@
             <div class="form-card">
                 <div class="card-header">
                     <h2>New Aadhaar Application</h2>
-                    <p>Associate a registered citizen with an enrollment center.</p>
+                    <p>Link a registered citizen to an enrollment center via foreign keys.</p>
                 </div>
 
                 <div id="applicationAlert" class="alert-box"></div>
@@ -183,7 +178,7 @@
                     <div class="form-group">
                         <div class="label-row">
                             <label for="appCitizenSelect">Select Citizen <span class="required">*</span></label>
-                            <button type="button" class="btn-link" id="refreshCitizensDropdownBtn">↻ Refresh List</button>
+                            <button type="button" class="btn-link" id="refreshCitizensDropdownBtn">[Refresh List]</button>
                         </div>
                         <select id="appCitizenSelect" required>
                             <option value="">-- Loading citizens from database... --</option>
@@ -194,7 +189,7 @@
                     <div class="form-group">
                         <div class="label-row">
                             <label for="appCenterSelect">Select Enrollment Center <span class="required">*</span></label>
-                            <button type="button" class="btn-link" id="refreshCentersDropdownBtn">↻ Refresh List</button>
+                            <button type="button" class="btn-link" id="refreshCentersDropdownBtn">[Refresh List]</button>
                         </div>
                         <select id="appCenterSelect" required>
                             <option value="">-- Loading centers from database... --</option>
@@ -203,7 +198,7 @@
                     </div>
 
                     <div class="info-note">
-                        ℹ️ <strong>System Automation:</strong> Application date will automatically be set to today and initial status will be set to <strong>Pending</strong>.
+                        <strong>Note:</strong> Application date is automatically set to today and initial status is set to <strong>Pending</strong>.
                     </div>
 
                     <button type="submit" class="btn btn-primary" id="appSubmitBtn">Submit Application</button>
@@ -218,7 +213,7 @@
             <div class="form-card">
                 <div class="card-header">
                     <h2>Track Application Status</h2>
-                    <p>Enter an Application ID to fetch verification status from the database.</p>
+                    <p>Enter an Application ID to fetch details from the database.</p>
                 </div>
 
                 <form id="trackForm" class="search-form">
@@ -236,8 +231,8 @@
                 <!-- Result Card -->
                 <div id="trackResultCard" class="result-card hidden">
                     <div class="result-header">
-                        <h3>Application Details</h3>
-                        <span id="trackStatusBadge" class="status-badge badge-pending">Pending</span>
+                        <h3>Application Record</h3>
+                        <span id="trackStatusBadge" class="status-badge">Pending</span>
                     </div>
                     <div class="result-body">
                         <div class="result-row">
@@ -276,7 +271,7 @@
             <div class="records-container">
                 <div class="card-header">
                     <h2>Database Records Management</h2>
-                    <p class="admin-notice">🔒 Authorized Educational Demo View — Inspect relational data across MySQL tables.</p>
+                    <p class="admin-notice">[Admin Demo View] View and manage relational data across MySQL tables.</p>
                 </div>
 
                 <!-- Sub Navigation Tabs -->
@@ -290,7 +285,7 @@
                 <div id="tab-applications" class="sub-tab-content active">
                     <div class="table-toolbar">
                         <input type="text" id="searchApplications" class="table-search" placeholder="Search by citizen, center, or ID...">
-                        <button class="btn btn-secondary" id="refreshApplicationsBtn">↻ Refresh</button>
+                        <button class="btn btn-secondary" id="refreshApplicationsBtn">Refresh Table</button>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table" id="applicationsTable">
@@ -316,7 +311,7 @@
                 <div id="tab-citizens" class="sub-tab-content">
                     <div class="table-toolbar">
                         <input type="text" id="searchCitizens" class="table-search" placeholder="Search citizens by name, mobile, or ID...">
-                        <button class="btn btn-secondary" id="refreshCitizensBtn">↻ Refresh</button>
+                        <button class="btn btn-secondary" id="refreshCitizensBtn">Refresh Table</button>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table" id="citizensTable">
@@ -340,7 +335,7 @@
                 <div id="tab-centers" class="sub-tab-content">
                     <div class="table-toolbar">
                         <input type="text" id="searchCenters" class="table-search" placeholder="Search centers by name, district, or state...">
-                        <button class="btn btn-secondary" id="refreshCentersBtn">↻ Refresh</button>
+                        <button class="btn btn-secondary" id="refreshCentersBtn">Refresh Table</button>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table" id="centersTable">
@@ -367,7 +362,7 @@
     <!-- Footer -->
     <footer class="footer">
         <p>Aadhaar Enrollment Management System &copy; 2026 — Educational Demo Project.</p>
-        <p><small>Designed with HTML5, CSS3, Vanilla JavaScript, Node.js, Express, and MySQL.</small></p>
+        
     </footer>
 
     <!-- Frontend Logic -->

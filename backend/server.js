@@ -8,16 +8,28 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./db");
 
+const path = require("path");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware to parse incoming JSON bodies & enable CORS
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  })
+);
+app.options("*", cors());
 
-// Root test route
-app.get("/", function (req, res) {
-  res.send("Aadhaar Enrollment Management System Backend is running!");
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+// Health check API route
+app.get("/api/health", function (req, res) {
+  res.json({ success: true, message: "Aadhaar Enrollment Management System Backend is running!" });
 });
 
 // ====================================================
@@ -411,7 +423,12 @@ app.put("/api/applications/:id/status", function (req, res) {
   });
 });
 
-// Start the server
-app.listen(PORT, function () {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
+// Start the server if running standalone (local development / Render / Railway)
+if (!process.env.VERCEL) {
+  app.listen(PORT, function () {
+    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  });
+}
+
+// Export app for serverless platforms like Vercel
+module.exports = app;

@@ -1,10 +1,46 @@
 // ====================================================
 // Aadhaar Enrollment Management System - Frontend JavaScript
-// Vanilla JavaScript implementation
+// Raw Minimalist Implementation (Vanilla JavaScript)
 // Educational Demonstration Project
 // ====================================================
 
-const API_BASE_URL = "http://localhost:3000/api";
+// Primary backend deployed link provided by user
+const DEPLOYED_BACKEND_URL = "https://aadhar-enrollment-management-system-a09jmdsic-croton2.vercel.app";
+
+// Automatically detects whether running locally, on the same domain, or cross-domain
+function getApiBaseUrl() {
+  // Allow manual override in browser localStorage (e.g. localStorage.setItem('API_URL', 'https://...'))
+  try {
+    const customUrl = localStorage.getItem("API_URL");
+    if (customUrl) return customUrl.replace(/\/+$/, "");
+  } catch (e) {}
+
+  const currentHost = window.location.hostname;
+  const currentOrigin = window.location.origin;
+
+  // Local development
+  if (currentHost === "localhost" || currentHost === "127.0.0.1") {
+    // If opened via Node server directly on port 3000
+    if (window.location.port === "3000") {
+      return "/api";
+    }
+    // If opened via VS Code Live Server / static file server (port 5500, etc.)
+    return "http://localhost:3000/api";
+  }
+
+  // If frontend is deployed on the same domain as the backend
+  if (
+    currentOrigin === DEPLOYED_BACKEND_URL ||
+    currentOrigin.includes("aadhar-enrollment-management-system-croton2.vercel.app")
+  ) {
+    return "/api";
+  }
+
+  // If frontend is deployed on a separate URL/domain (e.g. separate Vercel project, GitHub Pages)
+  return `${DEPLOYED_BACKEND_URL}/api`;
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Cached in-memory lists for fast live search
 let allCitizens = [];
@@ -37,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // Setup tab navigation between sections
 function setupNavigation() {
   const navLinks = document.querySelectorAll(".nav-item");
-  const sections = document.querySelectorAll(".app-section");
   const navToggle = document.getElementById("navToggle");
   const navLinksContainer = document.getElementById("navLinks");
 
@@ -143,25 +178,74 @@ function setupSubTabs() {
   });
 }
 
-// Check backend connectivity status
+// Check backend connectivity status with diagnostic details
 function checkBackendHealth() {
   const statusText = document.getElementById("backendStatusText");
-  const statusDot = document.querySelector(".status-dot");
+  const statusContainer = document.querySelector(".status-indicator");
 
-  fetch("http://localhost:3000/")
-    .then(function (res) {
-      if (res.ok) {
-        if (statusText) statusText.textContent = "Backend Connected (Port 3000)";
-        if (statusDot) statusDot.style.backgroundColor = "#10b981";
+  if (statusText) statusText.textContent = "Backend: Connecting...";
+
+  // Enable one-click manual backend URL configuration
+  if (statusContainer && !statusContainer.dataset.configured) {
+    statusContainer.dataset.configured = "true";
+    statusContainer.style.cursor = "pointer";
+    statusContainer.setAttribute("title", "Click to view or switch Backend API URL");
+    statusContainer.addEventListener("click", function () {
+      const activeUrl = localStorage.getItem("API_URL") || API_BASE_URL;
+      const input = prompt(
+        "Current Backend API URL:\n" +
+          activeUrl +
+          "\n\nEnter a new Backend URL (or leave blank to reset to default):",
+        activeUrl
+      );
+      if (input !== null) {
+        if (input.trim() === "") {
+          localStorage.removeItem("API_URL");
+        } else {
+          let clean = input.trim().replace(/\/+$/, "");
+          if (!clean.endsWith("/api")) clean += "/api";
+          localStorage.setItem("API_URL", clean);
+        }
+        window.location.reload();
+      }
+    });
+  }
+
+  fetch(`${API_BASE_URL}/health`)
+    .then(async function (res) {
+      const contentType = res.headers.get("content-type") || "";
+
+      // Check if Vercel Authentication redirect page was returned
+      if (contentType.includes("text/html")) {
+        const text = await res.text();
+        if (text.includes("Login – Vercel") || text.includes("Protected Deployment")) {
+          throw new Error("Vercel Deployment Protection (Authentication) is enabled on the backend.");
+        }
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data && data.success) {
+        if (statusText) {
+          statusText.textContent = "Backend: Connected (Online)";
+          statusText.title = `Connected to ${API_BASE_URL}`;
+        }
       } else {
-        throw new Error("Backend responded with non-200");
+        throw new Error("Invalid response format");
       }
     })
-    .catch(function () {
-      if (statusText) statusText.textContent = "Backend Offline — Please run 'node server.js'";
-      if (statusDot) {
-        statusDot.style.backgroundColor = "#ef4444";
-        statusDot.style.boxShadow = "0 0 8px #ef4444";
+    .catch(function (error) {
+      console.warn("Backend connectivity issue:", error);
+      if (statusText) {
+        if (error.message && error.message.includes("Vercel Deployment Protection")) {
+          statusText.textContent = "Backend: Blocked by Vercel Authentication (Turn off in Settings)";
+        } else {
+          statusText.textContent = "Backend: Not Connected";
+        }
+        statusText.title = `Attempted: ${API_BASE_URL}/health\nError: ${error.message || error}\n(Click to change URL)`;
       }
     });
 }
@@ -171,7 +255,7 @@ function showAlert(elementId, message, type) {
   const alertBox = document.getElementById(elementId);
   if (!alertBox) return;
 
-  alertBox.className = `alert-box alert-${type}`;
+  alertBox.className = "alert-box";
   alertBox.innerHTML = message;
   alertBox.style.display = "block";
 
@@ -198,13 +282,11 @@ if (citizenForm) {
     const mobile = document.getElementById("mobile").value.trim();
     const submitBtn = document.getElementById("citizenSubmitBtn");
 
-    // Validation 1: Citizen name must not be empty
     if (citizenName === "") {
       showAlert("citizenAlert", "Please enter the citizen's full name.", "error");
       return;
     }
 
-    // Validation 2: Date of Birth cannot be in the future
     if (!dob) {
       showAlert("citizenAlert", "Please select a valid date of birth.", "error");
       return;
@@ -216,13 +298,11 @@ if (citizenForm) {
       return;
     }
 
-    // Validation 3: Gender must be selected
     if (gender === "") {
       showAlert("citizenAlert", "Please select a gender.", "error");
       return;
     }
 
-    // Validation 4: Mobile number must contain exactly 10 digits
     const mobilePattern = /^[0-9]{10}$/;
     if (!mobilePattern.test(mobile)) {
       showAlert("citizenAlert", "Please enter a valid 10-digit mobile number.", "error");
@@ -254,22 +334,21 @@ if (citizenForm) {
         if (data.success) {
           showAlert(
             "citizenAlert",
-            `✅ <strong>Success!</strong> Citizen registered successfully. Generated Citizen ID: <strong>#${data.citizen_id}</strong>`,
+            `[Success] Citizen registered successfully. Generated Citizen ID: #${data.citizen_id}`,
             "success"
           );
           citizenForm.reset();
-          // Refresh dependent dropdowns and admin tables
           loadCitizensDropdown();
           loadCitizensTable();
         } else {
-          showAlert("citizenAlert", `❌ ${data.message || "Failed to register citizen."}`, "error");
+          showAlert("citizenAlert", `[Error] ${data.message || "Failed to register citizen."}`, "error");
         }
       })
       .catch(function (error) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Register Citizen";
         console.error("Citizen registration error:", error);
-        showAlert("citizenAlert", "❌ Could not connect to backend server. Make sure server is running.", "error");
+        showAlert("citizenAlert", "[Error] Could not connect to backend server. Make sure server is running.", "error");
       });
   });
 }
@@ -317,22 +396,21 @@ if (centerForm) {
         if (data.success) {
           showAlert(
             "centerAlert",
-            `✅ <strong>Success!</strong> Enrollment center registered successfully. Generated Center ID: <strong>#${data.center_id}</strong>`,
+            `[Success] Enrollment center registered successfully. Generated Center ID: #${data.center_id}`,
             "success"
           );
           centerForm.reset();
-          // Refresh dependent dropdowns and admin tables
           loadCentersDropdown();
           loadCentersTable();
         } else {
-          showAlert("centerAlert", `❌ ${data.message || "Failed to register enrollment center."}`, "error");
+          showAlert("centerAlert", `[Error] ${data.message || "Failed to register enrollment center."}`, "error");
         }
       })
       .catch(function (error) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Register Center";
         console.error("Center registration error:", error);
-        showAlert("centerAlert", "❌ Could not connect to backend server. Make sure server is running.", "error");
+        showAlert("centerAlert", "[Error] Could not connect to backend server. Make sure server is running.", "error");
       });
   });
 }
@@ -392,7 +470,6 @@ function loadCentersDropdown() {
     });
 }
 
-// Refresh buttons for dropdowns
 const refreshCitizensDropdownBtn = document.getElementById("refreshCitizensDropdownBtn");
 if (refreshCitizensDropdownBtn) {
   refreshCitizensDropdownBtn.addEventListener("click", function () {
@@ -407,7 +484,6 @@ if (refreshCentersDropdownBtn) {
   });
 }
 
-// Application Form submission
 const applicationForm = document.getElementById("applicationForm");
 if (applicationForm) {
   applicationForm.addEventListener("submit", function (event) {
@@ -443,21 +519,20 @@ if (applicationForm) {
         if (data.success) {
           showAlert(
             "applicationAlert",
-            `✅ <strong>Success!</strong> Application created successfully.<br>` +
-              `Application ID: <strong>#${data.application_id}</strong> | Status: <strong>${data.status}</strong> | Date: <strong>${data.application_date}</strong>`,
+            `[Success] Application created successfully. Application ID: #${data.application_id} | Status: ${data.status} | Date: ${data.application_date}`,
             "success"
           );
           applicationForm.reset();
           loadApplicationsTable();
         } else {
-          showAlert("applicationAlert", `❌ ${data.message || "Failed to create application."}`, "error");
+          showAlert("applicationAlert", `[Error] ${data.message || "Failed to create application."}`, "error");
         }
       })
       .catch(function (error) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Submit Application";
         console.error("Application submission error:", error);
-        showAlert("applicationAlert", "❌ Could not connect to backend server.", "error");
+        showAlert("applicationAlert", "[Error] Could not connect to backend server.", "error");
       });
   });
 }
@@ -503,25 +578,21 @@ if (trackForm) {
           document.getElementById("resLocation").textContent = `${app.district}, ${app.state}`;
           document.getElementById("resAppDate").textContent = app.application_date;
 
-          // Visual status badge
+          // Status badge
           const statusBadge = document.getElementById("trackStatusBadge");
           statusBadge.textContent = app.status;
-          if (app.status === "Complete") {
-            statusBadge.className = "status-badge badge-complete";
-          } else {
-            statusBadge.className = "status-badge badge-pending";
-          }
+          statusBadge.className = "status-badge";
 
           resultCard.classList.remove("hidden");
         } else {
-          showAlert("trackAlert", `❌ ${data.message || "Application not found with ID #" + appId}`, "error");
+          showAlert("trackAlert", `[Error] ${data.message || "Application not found with ID #" + appId}`, "error");
         }
       })
       .catch(function (err) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Track Status";
         console.error("Tracking error:", err);
-        showAlert("trackAlert", "❌ Could not retrieve application. Make sure the server is online.", "error");
+        showAlert("trackAlert", "[Error] Could not retrieve application. Make sure the server is online.", "error");
       });
   });
 }
@@ -562,7 +633,6 @@ function renderApplicationsTable(apps) {
   let rowsHtml = "";
   apps.forEach(function (app) {
     const isPending = app.status === "Pending";
-    const badgeClass = isPending ? "badge-pending" : "badge-complete";
     const nextStatus = isPending ? "Complete" : "Pending";
     const actionBtnText = isPending ? "Mark Complete" : "Mark Pending";
 
@@ -573,7 +643,7 @@ function renderApplicationsTable(apps) {
         <td>+91 ${escapeHtml(app.mobile_number)}</td>
         <td>${escapeHtml(app.center_name)} (${escapeHtml(app.district)})</td>
         <td>${app.application_date}</td>
-        <td><span class="status-badge ${badgeClass}">${app.status}</span></td>
+        <td><span class="status-badge">${app.status}</span></td>
         <td>
           <button class="btn-action" onclick="updateApplicationStatus(${app.application_id}, '${nextStatus}')">
             ${actionBtnText}
@@ -586,7 +656,6 @@ function renderApplicationsTable(apps) {
   tbody.innerHTML = rowsHtml;
 }
 
-// Function to update status via PUT API
 window.updateApplicationStatus = function (appId, newStatus) {
   if (!confirm(`Are you sure you want to mark Application #${appId} as '${newStatus}'?`)) {
     return;
@@ -600,7 +669,6 @@ window.updateApplicationStatus = function (appId, newStatus) {
     .then((res) => res.json())
     .then((data) => {
       if (data.success) {
-        // Reload applications list to reflect changes
         loadApplicationsTable();
       } else {
         alert("Failed to update status: " + data.message);
@@ -612,7 +680,6 @@ window.updateApplicationStatus = function (appId, newStatus) {
     });
 };
 
-// Search filter for applications
 const searchApplicationsInput = document.getElementById("searchApplications");
 if (searchApplicationsInput) {
   searchApplicationsInput.addEventListener("input", function (e) {
@@ -670,7 +737,6 @@ function renderCitizensTable(citizens) {
 
   let rowsHtml = "";
   citizens.forEach(function (c) {
-    // Format date nicely (YYYY-MM-DD)
     const formattedDob = c.dob ? c.dob.split("T")[0] : "-";
     rowsHtml += `
       <tr>
@@ -776,7 +842,7 @@ if (refreshCentersBtn) {
   refreshCentersBtn.addEventListener("click", loadCentersTable);
 }
 
-// Simple HTML escaping to avoid XSS in innerHTML table renders
+// HTML escape helper
 function escapeHtml(text) {
   if (!text) return "";
   return text
