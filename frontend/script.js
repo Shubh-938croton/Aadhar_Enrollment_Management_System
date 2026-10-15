@@ -59,6 +59,13 @@ document.addEventListener("DOMContentLoaded", function () {
   loadCitizensTable();
   loadCentersTable();
 
+  // Load and setup Academic Credits (Teacher & Student details)
+  loadAcademicCredits();
+  setupAcademicCreditsModal();
+
+  // Setup Aadhaar Identity Card Generator
+  setupCardGenerator();
+
   // Restrict DOB input so future dates cannot be selected
   const dobInput = document.getElementById("DOB");
   if (dobInput) {
@@ -354,13 +361,14 @@ if (citizenForm) {
 // ====================================================
 // 3. ENROLLMENT CENTER REGISTRATION (SECTION 3)
 // ====================================================
-const centerForm = document.getElementById("centerregistration");
+const centerForm = document.getElementById("centerform") || document.getElementById("centerregistration");
 
 if (centerForm) {
   centerForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const centerName = document.getElementById("centerName").value.trim();
+    const nameInput = document.getElementById("centername") || document.getElementById("centerName");
+    const centerName = nameInput ? nameInput.value.trim() : "";
     const district = document.getElementById("district").value.trim();
     const state = document.getElementById("state").value.trim();
     const submitBtn = document.getElementById("centerSubmitBtn");
@@ -419,19 +427,28 @@ if (centerForm) {
 // ====================================================
 function loadCitizensDropdown() {
   const select = document.getElementById("appCitizenSelect");
-  if (!select) return;
+  const cardSelect = document.getElementById("cardCitizenSelect");
+  if (!select && !cardSelect) return;
 
   fetch(`${API_BASE_URL}/citizens`)
     .then((res) => res.json())
     .then((data) => {
       if (data.success && Array.isArray(data.citizens)) {
-        if (data.citizens.length === 0) {
+        allCitizens = data.citizens;
+
+        // Also update card section citizen dropdown
+        if (typeof loadCardCitizensDropdown === "function") {
+          loadCardCitizensDropdown(allCitizens);
+        }
+
+        if (!select) return;
+        if (allCitizens.length === 0) {
           select.innerHTML = '<option value="">No citizens registered yet. Please register one first.</option>';
           return;
         }
 
         let options = '<option value="">-- Choose a Registered Citizen --</option>';
-        data.citizens.forEach(function (c) {
+        allCitizens.forEach(function (c) {
           options += `<option value="${c.citizen_id}">#${c.citizen_id} - ${c.citizen_name} (Mobile: ${c.mobile_number})</option>`;
         });
         select.innerHTML = options;
@@ -439,7 +456,8 @@ function loadCitizensDropdown() {
     })
     .catch((err) => {
       console.error("Error loading citizens dropdown:", err);
-      select.innerHTML = '<option value="">Failed to load citizens from backend</option>';
+      if (select) select.innerHTML = '<option value="">Failed to load citizens from backend</option>';
+      if (cardSelect) cardSelect.innerHTML = '<option value="">Failed to load citizens</option>';
     });
 }
 
@@ -571,17 +589,26 @@ if (trackForm) {
           document.getElementById("trackAlert").style.display = "none";
 
           // Populate result card fields
-          document.getElementById("resAppId").textContent = `#${app.application_id}`;
+          const resAppId = document.getElementById("resAppId");
+          if (resAppId) resAppId.textContent = `#${app.application_id}`;
+          const resAppIdNum = document.getElementById("resAppIdNum");
+          if (resAppIdNum) resAppIdNum.textContent = app.application_id;
+
           document.getElementById("resCitizenName").textContent = app.citizen_name;
           document.getElementById("resMobile").textContent = `+91 ${app.mobile_number}`;
           document.getElementById("resCenterName").textContent = app.center_name;
           document.getElementById("resLocation").textContent = `${app.district}, ${app.state}`;
           document.getElementById("resAppDate").textContent = app.application_date;
 
+          const resStatusText = document.getElementById("resStatusText");
+          if (resStatusText) resStatusText.textContent = app.status;
+
           // Status badge
           const statusBadge = document.getElementById("trackStatusBadge");
-          statusBadge.textContent = app.status;
-          statusBadge.className = "status-badge";
+          if (statusBadge) {
+            statusBadge.textContent = app.status;
+            statusBadge.className = `status-badge ${app.status}`;
+          }
 
           resultCard.classList.remove("hidden");
         } else {
@@ -716,12 +743,17 @@ function loadCitizensTable() {
         allCitizens = data.citizens;
         if (countBadge) countBadge.textContent = allCitizens.length;
         renderCitizensTable(allCitizens);
+
+        // Keep card generator dropdown in sync
+        if (typeof loadCardCitizensDropdown === "function") {
+          loadCardCitizensDropdown(allCitizens);
+        }
       }
     })
     .catch((err) => {
       console.error("Error loading citizens table:", err);
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Failed to load citizens from database.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Failed to load citizens from database.</td></tr>';
       }
     });
 }
@@ -731,7 +763,7 @@ function renderCitizensTable(citizens) {
   if (!tbody) return;
 
   if (citizens.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No citizens recorded in database.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No citizens recorded in database.</td></tr>';
     return;
   }
 
@@ -745,6 +777,11 @@ function renderCitizensTable(citizens) {
         <td>${formattedDob}</td>
         <td>${c.gender}</td>
         <td>+91 ${escapeHtml(c.mobile_number)}</td>
+        <td>
+          <button class="action-btn-sm" onclick="viewCitizenCard(${c.citizen_id})" title="View and download Aadhaar Identity Card">
+            🪪 ID Card
+          </button>
+        </td>
       </tr>
     `;
   });
@@ -852,4 +889,597 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+// ====================================================
+// 9. ACADEMIC CREDITS & SUBMISSION DETAILS
+// ====================================================
+const DEFAULT_CREDITS = {
+  teacherName: "Prof. Faculty Guide",
+  teacherDept: "Department of Computer Science & Engineering",
+  member1: "Student 1 Name",
+  scholar1: "Scholar No: 2211XXXXX",
+  member2: "Student 2 Name",
+  scholar2: "Scholar No: 2211XXXXX"
+};
+
+function getAcademicCredits() {
+  try {
+    const saved = localStorage.getItem("DBMS_ACADEMIC_CREDITS");
+    if (saved) {
+      return { ...DEFAULT_CREDITS, ...JSON.parse(saved) };
+    }
+  } catch (e) {
+    console.warn("Could not read academic credits from localStorage:", e);
+  }
+  return { ...DEFAULT_CREDITS };
+}
+
+function saveAcademicCredits(credits) {
+  try {
+    localStorage.setItem("DBMS_ACADEMIC_CREDITS", JSON.stringify(credits));
+  } catch (e) {
+    console.warn("Could not save academic credits to localStorage:", e);
+  }
+  renderAcademicCredits(credits);
+}
+
+function loadAcademicCredits() {
+  renderAcademicCredits(getAcademicCredits());
+}
+
+function renderAcademicCredits(credits) {
+  // Top header badge
+  const headerTeacher = document.getElementById("headerTeacherName");
+  if (headerTeacher) headerTeacher.textContent = credits.teacherName;
+
+  // Home dashboard card
+  const dispTeacher = document.getElementById("displayTeacherName");
+  if (dispTeacher) dispTeacher.textContent = credits.teacherName;
+  const dispDept = document.getElementById("displayTeacherDept");
+  if (dispDept) dispDept.textContent = credits.teacherDept;
+
+  const dispM1 = document.getElementById("displayMember1");
+  if (dispM1) dispM1.textContent = credits.member1;
+  const dispS1 = document.getElementById("displayScholar1");
+  if (dispS1) dispS1.textContent = credits.scholar1.startsWith("Scholar No") ? credits.scholar1 : `Scholar No: ${credits.scholar1}`;
+
+  const dispM2 = document.getElementById("displayMember2");
+  if (dispM2) {
+    dispM2.textContent = credits.member2 || "—";
+    if (dispM2.parentElement) {
+      dispM2.parentElement.style.display = credits.member2 ? "flex" : "none";
+    }
+  }
+  const dispS2 = document.getElementById("displayScholar2");
+  if (dispS2) dispS2.textContent = credits.scholar2 ? (credits.scholar2.startsWith("Scholar No") ? credits.scholar2 : `Scholar No: ${credits.scholar2}`) : "";
+
+  // About section (Section 8)
+  const aboutTeacher = document.getElementById("aboutTeacherName");
+  if (aboutTeacher) aboutTeacher.textContent = credits.teacherName;
+  const aboutDept = document.getElementById("aboutTeacherDept");
+  if (aboutDept) aboutDept.textContent = credits.teacherDept;
+
+  const aboutM1 = document.getElementById("aboutMember1");
+  if (aboutM1) aboutM1.textContent = credits.member1;
+  const aboutS1 = document.getElementById("aboutScholar1");
+  if (aboutS1) aboutS1.textContent = credits.scholar1.startsWith("Scholar No") ? credits.scholar1 : `Scholar No: ${credits.scholar1}`;
+
+  const aboutM2 = document.getElementById("aboutMember2");
+  if (aboutM2) {
+    aboutM2.textContent = credits.member2 || "—";
+    const memberChip2 = aboutM2.closest(".member-chip");
+    if (memberChip2) memberChip2.style.display = credits.member2 ? "flex" : "none";
+  }
+  const aboutS2 = document.getElementById("aboutScholar2");
+  if (aboutS2) aboutS2.textContent = credits.scholar2 ? (credits.scholar2.startsWith("Scholar No") ? credits.scholar2 : `Scholar No: ${credits.scholar2}`) : "";
+
+  // Footer
+  const footerTeacher = document.getElementById("footerTeacherName");
+  if (footerTeacher) footerTeacher.textContent = credits.teacherName;
+  const footerTeam = document.getElementById("footerTeamNames");
+  if (footerTeam) {
+    footerTeam.textContent = credits.member2 ? `${credits.member1} & ${credits.member2}` : credits.member1;
+  }
+}
+
+function setupAcademicCreditsModal() {
+  const modal = document.getElementById("creditsModal");
+  const form = document.getElementById("creditsForm");
+  const openBtn1 = document.getElementById("openEditCreditsBtn");
+  const openBtn2 = document.getElementById("openEditCreditsBtn2");
+  const closeBtn = document.getElementById("closeCreditsModalBtn");
+  const cancelBtn = document.getElementById("cancelCreditsModalBtn");
+
+  function openModal() {
+    const current = getAcademicCredits();
+    const inTeacher = document.getElementById("inputTeacherName");
+    const inDept = document.getElementById("inputTeacherDept");
+    const inM1 = document.getElementById("inputMember1");
+    const inS1 = document.getElementById("inputScholar1");
+    const inM2 = document.getElementById("inputMember2");
+    const inS2 = document.getElementById("inputScholar2");
+
+    if (inTeacher) inTeacher.value = current.teacherName;
+    if (inDept) inDept.value = current.teacherDept;
+    if (inM1) inM1.value = current.member1;
+    if (inS1) inS1.value = current.scholar1.replace(/^Scholar No:\s*/i, "");
+    if (inM2) inM2.value = current.member2 || "";
+    if (inS2) inS2.value = (current.scholar2 || "").replace(/^Scholar No:\s*/i, "");
+
+    if (modal) modal.classList.remove("hidden");
+  }
+
+  function closeModal() {
+    if (modal) modal.classList.add("hidden");
+  }
+
+  if (openBtn1) openBtn1.addEventListener("click", openModal);
+  if (openBtn2) openBtn2.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+
+  if (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const inTeacher = document.getElementById("inputTeacherName").value.trim();
+      const inDept = document.getElementById("inputTeacherDept").value.trim();
+      const inM1 = document.getElementById("inputMember1").value.trim();
+      const inS1 = document.getElementById("inputScholar1").value.trim();
+      const inM2 = document.getElementById("inputMember2").value.trim();
+      const inS2 = document.getElementById("inputScholar2").value.trim();
+
+      const newCredits = {
+        teacherName: inTeacher || DEFAULT_CREDITS.teacherName,
+        teacherDept: inDept || DEFAULT_CREDITS.teacherDept,
+        member1: inM1 || DEFAULT_CREDITS.member1,
+        scholar1: inS1 ? `Scholar No: ${inS1}` : DEFAULT_CREDITS.scholar1,
+        member2: inM2,
+        scholar2: inS2 ? `Scholar No: ${inS2}` : ""
+      };
+
+      saveAcademicCredits(newCredits);
+      closeModal();
+    });
+  }
+}
+
+// ====================================================
+// 10. AADHAAR IDENTITY CARD GENERATOR & DOWNLOADER
+// ====================================================
+let currentCardCitizen = null;
+
+// Deterministic 12-digit pseudo Aadhaar number generator based on Citizen ID & Mobile
+function generateAadhaarNumber(citizenId, mobile) {
+  const seed = (parseInt(citizenId) || 1) * 31;
+  const mob = (mobile || "9876543210").replace(/\D/g, "");
+  const p1 = String((seed * 73 + 1234) % 9000 + 1000);
+  const p2 = String((parseInt(mob.slice(0, 4)) || 5432) % 9000 + 1000);
+  const p3 = String(citizenId).padStart(4, "0");
+  return `${p1} ${p2} ${p3}`;
+}
+
+function formatAadhaarDate(dobString) {
+  if (!dobString) return "01/01/2000";
+  const dateOnly = dobString.split("T")[0];
+  const parts = dateOnly.split("-");
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+  }
+  return dateOnly;
+}
+
+function updateAadhaarCardUI(citizen, centerName) {
+  currentCardCitizen = citizen;
+  const nameEl = document.getElementById("cardCitizenName");
+  const dobEl = document.getElementById("cardDOB");
+  const genderEl = document.getElementById("cardGender");
+  const mobileEl = document.getElementById("cardMobile");
+  const centerEl = document.getElementById("cardCenter");
+  const numberStrip = document.getElementById("cardAadhaarNumber");
+
+  const aadhaarNumber = generateAadhaarNumber(citizen.citizen_id, citizen.mobile_number);
+  const parts = aadhaarNumber.split(" ");
+
+  if (nameEl) nameEl.textContent = citizen.citizen_name;
+  if (dobEl) dobEl.textContent = formatAadhaarDate(citizen.dob);
+  if (genderEl) genderEl.textContent = citizen.gender;
+  if (mobileEl) mobileEl.textContent = `XXXXXX${(citizen.mobile_number || "0000").slice(-4)}`;
+  if (centerEl) centerEl.textContent = centerName || "Central UIDAI Kendra, District";
+
+  if (numberStrip) {
+    numberStrip.innerHTML = `
+      <span>${parts[0]}</span>
+      <span>${parts[1]}</span>
+      <span id="cardLastDigits">${parts[2]}</span>
+    `;
+  }
+}
+
+function loadCardCitizensDropdown(citizens) {
+  const select = document.getElementById("cardCitizenSelect");
+  if (!select) return;
+
+  const currentVal = select.value;
+  let options = '<option value="">-- Choose a Citizen to Generate Card --</option>';
+  citizens.forEach((c) => {
+    options += `<option value="${c.citizen_id}">#${c.citizen_id} - ${c.citizen_name} (Mobile: ${c.mobile_number})</option>`;
+  });
+  select.innerHTML = options;
+  if (currentVal) select.value = currentVal;
+}
+
+function displayCitizenCard(citizenId) {
+  if (!citizenId) return;
+
+  const citizen = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
+  if (!citizen) {
+    showAlert("cardAlert", `Citizen #${citizenId} not found in current records.`, "error");
+    return;
+  }
+
+  // Find center if citizen has an application
+  const app = allApplications.find((a) => String(a.citizen_id) === String(citizenId));
+  const centerName = app ? `${app.center_name} (${app.district})` : "Central UIDAI Kendra";
+
+  updateAadhaarCardUI(citizen, centerName);
+  showAlert("cardAlert", `[Loaded] Aadhaar Card generated for <strong>${escapeHtml(citizen.citizen_name)}</strong> (#${citizen.citizen_id}). Ready for download or printing.`, "success");
+}
+
+window.viewCitizenCard = function (citizenId) {
+  switchSection("card-section");
+  const select = document.getElementById("cardCitizenSelect");
+  if (select) select.value = citizenId;
+  displayCitizenCard(citizenId);
+};
+
+function setupCardGenerator() {
+  const citizenSelect = document.getElementById("cardCitizenSelect");
+  if (citizenSelect) {
+    citizenSelect.addEventListener("change", function () {
+      displayCitizenCard(this.value);
+    });
+  }
+
+  const loadByAppBtn = document.getElementById("loadCardByAppBtn");
+  const appIdInput = document.getElementById("cardAppIdInput");
+  if (loadByAppBtn && appIdInput) {
+    loadByAppBtn.addEventListener("click", function () {
+      const appId = appIdInput.value.trim();
+      if (!appId) {
+        showAlert("cardAlert", "Please enter an Application ID.", "error");
+        return;
+      }
+      fetch(`${API_BASE_URL}/applications/${appId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.application) {
+            const app = data.application;
+            const pseudoCitizen = {
+              citizen_id: app.citizen_id,
+              citizen_name: app.citizen_name,
+              dob: app.dob || "2000-01-01",
+              gender: app.gender || "Citizen",
+              mobile_number: app.mobile_number
+            };
+            const centerInfo = `${app.center_name} (${app.district})`;
+            updateAadhaarCardUI(pseudoCitizen, centerInfo);
+            showAlert("cardAlert", `[Found] Generated ID Card from Application #${appId} for <strong>${escapeHtml(app.citizen_name)}</strong>.`, "success");
+          } else {
+            showAlert("cardAlert", `Application #${appId} not found in database.`, "error");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          showAlert("cardAlert", "Failed to retrieve application from server.", "error");
+        });
+    });
+  }
+
+  // Track page "View & Download Identity Card" button
+  const trackCardBtn = document.getElementById("generateCardFromTrackBtn");
+  if (trackCardBtn) {
+    trackCardBtn.addEventListener("click", function () {
+      const name = document.getElementById("resCitizenName").textContent;
+      const mobileRaw = document.getElementById("resMobile").textContent.replace(/\D/g, "");
+      const center = document.getElementById("resCenterName").textContent;
+      const location = document.getElementById("resLocation").textContent;
+
+      const matched = allCitizens.find((c) => c.citizen_name === name || c.mobile_number.slice(-4) === mobileRaw.slice(-4));
+      switchSection("card-section");
+
+      if (matched) {
+        const select = document.getElementById("cardCitizenSelect");
+        if (select) select.value = matched.citizen_id;
+        displayCitizenCard(matched.citizen_id);
+      } else {
+        const fallbackCitizen = {
+          citizen_id: 1,
+          citizen_name: name !== "-" ? name : "Citizen Name",
+          dob: "2000-01-01",
+          gender: "Citizen",
+          mobile_number: mobileRaw || "9876543210"
+        };
+        updateAadhaarCardUI(fallbackCitizen, `${center} (${location})`);
+      }
+    });
+  }
+
+  // Print Card Button
+  const printBtn = document.getElementById("printCardBtn");
+  if (printBtn) {
+    printBtn.addEventListener("click", function () {
+      window.print();
+    });
+  }
+
+  // Canvas High-Res PNG Download
+  const downloadPngBtn = document.getElementById("downloadCardPngBtn");
+  if (downloadPngBtn) {
+    downloadPngBtn.addEventListener("click", function () {
+      downloadAadhaarCardPng();
+    });
+  }
+}
+
+// Function to draw clean, official-grade Aadhaar PVC Card on HTML5 Canvas and export as PNG
+function downloadAadhaarCardPng() {
+  const citizen = currentCardCitizen || {
+    citizen_id: 1,
+    citizen_name: document.getElementById("cardCitizenName")?.textContent || "Citizen Full Name",
+    dob: document.getElementById("cardDOB")?.textContent || "01/01/2000",
+    gender: document.getElementById("cardGender")?.textContent || "Citizen",
+    mobile_number: (document.getElementById("cardMobile")?.textContent || "9876543210").replace(/\D/g, "")
+  };
+
+  const centerText = document.getElementById("cardCenter")?.textContent || "Central UIDAI Kendra, District";
+  const aadhaarNumber = generateAadhaarNumber(citizen.citizen_id, citizen.mobile_number);
+
+  const canvas = document.getElementById("offscreenCardCanvas") || document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 630;
+  const ctx = canvas.getContext("2d");
+
+  // Clear canvas
+  ctx.clearRect(0, 0, 1000, 630);
+
+  // Helper for rounded rectangle
+  function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    if (fill) ctx.fill();
+    if (stroke) ctx.stroke();
+  }
+
+  // Card Outer Shadow & Background
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#cbd5e1";
+  ctx.lineWidth = 3;
+  roundRect(ctx, 15, 15, 970, 600, 20, true, true);
+
+  // Top Tricolor Indian Ribbon
+  ctx.fillStyle = "#ff9933"; // Saffron
+  ctx.fillRect(15, 15, 970, 5);
+  ctx.fillStyle = "#ffffff"; // White
+  ctx.fillRect(15, 20, 970, 5);
+  ctx.fillStyle = "#138808"; // Green
+  ctx.fillRect(15, 25, 970, 5);
+
+  // Header Divider
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(15, 115);
+  ctx.lineTo(985, 115);
+  ctx.stroke();
+
+  // Emblem Circle / Chakra on Left
+  ctx.save();
+  ctx.strokeStyle = "#0f2e5a";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(68, 68, 28, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(68, 68, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "#0f2e5a";
+  ctx.fill();
+  for (let i = 0; i < 24; i++) {
+    const angle = (i * 15 * Math.PI) / 180;
+    ctx.beginPath();
+    ctx.moveTo(68 + Math.cos(angle) * 8, 68 + Math.sin(angle) * 8);
+    ctx.lineTo(68 + Math.cos(angle) * 28, 68 + Math.sin(angle) * 28);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Header Titles
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#0f2e5a";
+  ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("भारत सरकार", 500, 52);
+
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "bold 15px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("GOVERNMENT OF INDIA", 500, 74);
+
+  ctx.fillStyle = "#ea580c";
+  ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("भारतीय विशिष्ट पहचान प्राधिकरण | UIDAI", 500, 95);
+
+  // Sun Aadhaar Logo on Right
+  ctx.fillStyle = "#b91c1c";
+  ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("आधार", 920, 80);
+  ctx.fillStyle = "#ea580c";
+  ctx.font = "24px Arial";
+  ctx.fillText("☀️", 920, 52);
+
+  // Photo Frame on Left (x: 50, y: 140, w: 170, h: 215)
+  ctx.fillStyle = "#f8fafc";
+  ctx.strokeStyle = "#94a3b8";
+  ctx.lineWidth = 2;
+  roundRect(ctx, 50, 140, 170, 215, 8, true, true);
+
+  // Silhouette / Avatar inside Photo Box
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(135, 215, 42, 0, Math.PI * 2);
+  ctx.fillStyle = "#cbd5e1";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(135, 335, 75, Math.PI, 0, false);
+  ctx.fillStyle = "#94a3b8";
+  ctx.fill();
+  ctx.restore();
+
+  // Chip bar on Photo
+  ctx.fillStyle = "rgba(15, 46, 90, 0.9)";
+  roundRect(ctx, 50, 325, 170, 30, 4, true, false);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("SECURE SMART CHIP", 135, 345);
+
+  // Verified Stamp under Photo
+  ctx.fillStyle = "#f0fdf4";
+  ctx.strokeStyle = "#16a34a";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 50, 370, 170, 32, 6, true, true);
+  ctx.fillStyle = "#166534";
+  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("✓ VERIFIED IDENTITY", 135, 391);
+
+  // Middle Information Block (x: 250, starting y: 155)
+  ctx.textAlign = "left";
+
+  function drawInfoLine(labelHi, labelEn, value, yPos, isTitle = false) {
+    ctx.fillStyle = "#64748b";
+    ctx.font = "600 13px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText(`${labelHi} / ${labelEn} :`, 250, yPos);
+
+    if (isTitle) {
+      ctx.fillStyle = "#0f2e5a";
+      ctx.font = "bold 23px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText(value, 250, yPos + 26);
+    } else {
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 17px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText(value, 250, yPos + 22);
+    }
+  }
+
+  drawInfoLine("नाम", "Name", citizen.citizen_name || "Citizen Full Name", 155, true);
+  drawInfoLine("जन्म तिथि", "Date of Birth", formatAadhaarDate(citizen.dob), 220);
+  drawInfoLine("लिंग", "Gender", citizen.gender || "Citizen", 275);
+  drawInfoLine("पंजीकृत मोबाइल", "Mobile", `+91 ${citizen.mobile_number || "9876543210"}`, 330);
+  drawInfoLine("नामांकन केंद्र", "Enrollment Center", centerText, 385);
+
+  // Right Side: Realistic QR Code Box (x: 755, y: 140, w: 185, h: 220)
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#cbd5e1";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 755, 140, 185, 220, 8, true, true);
+
+  // QR Code Finder Patterns & modules
+  ctx.fillStyle = "#0f2e5a";
+  // Finder 1: top-left (775, 160)
+  ctx.fillRect(775, 160, 42, 42);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(781, 166, 30, 30);
+  ctx.fillStyle = "#0f2e5a";
+  ctx.fillRect(787, 172, 18, 18);
+
+  // Finder 2: top-right (875, 160)
+  ctx.fillRect(875, 160, 42, 42);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(881, 166, 30, 30);
+  ctx.fillStyle = "#0f2e5a";
+  ctx.fillRect(887, 172, 18, 18);
+
+  // Finder 3: bottom-left (775, 260)
+  ctx.fillRect(775, 260, 42, 42);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(781, 266, 30, 30);
+  ctx.fillStyle = "#0f2e5a";
+  ctx.fillRect(787, 272, 18, 18);
+
+  // Random data clusters inside QR for realistic matrix
+  const matrixDots = [
+    [825, 165, 12, 12], [845, 170, 8, 14], [830, 190, 10, 10], [850, 192, 14, 8],
+    [780, 215, 10, 10], [800, 225, 8, 8], [820, 215, 14, 14], [845, 225, 8, 8],
+    [870, 215, 12, 10], [895, 225, 12, 12], [825, 245, 10, 12], [845, 250, 8, 8],
+    [870, 250, 14, 8], [890, 265, 12, 12], [840, 280, 10, 12], [865, 285, 14, 10]
+  ];
+  matrixDots.forEach(([dx, dy, dw, dh]) => {
+    ctx.fillRect(dx, dy, dw, dh);
+  });
+
+  ctx.fillStyle = "#64748b";
+  ctx.font = "bold 11px 'Segoe UI', Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("DIGITALLY SIGNED QR", 847, 342);
+
+  // 12-Digit Aadhaar Number Strip (y: 440 to 525)
+  ctx.fillStyle = "#f8fafc";
+  roundRect(ctx, 35, 440, 930, 80, 8, true, false);
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(35, 440, 930, 80);
+
+  ctx.fillStyle = "#64748b";
+  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("आपका आधार क्रमांक / Your Aadhaar No. :", 500, 465);
+
+  ctx.fillStyle = "#b91c1c";
+  ctx.font = "bold 32px 'Courier New', Courier, monospace";
+  ctx.fillText(aadhaarNumber, 500, 505);
+
+  // Card Bottom Footer Slogan (y: 535 to 600)
+  ctx.strokeStyle = "#f1f5f9";
+  ctx.beginPath();
+  ctx.moveTo(35, 545);
+  ctx.lineTo(965, 545);
+  ctx.stroke();
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#0f2e5a";
+  ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("मेरा आधार, मेरी पहचान", 50, 580);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#475569";
+  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("My Aadhaar, My Identity", 500, 580);
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "12px 'Segoe UI', Arial, sans-serif";
+  ctx.fillText("[DBMS Laboratory Project - Academic Demo]", 950, 580);
+
+  // Trigger download
+  const cleanName = (citizen.citizen_name || "Citizen").replace(/[^a-zA-Z0-9]/g, "_");
+  const dataUrl = canvas.toDataURL("image/png");
+  const downloadLink = document.createElement("a");
+  downloadLink.href = dataUrl;
+  downloadLink.download = `Aadhaar_Card_${cleanName}.png`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
 }
