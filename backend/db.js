@@ -11,14 +11,23 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
+// Auto-detect if connecting to a cloud database (TiDB Cloud, Aiven, PlanetScale, etc.)
+const host = process.env.DB_HOST || "localhost";
+const isCloudDatabase =
+  process.env.DB_SSL === "true" ||
+  host.includes("tidbcloud.com") ||
+  host.includes("aivencloud.com") ||
+  host.includes("psdb.cloud") ||
+  host.includes("clever-cloud.com");
+
 // Create a MySQL Connection Pool (safe for both long-running servers and serverless functions)
 const db = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
+  host: host,
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "Aadhar",
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined,
+  ssl: isCloudDatabase ? { rejectUnauthorized: false } : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

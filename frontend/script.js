@@ -338,7 +338,8 @@ if (citizenForm) {
           loadCitizensDropdown();
           loadCitizensTable();
         } else {
-          showAlert("citizenAlert", `[Error] ${data.message || "Failed to register citizen."}`, "error");
+          const detail = data.error ? ` Details: ${data.error}` : "";
+          showAlert("citizenAlert", `[Error] ${data.message || "Failed to register citizen."}${detail}`, "error");
         }
       })
       .catch(function (error) {
@@ -400,7 +401,8 @@ if (centerForm) {
           loadCentersDropdown();
           loadCentersTable();
         } else {
-          showAlert("centerAlert", `[Error] ${data.message || "Failed to register enrollment center."}`, "error");
+          const detail = data.error ? ` Details: ${data.error}` : "";
+          showAlert("centerAlert", `[Error] ${data.message || "Failed to register enrollment center."}${detail}`, "error");
         }
       })
       .catch(function (error) {
@@ -522,7 +524,8 @@ if (applicationForm) {
           applicationForm.reset();
           loadApplicationsTable();
         } else {
-          showAlert("applicationAlert", `[Error] ${data.message || "Failed to create application."}`, "error");
+          const detail = data.error ? ` Details: ${data.error}` : "";
+          showAlert("applicationAlert", `[Error] ${data.message || "Failed to create application."}${detail}`, "error");
         }
       })
       .catch(function (error) {

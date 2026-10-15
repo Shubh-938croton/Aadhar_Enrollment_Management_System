@@ -36,6 +36,30 @@ app.get(["/api", "/api/"], function (req, res) {
   res.json({ success: true, message: "Aadhaar Enrollment Management System API is running!" });
 });
 
+// Database connectivity diagnostic route
+app.get(["/api/db-status", "/db-status"], function (req, res) {
+  db.getConnection(function (err, connection) {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        connected: false,
+        message: "Database connection failed",
+        error: err.message,
+        code: err.code,
+        host: process.env.DB_HOST ? process.env.DB_HOST.substring(0, 20) + "..." : "localhost (default)",
+        database: process.env.DB_NAME || "Aadhar",
+      });
+    }
+    connection.release();
+    res.json({
+      success: true,
+      connected: true,
+      message: "Database connected successfully!",
+      database: process.env.DB_NAME || "Aadhar",
+    });
+  });
+});
+
 // ====================================================
 // 1. CITIZENS APIs
 // ====================================================
@@ -87,6 +111,7 @@ app.post(["/api/citizens", "/citizens"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to save citizen data.",
+        error: error.message || error.code,
       });
     }
 
@@ -109,6 +134,7 @@ app.get(["/api/citizens", "/citizens"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to retrieve citizens.",
+        error: error.message || error.code,
       });
     }
 
@@ -174,6 +200,7 @@ app.post(["/api/centers", "/centers"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to save the center data.",
+        error: error.message || error.code,
       });
     }
 
@@ -196,6 +223,7 @@ app.get(["/api/centers", "/centers"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to retrieve enrollment centers.",
+        error: error.message || error.code,
       });
     }
 
@@ -265,6 +293,7 @@ app.post(["/api/applications", "/applications"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to create application. Check if citizen and center exist.",
+        error: error.message || error.code,
       });
     }
 
@@ -324,6 +353,7 @@ app.get(["/api/applications", "/applications"], function (req, res) {
       return res.status(500).json({
         success: false,
         message: "Failed to retrieve applications.",
+        error: error.message || error.code,
       });
     }
 
