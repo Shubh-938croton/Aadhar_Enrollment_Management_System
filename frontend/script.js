@@ -892,22 +892,41 @@ function escapeHtml(text) {
 }
 
 // ====================================================
-// 9. ACADEMIC CREDITS & SUBMISSION DETAILS
+// 9. ACADEMIC CREDITS & SUBMISSION DETAILS (5 MEMBERS)
 // ====================================================
 const DEFAULT_CREDITS = {
   teacherName: "Prof. Faculty Guide",
   teacherDept: "Department of Computer Science & Engineering",
-  member1: "Student 1 Name",
-  scholar1: "Scholar No: 2211XXXXX",
-  member2: "Student 2 Name",
-  scholar2: "Scholar No: 2211XXXXX"
+  members: [
+    { name: "Student 1 Name", scholar: "2211XXXX1" },
+    { name: "Student 2 Name", scholar: "2211XXXX2" },
+    { name: "Student 3 Name", scholar: "2211XXXX3" },
+    { name: "Student 4 Name", scholar: "2211XXXX4" },
+    { name: "Student 5 Name", scholar: "2211XXXX5" }
+  ]
 };
 
 function getAcademicCredits() {
   try {
     const saved = localStorage.getItem("DBMS_ACADEMIC_CREDITS");
     if (saved) {
-      return { ...DEFAULT_CREDITS, ...JSON.parse(saved) };
+      const parsed = JSON.parse(saved);
+      // Migrate from old format (member1, member2) if needed
+      if (!Array.isArray(parsed.members)) {
+        parsed.members = [
+          { name: parsed.member1 || "Student 1 Name", scholar: parsed.scholar1 || "2211XXXX1" },
+          { name: parsed.member2 || "Student 2 Name", scholar: parsed.scholar2 || "2211XXXX2" },
+          { name: parsed.member3 || "Student 3 Name", scholar: parsed.scholar3 || "2211XXXX3" },
+          { name: parsed.member4 || "Student 4 Name", scholar: parsed.scholar4 || "2211XXXX4" },
+          { name: parsed.member5 || "Student 5 Name", scholar: parsed.scholar5 || "2211XXXX5" }
+        ];
+      }
+      // Ensure there are always 5 members in the list
+      while (parsed.members.length < 5) {
+        const idx = parsed.members.length + 1;
+        parsed.members.push({ name: `Student ${idx} Name`, scholar: `2211XXXX${idx}` });
+      }
+      return { ...DEFAULT_CREDITS, ...parsed };
     }
   } catch (e) {
     console.warn("Could not read academic credits from localStorage:", e);
@@ -933,53 +952,73 @@ function renderAcademicCredits(credits) {
   const headerTeacher = document.getElementById("headerTeacherName");
   if (headerTeacher) headerTeacher.textContent = credits.teacherName;
 
-  // Home dashboard card
+  // Highlighted faculty card on home page bottom
   const dispTeacher = document.getElementById("displayTeacherName");
   if (dispTeacher) dispTeacher.textContent = credits.teacherName;
   const dispDept = document.getElementById("displayTeacherDept");
   if (dispDept) dispDept.textContent = credits.teacherDept;
 
-  const dispM1 = document.getElementById("displayMember1");
-  if (dispM1) dispM1.textContent = credits.member1;
-  const dispS1 = document.getElementById("displayScholar1");
-  if (dispS1) dispS1.textContent = credits.scholar1.startsWith("Scholar No") ? credits.scholar1 : `Scholar No: ${credits.scholar1}`;
+  // Active member count badge
+  const activeMembers = credits.members.filter((m) => m && m.name && m.name.trim() !== "");
+  const teamCountBadge = document.getElementById("teamCountBadge");
+  if (teamCountBadge) teamCountBadge.textContent = `${activeMembers.length || 5} Team Members`;
 
-  const dispM2 = document.getElementById("displayMember2");
-  if (dispM2) {
-    dispM2.textContent = credits.member2 || "—";
-    if (dispM2.parentElement) {
-      dispM2.parentElement.style.display = credits.member2 ? "flex" : "none";
-    }
+  // Render 5 student items in Home bottom spotlight grid
+  const homeGrid = document.getElementById("homeStudentsGrid");
+  if (homeGrid) {
+    let html = "";
+    credits.members.forEach((m, idx) => {
+      const name = m && m.name ? m.name.trim() : "";
+      if (!name && idx >= 2) return; // Skip if optional slot is empty
+      const scholar = m && m.scholar ? m.scholar.trim() : "";
+      const scholarText = scholar ? (scholar.startsWith("Scholar No") ? scholar : `Scholar No: ${scholar}`) : `Scholar No: 2211XXXX${idx + 1}`;
+      html += `
+        <div class="student-card-item">
+          <div class="student-badge-avatar">S${idx + 1}</div>
+          <div class="student-info-col">
+            <strong class="student-name-text" title="${escapeHtml(name || `Student ${idx + 1}`)}">${escapeHtml(name || `Student ${idx + 1}`)}</strong>
+            <span class="student-scholar-pill">${escapeHtml(scholarText)}</span>
+          </div>
+        </div>
+      `;
+    });
+    homeGrid.innerHTML = html;
   }
-  const dispS2 = document.getElementById("displayScholar2");
-  if (dispS2) dispS2.textContent = credits.scholar2 ? (credits.scholar2.startsWith("Scholar No") ? credits.scholar2 : `Scholar No: ${credits.scholar2}`) : "";
 
-  // About section (Section 8)
+  // Section 8 (About / Project Credits)
   const aboutTeacher = document.getElementById("aboutTeacherName");
   if (aboutTeacher) aboutTeacher.textContent = credits.teacherName;
   const aboutDept = document.getElementById("aboutTeacherDept");
   if (aboutDept) aboutDept.textContent = credits.teacherDept;
 
-  const aboutM1 = document.getElementById("aboutMember1");
-  if (aboutM1) aboutM1.textContent = credits.member1;
-  const aboutS1 = document.getElementById("aboutScholar1");
-  if (aboutS1) aboutS1.textContent = credits.scholar1.startsWith("Scholar No") ? credits.scholar1 : `Scholar No: ${credits.scholar1}`;
-
-  const aboutM2 = document.getElementById("aboutMember2");
-  if (aboutM2) {
-    aboutM2.textContent = credits.member2 || "—";
-    const memberChip2 = aboutM2.closest(".member-chip");
-    if (memberChip2) memberChip2.style.display = credits.member2 ? "flex" : "none";
+  const aboutTeam = document.getElementById("aboutTeamContainer");
+  if (aboutTeam) {
+    let html = "";
+    credits.members.forEach((m, idx) => {
+      const name = m && m.name ? m.name.trim() : "";
+      if (!name && idx >= 2) return;
+      const scholar = m && m.scholar ? m.scholar.trim() : "";
+      const scholarText = scholar ? (scholar.startsWith("Scholar No") ? scholar : `Scholar No: ${scholar}`) : `Scholar No: 2211XXXX${idx + 1}`;
+      html += `
+        <div class="member-chip">
+          <div class="member-avatar">S${idx + 1}</div>
+          <div class="member-info">
+            <strong>${escapeHtml(name || `Student ${idx + 1}`)}</strong>
+            <span class="scholar-tag">${escapeHtml(scholarText)}</span>
+          </div>
+        </div>
+      `;
+    });
+    aboutTeam.innerHTML = html;
   }
-  const aboutS2 = document.getElementById("aboutScholar2");
-  if (aboutS2) aboutS2.textContent = credits.scholar2 ? (credits.scholar2.startsWith("Scholar No") ? credits.scholar2 : `Scholar No: ${credits.scholar2}`) : "";
 
   // Footer
   const footerTeacher = document.getElementById("footerTeacherName");
   if (footerTeacher) footerTeacher.textContent = credits.teacherName;
   const footerTeam = document.getElementById("footerTeamNames");
   if (footerTeam) {
-    footerTeam.textContent = credits.member2 ? `${credits.member1} & ${credits.member2}` : credits.member1;
+    const validNames = credits.members.filter((m) => m && m.name && m.name.trim() !== "").map((m) => m.name.trim());
+    footerTeam.textContent = validNames.length > 0 ? validNames.join(", ") : "5 Student Team Members";
   }
 }
 
@@ -995,17 +1034,18 @@ function setupAcademicCreditsModal() {
     const current = getAcademicCredits();
     const inTeacher = document.getElementById("inputTeacherName");
     const inDept = document.getElementById("inputTeacherDept");
-    const inM1 = document.getElementById("inputMember1");
-    const inS1 = document.getElementById("inputScholar1");
-    const inM2 = document.getElementById("inputMember2");
-    const inS2 = document.getElementById("inputScholar2");
 
     if (inTeacher) inTeacher.value = current.teacherName;
     if (inDept) inDept.value = current.teacherDept;
-    if (inM1) inM1.value = current.member1;
-    if (inS1) inS1.value = current.scholar1.replace(/^Scholar No:\s*/i, "");
-    if (inM2) inM2.value = current.member2 || "";
-    if (inS2) inS2.value = (current.scholar2 || "").replace(/^Scholar No:\s*/i, "");
+
+    for (let i = 1; i <= 5; i++) {
+      const inM = document.getElementById(`inputMember${i}`);
+      const inS = document.getElementById(`inputScholar${i}`);
+      const member = current.members[i - 1] || { name: "", scholar: "" };
+
+      if (inM) inM.value = member.name || "";
+      if (inS) inS.value = (member.scholar || "").replace(/^Scholar No:\s*/i, "");
+    }
 
     if (modal) modal.classList.remove("hidden");
   }
@@ -1030,18 +1070,24 @@ function setupAcademicCreditsModal() {
       e.preventDefault();
       const inTeacher = document.getElementById("inputTeacherName").value.trim();
       const inDept = document.getElementById("inputTeacherDept").value.trim();
-      const inM1 = document.getElementById("inputMember1").value.trim();
-      const inS1 = document.getElementById("inputScholar1").value.trim();
-      const inM2 = document.getElementById("inputMember2").value.trim();
-      const inS2 = document.getElementById("inputScholar2").value.trim();
+
+      const newMembers = [];
+      for (let i = 1; i <= 5; i++) {
+        const inM = document.getElementById(`inputMember${i}`);
+        const inS = document.getElementById(`inputScholar${i}`);
+        const nameVal = inM ? inM.value.trim() : "";
+        const scholarVal = inS ? inS.value.trim() : "";
+
+        newMembers.push({
+          name: nameVal,
+          scholar: scholarVal ? (scholarVal.startsWith("Scholar No") ? scholarVal : `Scholar No: ${scholarVal}`) : ""
+        });
+      }
 
       const newCredits = {
         teacherName: inTeacher || DEFAULT_CREDITS.teacherName,
         teacherDept: inDept || DEFAULT_CREDITS.teacherDept,
-        member1: inM1 || DEFAULT_CREDITS.member1,
-        scholar1: inS1 ? `Scholar No: ${inS1}` : DEFAULT_CREDITS.scholar1,
-        member2: inM2,
-        scholar2: inS2 ? `Scholar No: ${inS2}` : ""
+        members: newMembers
       };
 
       saveAcademicCredits(newCredits);

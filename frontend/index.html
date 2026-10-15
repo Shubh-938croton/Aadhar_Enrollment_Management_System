@@ -90,37 +90,6 @@
                 </div>
             </div>
 
-            <!-- Academic Submission & Team Information Card -->
-            <div class="academic-card">
-                <div class="academic-card-header">
-                    <div>
-                        <span class="academic-label">ACADEMIC SUBMISSION</span>
-                        <h3>Course: Database Management Systems Laboratory (DBMS)</h3>
-                    </div>
-                    <button class="btn btn-outline-sm" id="openEditCreditsBtn">✎ Edit Teacher & Team</button>
-                </div>
-                <div class="academic-grid">
-                    <div class="academic-col">
-                        <h4>Guided By / Submitted To:</h4>
-                        <p class="academic-name" id="displayTeacherName">Prof. Faculty Guide</p>
-                        <p class="academic-meta" id="displayTeacherDept">Department of Computer Science & Engineering</p>
-                    </div>
-                    <div class="academic-col">
-                        <h4>Submitted By (Project Team):</h4>
-                        <ul class="team-list">
-                            <li>
-                                <strong id="displayMember1">Student 1 Name</strong>
-                                <span class="scholar-badge" id="displayScholar1">Scholar No: 2211XXXXX</span>
-                            </li>
-                            <li>
-                                <strong id="displayMember2">Student 2 Name</strong>
-                                <span class="scholar-badge" id="displayScholar2">Scholar No: 2211XXXXX</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
             <!-- Portal Modules Grid -->
             <div class="section-title-wrap">
                 <h3>Portal Operations & Management Modules</h3>
@@ -180,6 +149,53 @@
                     <h3>Admin Database Records</h3>
                     <p>Administrator table view with live search, SQL JOIN queries, and status update actions.</p>
                     <span class="card-action">Open Records View →</span>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 PROMINENTLY HIGHLIGHTED ACADEMIC SUBMISSION AREA
+                 (LOCATED AT THE BOTTOM OF HOME PAGE)
+            ============================================== -->
+            <div class="academic-highlight-wrapper" id="academicHighlightWrapper">
+                <div class="academic-highlight-card">
+                    <!-- Top Ribbon Header -->
+                    <div class="highlight-topbar">
+                        <div class="highlight-title-block">
+                            <span class="highlight-badge-gold">🎓 OFFICIAL ACADEMIC PROJECT EVALUATION</span>
+                            <h3 class="highlight-title">Course: Database Management Systems Laboratory (DBMS)</h3>
+                            <span class="highlight-sub">Relational Database Normalization, Foreign Key Triggers, and Centralized Identity Management</span>
+                        </div>
+                        <button class="btn btn-outline-light" id="openEditCreditsBtn">
+                            ✎ Edit Faculty & Team (5 Members)
+                        </button>
+                    </div>
+
+                    <!-- Faculty and 5-Student Team Spotlight Grid -->
+                    <div class="highlight-content-grid">
+                        <!-- Faculty Guide Spotlight -->
+                        <div class="faculty-spotlight">
+                            <div class="spotlight-label">GUIDED BY / SUBMITTED TO</div>
+                            <div class="faculty-card-inner">
+                                <div class="faculty-avatar">👨‍🏫</div>
+                                <div class="faculty-info">
+                                    <h4 class="faculty-name" id="displayTeacherName">Prof. Faculty Guide</h4>
+                                    <p class="faculty-dept" id="displayTeacherDept">Department of Computer Science & Engineering</p>
+                                    <span class="faculty-status-pill">Course Evaluator & Faculty Mentor</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Development Team Spotlight (5 Members) -->
+                        <div class="team-spotlight">
+                            <div class="spotlight-label-row">
+                                <span class="spotlight-label">SUBMITTED BY / PROJECT DEVELOPMENT TEAM</span>
+                                <span class="team-badge" id="teamCountBadge">5 Members</span>
+                            </div>
+                            <div class="students-grid" id="homeStudentsGrid">
+                                <!-- Populated dynamically by script.js with all 5 student profiles -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -686,22 +702,12 @@
                     </div>
 
                     <div class="about-card">
-                        <h3>👥 Project Development Team (Submitted By)</h3>
-                        <div class="team-cards-container">
-                            <div class="member-chip">
-                                <div class="member-avatar">S1</div>
-                                <div class="member-info">
-                                    <strong id="aboutMember1">Student 1 Name</strong>
-                                    <span class="scholar-tag" id="aboutScholar1">Scholar No: 2211XXXXX</span>
-                                </div>
-                            </div>
-                            <div class="member-chip">
-                                <div class="member-avatar">S2</div>
-                                <div class="member-info">
-                                    <strong id="aboutMember2">Student 2 Name</strong>
-                                    <span class="scholar-tag" id="aboutScholar2">Scholar No: 2211XXXXX</span>
-                                </div>
-                            </div>
+                        <div class="spotlight-label-row">
+                            <h3>👥 Project Development Team (Submitted By)</h3>
+                            <span class="team-badge">5 Team Members</span>
+                        </div>
+                        <div class="team-cards-container" id="aboutTeamContainer">
+                            <!-- Populated dynamically with all 5 student profiles -->
                         </div>
                     </div>
                 </div>
@@ -717,53 +723,106 @@
                 </div>
 
                 <div class="edit-credits-banner">
-                    <p>Need to update your teacher's name or your team's scholar numbers?</p>
-                    <button type="button" class="btn btn-primary" id="openEditCreditsBtn2">✎ Update Submission Details</button>
+                    <p>Need to update your faculty guide or team members' scholar numbers?</p>
+                    <button type="button" class="btn btn-primary" id="openEditCreditsBtn2">✎ Edit Faculty & Team (5 Members)</button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Modal for Editing Teacher & Team Details -->
+    <!-- Modal for Editing Teacher & 5-Member Team Details -->
     <div class="modal-backdrop hidden" id="creditsModal">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-lg">
             <div class="modal-header">
-                <h3>Edit Submission & Team Information</h3>
+                <h3>Edit Faculty Guide & Team Information (5 Members)</h3>
                 <button type="button" class="modal-close" id="closeCreditsModalBtn">&times;</button>
             </div>
             <form id="creditsForm" class="modal-body">
                 <div class="form-group">
-                    <label for="inputTeacherName">Teacher / Guide Name:</label>
-                    <input type="text" id="inputTeacherName" placeholder="e.g. Dr. A. K. Sharma / Prof. Neha Gupta" required>
+                    <label for="inputTeacherName">Teacher / Faculty Guide Name:</label>
+                    <input type="text" id="inputTeacherName" placeholder="e.g. Prof. Faculty Guide / Dr. A. K. Sharma" required>
                 </div>
                 <div class="form-group">
                     <label for="inputTeacherDept">Department / Institution:</label>
-                    <input type="text" id="inputTeacherDept" placeholder="e.g. Dept. of Computer Science & Engineering">
+                    <input type="text" id="inputTeacherDept" placeholder="e.g. Department of Computer Science & Engineering">
                 </div>
+
                 <hr class="modal-divider">
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="inputMember1">Team Member 1 Name:</label>
-                        <input type="text" id="inputMember1" placeholder="e.g. Shubh Sharma" required>
+                <div class="modal-subheading-wrap">
+                    <h4 class="modal-subheading">Project Team Members (5 Students):</h4>
+                    <span class="field-hint">Enter student name and college scholar / roll number</span>
+                </div>
+
+                <div class="members-input-scroll">
+                    <!-- Member 1 -->
+                    <div class="member-input-row">
+                        <span class="member-num-tag">Member 1</span>
+                        <div class="form-row flex-1">
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputMember1" placeholder="Student 1 Name" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputScholar1" placeholder="Scholar No. 1" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="inputScholar1">Scholar Number 1:</label>
-                        <input type="text" id="inputScholar1" placeholder="e.g. 221114050" required>
+
+                    <!-- Member 2 -->
+                    <div class="member-input-row">
+                        <span class="member-num-tag">Member 2</span>
+                        <div class="form-row flex-1">
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputMember2" placeholder="Student 2 Name">
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputScholar2" placeholder="Scholar No. 2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member 3 -->
+                    <div class="member-input-row">
+                        <span class="member-num-tag">Member 3</span>
+                        <div class="form-row flex-1">
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputMember3" placeholder="Student 3 Name">
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputScholar3" placeholder="Scholar No. 3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member 4 -->
+                    <div class="member-input-row">
+                        <span class="member-num-tag">Member 4</span>
+                        <div class="form-row flex-1">
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputMember4" placeholder="Student 4 Name">
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputScholar4" placeholder="Scholar No. 4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member 5 -->
+                    <div class="member-input-row">
+                        <span class="member-num-tag">Member 5</span>
+                        <div class="form-row flex-1">
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputMember5" placeholder="Student 5 Name">
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" id="inputScholar5" placeholder="Scholar No. 5">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="inputMember2">Team Member 2 Name (Optional):</label>
-                        <input type="text" id="inputMember2" placeholder="e.g. Team Partner Name">
-                    </div>
-                    <div class="form-group flex-1">
-                        <label for="inputScholar2">Scholar Number 2 (Optional):</label>
-                        <input type="text" id="inputScholar2" placeholder="e.g. 221114051">
-                    </div>
-                </div>
+
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save Details</button>
+                    <button type="submit" class="btn btn-primary">Save Team Details</button>
                     <button type="button" class="btn btn-secondary" id="cancelCreditsModalBtn">Cancel</button>
                 </div>
             </form>

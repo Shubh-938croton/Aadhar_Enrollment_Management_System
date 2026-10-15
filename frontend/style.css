@@ -359,92 +359,253 @@ body {
   margin-top: 4px;
 }
 
-/* Academic Submission Card */
-.academic-card {
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-left: 5px solid var(--primary-navy);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
-  margin-bottom: 30px;
-  box-shadow: var(--shadow-sm);
+/* ====================================================
+   PROMINENT HIGHLIGHTED ACADEMIC SUBMISSION AT BOTTOM OF HOME
+   ==================================================== */
+.academic-highlight-wrapper {
+  margin-top: 36px;
+  margin-bottom: 24px;
 }
 
-.academic-card-header {
+.academic-highlight-card {
+  background: #ffffff;
+  border: 2px solid var(--primary-navy);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(15, 46, 90, 0.12);
+  overflow: hidden;
+}
+
+.highlight-topbar {
+  background: linear-gradient(90deg, #0f2e5a 0%, #1e3a8a 100%);
+  color: #ffffff;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  border-bottom: 3px solid var(--gov-saffron);
 }
 
-.academic-label {
+.highlight-title-block {
+  flex: 1;
+}
+
+.highlight-badge-gold {
+  background-color: var(--gov-saffron);
+  color: #ffffff;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.8px;
-  color: var(--gov-saffron);
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 4px;
   text-transform: uppercase;
-  display: block;
-  margin-bottom: 2px;
 }
 
-.academic-card-header h3 {
-  font-size: 1.1rem;
-  color: var(--primary-navy);
-  font-weight: 700;
+.highlight-title {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
 }
 
-.academic-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.academic-col h4 {
+.highlight-sub {
   font-size: 0.82rem;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  color: #cbd5e1;
+  display: block;
+  margin-top: 2px;
 }
 
-.academic-name {
-  font-size: 1.05rem;
+.btn-outline-light {
+  background: transparent;
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
   font-weight: 700;
-  color: var(--text-heading);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.86rem;
+  white-space: nowrap;
 }
 
-.academic-meta {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+.btn-outline-light:hover {
+  background: #ffffff;
+  color: var(--primary-navy);
 }
 
-.team-list {
-  list-style: none;
+.highlight-content-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  padding: 22px 24px;
+  background-color: #f8fafc;
+}
+
+.faculty-spotlight {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-top: 4px solid var(--gov-saffron);
+  border-radius: var(--radius-sm);
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: flex-start;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
-.team-list li {
+.team-spotlight {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-top: 4px solid var(--gov-green);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.spotlight-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.spotlight-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.team-badge {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.faculty-card-inner {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.faculty-avatar {
+  font-size: 2.8rem;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 4px 0;
-  border-bottom: 1px dashed #f1f5f9;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.scholar-badge {
-  background-color: #f1f5f9;
-  border: 1px solid var(--border-medium);
+.faculty-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.faculty-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  line-height: 1.2;
+}
+
+.faculty-dept {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  margin-bottom: 8px;
+}
+
+.faculty-status-pill {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  font-size: 0.72rem;
+  font-weight: 700;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--primary-navy);
+  display: inline-block;
+  width: fit-content;
+}
+
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.student-card-item {
+  background: #f8fafc;
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+}
+
+.student-card-item:hover {
+  background: #ffffff;
+  border-color: var(--primary-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.student-badge-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-navy);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-info-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.student-name-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-scholar-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 1px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-top: 2px;
+  width: fit-content;
 }
 
 /* Services Grid */
@@ -1506,6 +1667,55 @@ select:focus {
   margin: 6px 0;
 }
 
+.modal-dialog-lg {
+  max-width: 620px;
+}
+
+.modal-subheading-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.modal-subheading {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin: 0;
+}
+
+.members-input-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.member-num-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  background: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 78px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -1548,6 +1758,10 @@ select:focus {
    12. MOBILE & RESPONSIVE BREAKPOINTS
    ==================================================== */
 @media (max-width: 860px) {
+  .highlight-content-grid {
+    grid-template-columns: 1fr;
+  }
+
   .nav-toggle {
     display: flex;
   }
