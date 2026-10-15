@@ -22,14 +22,18 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   })
 );
-app.options("*", cors());
 
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, "../frontend")));
 
-// Health check API route
-app.get("/api/health", function (req, res) {
+// Health check API routes (supports both /api/health and /health)
+app.get(["/api/health", "/health"], function (req, res) {
   res.json({ success: true, message: "Aadhaar Enrollment Management System Backend is running!" });
+});
+
+// Root API response
+app.get(["/api", "/api/"], function (req, res) {
+  res.json({ success: true, message: "Aadhaar Enrollment Management System API is running!" });
 });
 
 // ====================================================
@@ -37,7 +41,7 @@ app.get("/api/health", function (req, res) {
 // ====================================================
 
 // POST /api/citizens - Register a new citizen
-app.post("/api/citizens", function (req, res) {
+app.post(["/api/citizens", "/citizens"], function (req, res) {
   const { citizen_name, dob, gender, mobile_number } = req.body;
 
   // Basic server-side validation
@@ -96,7 +100,7 @@ app.post("/api/citizens", function (req, res) {
 });
 
 // GET /api/citizens - Retrieve all citizens
-app.get("/api/citizens", function (req, res) {
+app.get(["/api/citizens", "/citizens"], function (req, res) {
   const sql = "SELECT * FROM Citizens ORDER BY citizen_id DESC";
 
   db.query(sql, function (error, results) {
@@ -116,7 +120,7 @@ app.get("/api/citizens", function (req, res) {
 });
 
 // GET /api/citizens/:id - Retrieve single citizen by ID
-app.get("/api/citizens/:id", function (req, res) {
+app.get(["/api/citizens/:id", "/citizens/:id"], function (req, res) {
   const citizenId = req.params.id;
   const sql = "SELECT * FROM Citizens WHERE citizen_id = ?";
 
@@ -148,7 +152,7 @@ app.get("/api/citizens/:id", function (req, res) {
 // ====================================================
 
 // POST /api/centers - Register a new enrollment center
-app.post("/api/centers", function (req, res) {
+app.post(["/api/centers", "/centers"], function (req, res) {
   const { center_name, district, state } = req.body;
 
   if (!center_name || !district || !state) {
@@ -183,7 +187,7 @@ app.post("/api/centers", function (req, res) {
 });
 
 // GET /api/centers - Retrieve all enrollment centers
-app.get("/api/centers", function (req, res) {
+app.get(["/api/centers", "/centers"], function (req, res) {
   const sql = "SELECT * FROM EnrollmentCenter ORDER BY center_id DESC";
 
   db.query(sql, function (error, results) {
@@ -203,7 +207,7 @@ app.get("/api/centers", function (req, res) {
 });
 
 // GET /api/centers/:id - Retrieve single enrollment center by ID
-app.get("/api/centers/:id", function (req, res) {
+app.get(["/api/centers/:id", "/centers/:id"], function (req, res) {
   const centerId = req.params.id;
   const sql = "SELECT * FROM EnrollmentCenter WHERE center_id = ?";
 
@@ -235,7 +239,7 @@ app.get("/api/centers/:id", function (req, res) {
 // ====================================================
 
 // POST /api/applications - Create a new Aadhaar application
-app.post("/api/applications", function (req, res) {
+app.post(["/api/applications", "/applications"], function (req, res) {
   const { citizen_id, center_id } = req.body;
 
   if (!citizen_id || !center_id) {
@@ -293,7 +297,7 @@ app.post("/api/applications", function (req, res) {
 });
 
 // GET /api/applications - Retrieve all applications with Citizen and Center details (SQL JOIN)
-app.get("/api/applications", function (req, res) {
+app.get(["/api/applications", "/applications"], function (req, res) {
   const sql = `
     SELECT
       a.application_id,
@@ -331,7 +335,7 @@ app.get("/api/applications", function (req, res) {
 });
 
 // GET /api/applications/:id - Retrieve a single application with Citizen and Center details (SQL JOIN)
-app.get("/api/applications/:id", function (req, res) {
+app.get(["/api/applications/:id", "/applications/:id"], function (req, res) {
   const applicationId = req.params.id;
 
   const sql = `
@@ -380,7 +384,7 @@ app.get("/api/applications/:id", function (req, res) {
 });
 
 // PUT /api/applications/:id/status - Update application status (Pending / Complete)
-app.put("/api/applications/:id/status", function (req, res) {
+app.put(["/api/applications/:id/status", "/applications/:id/status"], function (req, res) {
   const applicationId = req.params.id;
   const { status } = req.body;
 

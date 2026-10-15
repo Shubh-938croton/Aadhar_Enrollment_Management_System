@@ -4,8 +4,8 @@
 // Educational Demonstration Project
 // ====================================================
 
-// Primary backend deployed link provided by user
-const DEPLOYED_BACKEND_URL = "https://aadhar-enrollment-management-system-a09jmdsic-croton2.vercel.app";
+// Primary backend production domain on Vercel
+const DEPLOYED_BACKEND_URL = "https://aadhar-enrollment-management-system-croton2.vercel.app";
 
 // Automatically detects whether running locally, on the same domain, or cross-domain
 function getApiBaseUrl() {
@@ -28,11 +28,8 @@ function getApiBaseUrl() {
     return "http://localhost:3000/api";
   }
 
-  // If frontend is deployed on the same domain as the backend
-  if (
-    currentOrigin === DEPLOYED_BACKEND_URL ||
-    currentOrigin.includes("aadhar-enrollment-management-system-croton2.vercel.app")
-  ) {
+  // If frontend is deployed on the same Vercel project as the backend
+  if (currentOrigin.includes("aadhar-enrollment-management-system")) {
     return "/api";
   }
 
