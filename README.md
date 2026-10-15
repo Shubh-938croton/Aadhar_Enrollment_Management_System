@@ -1,270 +1,295 @@
 # Aadhaar Enrollment Management System
+### Database Management Systems Laboratory (DBMS) — Coursework Project
 
-> **Educational Disclaimer:**  
-> This application is an educational demonstration project developed for academic and learning purposes. It is **NOT** an official Aadhaar or UIDAI government website. It does not collect real Aadhaar numbers, actual fingerprints, iris scans, or other sensitive biometric records.
+[![Live Deployment](https://img.shields.io/badge/Vercel-Live_Demo-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://aadhar-enrollment-management-system-croton2.vercel.app)
+[![Database](https://img.shields.io/badge/TiDB_Cloud-MySQL_8.0-f97316?style=for-the-badge&logo=mysql&logoColor=white)](https://tidbcloud.com)
+[![Node.js](https://img.shields.io/badge/Node.js-Express_5-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![JavaScript](https://img.shields.io/badge/Vanilla_JS-ES6+-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org)
 
----
-
-## 📌 1. Project Introduction
-
-The **Aadhaar Enrollment Management System** is a full-stack web application designed to demonstrate relational database design, RESTful API architecture, and client-server integration. It models a simplified national enrollment workflow:
-- Registering citizens.
-- Registering authorized enrollment centers.
-- Linking citizens to centers via Aadhaar application requests.
-- Tracking application verification status with visual badges.
-- Managing and updating application status through an administrative dashboard.
-
-Built using **HTML5, CSS3, Vanilla JavaScript, Node.js, Express.js, and MySQL**.
+> **⚠️ Academic & Educational Disclaimer:**  
+> This project is developed strictly for **academic demonstration and laboratory evaluation** in Database Management Systems (DBMS). It is **NOT** affiliated with UIDAI, the Government of India, or any government portal. It does not collect or store actual government Aadhaar numbers, real biometric prints, or sensitive identity information.
 
 ---
 
-## 🚀 2. Key Features
+## 📌 1. Project Overview
 
-1. **Citizen Registration**:
-   - Collects Citizen Name, Date of Birth, Gender, and 10-digit Mobile Number.
-   - Client and server-side validation (checks future DOB, 10-digit numeric mobile, and non-empty inputs).
-   - Generates and displays an auto-incremented `citizen_id`.
+The **Aadhaar Enrollment Management System** is a full-stack relational database portal built using **Vanilla JavaScript, Node.js, Express.js, and MySQL (TiDB Cloud)**. It models the core lifecycle of a national identity enrollment management service:
 
-2. **Enrollment Center Registration**:
-   - Records Center Name, District, and State.
-   - Generates an auto-incremented `center_id`.
-
-3. **Aadhaar Application Registration**:
-   - Dynamically loads existing citizens and enrollment centers from MySQL into dropdowns.
-   - Automatically sets application date to current date (`CURDATE()`) and initial status to `Pending`.
-   - Demonstrates relational foreign keys (`citizen_id` and `center_id`).
-
-4. **Application Status Tracking**:
-   - Search by Application ID.
-   - Displays applicant info, center details, date, and visual status badges:
-     - 🟧 **Pending** (Orange Badge)
-     - 🟩 **Complete** (Green Badge)
-
-5. **Administrative Records Dashboard**:
-   - Tabbed views for **Applications**, **Citizens**, and **Enrollment Centers**.
-   - Real-time search filters for filtering through records.
-   - Instant status toggling (`Mark Complete` / `Mark Pending`) via backend API.
+1. **Citizen Demographic Registration** (`Citizens` entity).
+2. **Certified Enrollment Center Management** (`EnrollmentCenter` entity).
+3. **Application Creation with Foreign Key Constraints** (`AadharApplication` linking citizen and center).
+4. **Multi-Table Relational Status Tracking** (inspecting enrollment status with visual badges).
+5. **Official Aadhaar PVC Identity Proof Card Generation**:
+   - High-resolution **.PNG Image Download** via HTML5 Canvas.
+   - Standard CR80 wallet-card **Print / Save as PDF** via dedicated `@media print` rules.
+6. **Administrative Database Records Management** (SQL `JOIN` queries, real-time search, status toggles).
+7. **Academic Submission & 5-Member Team Spotlight**:
+   - Prominently highlighted at the bottom of the Home page and in Section 8.
+   - Supports **Faculty Guide / Teacher Name** and **5 Student Team Members with Scholar Numbers**.
+   - Interactive in-browser editing modal with instant `localStorage` persistence.
 
 ---
 
-## 🛠️ 3. Technologies Used
+## 🌐 Live Production Deployment
 
-### Frontend
-- **HTML5**: Semantic tags, accessible forms, responsive layout.
-- **CSS3**: Custom design with government-service inspired color palette (Navy Blue `#1a237e`, Saffron `#e65100`, Forest Green `#2e7d32`), CSS Grid, and Flexbox.
-- **Vanilla JavaScript**: Standard DOM manipulation (`document.getElementById`, `addEventListener`), asynchronous `fetch()` API calls, and in-memory search filtering.
-
-### Backend
-- **Node.js**: Asynchronous JavaScript runtime.
-- **Express.js**: REST API server and routing framework.
-- **mysql2**: Safe MySQL connection driver with parameterized SQL queries.
-- **cors**: Cross-Origin Resource Sharing middleware.
-- **dotenv**: Secure configuration management for environment variables.
-
-### Database
-- **MySQL (v8.0+)**: Relational Database Management System (RDBMS) with foreign keys and cascade rules.
+- **Live URL:** [https://aadhar-enrollment-management-system-croton2.vercel.app](https://aadhar-enrollment-management-system-croton2.vercel.app)
+- **Backend API Base:** `https://aadhar-enrollment-management-system-croton2.vercel.app/api`
+- **Database Engine:** TiDB Cloud Serverless MySQL (SSL-encrypted)
 
 ---
 
-## 📂 4. Project Folder Structure
+## 🚀 2. System Modules & Key Features
+
+### 👤 Module 1: Citizen Registration (`TABLE: Citizens`)
+- Records citizen identity: Full Name, Date of Birth, Gender, and 10-digit Mobile Number.
+- Client-side checks: blocks future dates of birth, enforces 10-digit numeric mobile validation.
+- Auto-increments primary key `citizen_id` and provides real-time confirmation.
+
+### 🏛️ Module 2: Enrollment Center Management (`TABLE: EnrollmentCenter`)
+- Registers authorized enrollment centers by Center Name, District, and State.
+- Auto-generates `center_id` for relational allocation.
+
+### 📝 Module 3: New Enrollment Application (`TABLE: AadharApplication`)
+- Dynamically loads registered citizens and certified centers from the MySQL database into dropdowns.
+- Links `citizen_id` (FK) and `center_id` (FK) into an application record.
+- Automatically assigns `application_date = CURDATE()` and default status `Pending`.
+
+### 🔍 Module 4: Application Status Tracking
+- Queries the relational database by Application ID.
+- Displays applicant demographics, assigned center, district/state, and application date.
+- Dynamic color-coded status badges:
+  - 🟧 **Pending** (Under demographic & biometric verification)
+  - 🟩 **Complete** (Approved & verified in database)
+- Includes quick-action **"🪪 View & Download Identity Card"** linking directly to the card generator.
+
+### 🪪 Module 5: Aadhaar Identity Proof Card Generator (Download & Print)
+- Generates a verified PVC-format identity proof card based on database records:
+  - Ashoka Chakra emblem motif and bilingual header (*भारत सरकार | Government of India*).
+  - Photo frame with "Secure Smart Chip" badge and "✓ Verified" green seal.
+  - Digitally signed scalable QR code matrix pattern.
+  - Citizen details: Full Name, DOB, Gender, Masked Mobile (+91 XXXXXX1234), Center Name.
+  - Formatted 12-digit Aadhaar number (`XXXX XXXX XXXX`) derived deterministically from Citizen ID.
+- **Download Card (.PNG Image)**:
+  - Renders a crisp 1000×630px high-resolution PNG on an off-screen HTML5 Canvas.
+  - Automatically triggers clean file download: `Aadhaar_Card_<Citizen_Name>.png`.
+- **Print / Save as PDF**:
+  - Uses `@media print` calibrated precisely for standard wallet cardstock (CR80: 85.6mm × 53.98mm).
+  - Automatically suppresses navigation, headers, forms, and buttons during printing.
+
+### 📊 Module 6: Admin Database Records Viewer
+- Tabbed administrative interface with live counts for **Applications**, **Citizens**, and **Enrollment Centers**.
+- Real-time client-side search filtering across all table columns.
+- Performs multi-table SQL `JOIN` queries across `AadharApplication`, `Citizens`, and `EnrollmentCenter`.
+- Admin action to toggle status (`Mark Complete` / `Mark Pending`) with instant database update.
+- Quick **"🪪 ID Card"** button on each citizen row to view and download their identity card.
+
+### 🎓 Module 7: Highlighted Academic Submission & 5-Member Team Spotlight
+- **Prominently Featured at the Bottom of Home Page & Section 8**:
+  - Highlighted top banner with gold badge: `🎓 OFFICIAL ACADEMIC PROJECT EVALUATION`.
+  - **Faculty Guide Spotlight**: Highlighted card with 👨‍🏫 icon, Faculty Guide Name, Department, and Evaluator status.
+  - **Project Team Spotlight**: Full grid supporting **5 Student Team Members**, each with:
+    - Member avatar badge (`S1`, `S2`, `S3`, `S4`, `S5`).
+    - Student Full Name.
+    - Official scholar number badge (`Scholar No: 2211XXXXX`).
+- **In-Browser Edit Modal**:
+  - Click **"✎ Edit Faculty & Team (5 Members)"** to update guide name, department, and all 5 team members directly in the browser.
+  - Saves instantly to browser `localStorage` and synchronizes across the header, home spotlight, about section, and footer.
+
+---
+
+## 🗄️ 3. Relational Database Schema
+
+The relational database is structured in Third Normal Form (3NF) to ensure referential integrity, eliminate data redundancy, and maintain ACID compliance.
+
+```mermaid
+erDiagram
+    Citizens ||--o{ AadharApplication : "submits (citizen_id)"
+    EnrollmentCenter ||--o{ AadharApplication : "processes (center_id)"
+    AadharApplication ||--o| BiometricRecord : "associates (application_id)"
+
+    Citizens {
+        int citizen_id PK "Auto Increment"
+        varchar citizen_name "NOT NULL"
+        date dob "NOT NULL"
+        enum gender "Male | Female | Others"
+        char mobile_number "10 Digits"
+    }
+
+    EnrollmentCenter {
+        int center_id PK "Auto Increment"
+        varchar center_name "NOT NULL"
+        varchar district "NOT NULL"
+        varchar state "NOT NULL"
+    }
+
+    AadharApplication {
+        int application_id PK "Auto Increment"
+        int citizen_id FK "References Citizens(citizen_id)"
+        int center_id FK "References EnrollmentCenter(center_id)"
+        date application_date "DEFAULT CURDATE()"
+        enum status "Pending | Complete"
+    }
+
+    BiometricRecord {
+        int biometric_id PK "Auto Increment"
+        int application_id FK "References AadharApplication(application_id)"
+        varchar fingerprint_hash "SHA-256 Hash"
+        varchar iris_hash "SHA-256 Hash"
+    }
+```
+
+### Table Specifications
+
+| Table | Primary Key | Foreign Keys | Key Attributes |
+| :--- | :--- | :--- | :--- |
+| `Citizens` | `citizen_id` | *None* | `citizen_name`, `dob`, `gender`, `mobile_number` |
+| `EnrollmentCenter` | `center_id` | *None* | `center_name`, `district`, `state` |
+| `AadharApplication` | `application_id` | `citizen_id` → `Citizens`<br>`center_id` → `EnrollmentCenter` | `application_date`, `status` |
+| `BiometricRecord` | `biometric_id` | `application_id` → `AadharApplication` | `fingerprint_hash`, `iris_hash` |
+
+---
+
+## 🛠️ 4. Technology Stack
+
+| Layer | Technologies Used | Description |
+| :--- | :--- | :--- |
+| **Frontend** | HTML5, CSS3, Vanilla JS (ES6+) | Semantic layout, government portal aesthetics (Navy `#0f2e5a`, subtle Saffron/Green tricolor touches), no heavyweight framework dependencies. |
+| **Card Rendering** | HTML5 Canvas API + `@media print` | Direct client-side PNG image rendering and CR80-sized PDF print stylesheets. |
+| **Backend** | Node.js, Express.js 5 | RESTful API routes supporting dual prefix routes (`/api/<route>` and `/<route>`), parameterized SQL queries, CORS. |
+| **Database** | MySQL 8.0 / TiDB Cloud | Relational database engine with foreign key constraints, auto SSL connection handling. |
+| **Deployment** | Vercel Serverless Functions | Continuous deployment from GitHub with serverless rewrite routing. |
+
+---
+
+## 📂 5. Project Directory Structure
 
 ```
 Aadhar_Enrollment_Management_System/
 │
 ├── frontend/
-│   ├── index.html          # Web application structure & forms
-│   ├── style.css           # Styling, themes, responsive layout & badges
-│   └── script.js           # Client-side validation, routing & fetch API calls
+│   ├── index.html          # Application markup, forms, cards, and modal dialog
+│   ├── style.css           # Institutional portal styling, card layout & print rules
+│   └── script.js           # REST API client, DOM routing, card generator & credits manager
 │
 ├── backend/
 │   ├── server.js           # Express REST API endpoints & business logic
-│   ├── db.js               # MySQL database connection using mysql2 & dotenv
-│   ├── package.json        # Backend dependencies & npm scripts
+│   ├── db.js               # MySQL / TiDB database connection pool with auto SSL
+│   ├── package.json        # Dependencies (express, mysql2, cors, dotenv)
 │   ├── package-lock.json
-│   ├── .env.example        # Environment variable template
-│   └── .env                # Local database credentials (ignored in git)
+│   └── .env.example        # Environment variable template
+│
+├── api/
+│   └── index.js            # Vercel serverless function entrypoint (bridges backend/server.js)
 │
 ├── database/
-│   ├── schema.sql          # Standardized SQL schema & relational tables
-│   └── database.sql        # Original database creation script
+│   ├── database.sql        # Table definitions, sample data, and schema script
+│   └── schema.sql          # Standardized database schema script
 │
-├── .gitignore              # Ignores node_modules, .env, and system logs
-├── .env.example            # Root environment variable template
-└── README.md               # Project documentation & execution guide
+├── vercel.json             # Vercel serverless build and rewrite routing configuration
+├── .gitignore              # Ignores node_modules, .env, and local log files
+└── README.md               # Comprehensive project documentation
 ```
 
 ---
 
-## 🗄️ 5. Database Schema & Explanation
+## 📡 6. REST API Reference
 
-The system uses a relational database named `Aadhar` with four interconnected tables:
-
-```mermaid
-erDiagram
-    Citizens ||--o{ AadharApplication : "submits"
-    EnrollmentCenter ||--o{ AadharApplication : "processes"
-    AadharApplication ||--o| BiometricRecord : "associates"
-
-    Citizens {
-        int citizen_id PK
-        varchar citizen_name
-        date dob
-        enum gender
-        char mobile_number
-    }
-
-    EnrollmentCenter {
-        int center_id PK
-        varchar center_name
-        varchar district
-        varchar state
-    }
-
-    AadharApplication {
-        int application_id PK
-        int citizen_id FK
-        int center_id FK
-        date application_date
-        enum status
-    }
-
-    BiometricRecord {
-        int biometric_id PK
-        int application_id FK
-        varchar fingerprint_hash
-        varchar iris_hash
-    }
-```
-
-### Table Definitions
-
-1. **`Citizens`**:
-   - `citizen_id`: INT AUTO_INCREMENT PRIMARY KEY
-   - `citizen_name`: VARCHAR(100) NOT NULL
-   - `dob`: DATE NOT NULL
-   - `gender`: ENUM('Male', 'Female', 'Others') NOT NULL
-   - `mobile_number`: CHAR(10) NOT NULL
-
-2. **`EnrollmentCenter`**:
-   - `center_id`: INT AUTO_INCREMENT PRIMARY KEY
-   - `center_name`: VARCHAR(60) NOT NULL
-   - `district`: VARCHAR(60) NOT NULL
-   - `state`: VARCHAR(60) NOT NULL
-
-3. **`AadharApplication`**:
-   - `application_id`: INT AUTO_INCREMENT PRIMARY KEY
-   - `citizen_id`: INT NOT NULL (Foreign Key -> `Citizens.citizen_id`)
-   - `center_id`: INT NOT NULL (Foreign Key -> `EnrollmentCenter.center_id`)
-   - `application_date`: DATE NOT NULL
-   - `status`: ENUM('Complete', 'Pending') NOT NULL
-
-4. **`BiometricRecord`** *(Demonstration Only)*:
-   - `biometric_id`: INT AUTO_INCREMENT PRIMARY KEY
-   - `application_id`: INT NOT NULL (Foreign Key -> `AadharApplication.application_id`)
-   - `fingerprint_hash`: VARCHAR(255)
-   - `iris_hash`: VARCHAR(255)
-
----
-
-## 📡 6. Backend REST API Endpoints
-
-All endpoints use `http://localhost:3000/api` as the base URL.
+Base URL (Local): `http://localhost:3000/api`  
+Base URL (Production): `https://aadhar-enrollment-management-system-croton2.vercel.app/api`
 
 | Method | Endpoint | Description | Request Body |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/` | Health check route | None |
-| `POST` | `/api/citizens` | Register a new citizen | `{ citizen_name, dob, gender, mobile_number }` |
-| `GET` | `/api/citizens` | Fetch all citizens | None |
-| `GET` | `/api/citizens/:id` | Fetch citizen by ID | None |
-| `POST` | `/api/centers` | Register a new enrollment center | `{ center_name, district, state }` |
-| `GET` | `/api/centers` | Fetch all enrollment centers | None |
-| `GET` | `/api/centers/:id` | Fetch enrollment center by ID | None |
-| `POST` | `/api/applications` | Create a new Aadhaar application | `{ citizen_id, center_id }` |
-| `GET` | `/api/applications` | Fetch all applications (SQL JOIN) | None |
-| `GET` | `/api/applications/:id`| Fetch application details (SQL JOIN)| None |
-| `PUT` | `/api/applications/:id/status`| Update status (Pending / Complete) | `{ status: "Complete" }` |
+| `GET` | `/health` | Server & connectivity check | *None* |
+| `GET` | `/db-status` | Live database connectivity & table verification | *None* |
+| `POST` | `/citizens` | Register a new citizen | `{ citizen_name, dob, gender, mobile_number }` |
+| `GET` | `/citizens` | Fetch list of all citizens | *None* |
+| `GET` | `/citizens/:id` | Fetch specific citizen by ID | *None* |
+| `POST` | `/centers` | Register a new enrollment center | `{ center_name, district, state }` |
+| `GET` | `/centers` | Fetch list of all enrollment centers | *None* |
+| `GET` | `/centers/:id` | Fetch specific center by ID | *None* |
+| `POST` | `/applications` | Create a new Aadhaar application | `{ citizen_id, center_id }` |
+| `GET` | `/applications` | Fetch all applications (SQL `JOIN`) | *None* |
+| `GET` | `/applications/:id` | Fetch application details (SQL `JOIN`) | *None* |
+| `PUT` | `/applications/:id/status` | Update status (`Pending` / `Complete`) | `{ status: "Complete" }` |
 
 ---
 
-## ⚙️ 7. Installation & Setup Guide
+## ⚙️ 7. Installation & Local Setup
 
 ### Prerequisites
-1. **Node.js** (v18 or higher) installed on your system.
-2. **MySQL Server** (v8.0+) installed and running locally.
+1. **Node.js** (v18.x or v20.x+) installed.
+2. **MySQL Server** (v8.0+) or a cloud MySQL database (e.g. TiDB Cloud).
 
-### Step 1: Clone or Navigate to the Project
+### Step 1: Clone the Repository
 ```bash
-cd d:\College_DBMS\Aadhar_Enrollment_Management_System
+git clone https://github.com/Shubh-938croton/Aadhar_Enrollment_Management_System.git
+cd Aadhar_Enrollment_Management_System
 ```
 
 ### Step 2: Set Up the Database
-Open your MySQL terminal or MySQL Workbench and run:
+Open MySQL Command Line or MySQL Workbench:
 ```sql
-SOURCE d:/College_DBMS/Aadhar_Enrollment_Management_System/database/schema.sql;
+SOURCE database/database.sql;
 ```
-*(Or copy and paste the contents of `database/schema.sql` into MySQL Workbench/CLI).*
+*(This creates the `Aadhar` database, tables, foreign keys, and seed records).*
 
 ### Step 3: Configure Environment Variables
-Inside `backend/.env` (or copy from `.env.example`):
+Inside `backend/.env` (create from `backend/.env.example`):
 ```env
 DB_HOST=localhost
+DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=Aadhar
 PORT=3000
 ```
-Replace `your_mysql_password` with your actual MySQL root password.
+> **Note for TiDB Cloud:** Set `DB_HOST=gateway01...prod.aws.tidbcloud.com`, `DB_PORT=4000`, and your cloud database credentials. SSL `{ rejectUnauthorized: false }` is automatically enabled.
 
-### Step 4: Install Backend Dependencies
+### Step 4: Install Dependencies & Run
 ```bash
 cd backend
 npm install
-```
-
----
-
-## 🏃 8. How to Run the Application
-
-### 1. Start the Backend Server
-```bash
-cd backend
 node server.js
 ```
-You should see:
-```
-✅ MySQL Database connected successfully! (Database: Aadhar)
-🚀 Server is running on http://localhost:3000
-```
 
-### 2. Launch the Frontend
-You can open `frontend/index.html` directly in any web browser:
-- Double-click `frontend/index.html`, OR
-- Right-click and choose **Open with Live Server** (in VS Code), OR
-- Serve with a simple HTTP server:
-  ```bash
-  npx serve frontend
-  ```
+### Step 5: Open the Frontend
+Open `frontend/index.html` directly in your browser or run a simple local static server:
+```bash
+npx serve frontend
+```
 
 ---
 
-## 🖼️ 9. Application Sections & Workflow
+## ☁️ 8. Cloud Deployment (Vercel + TiDB Cloud)
 
-1. **Home**: High-level overview, server health status dot, and navigation cards.
-2. **Citizen Registration**: Enter citizen info; on submit, citizen ID is displayed.
-3. **Center Registration**: Enter center name, district, state; on submit, center ID is displayed.
-4. **New Application**: Select registered citizen and center; on submit, application ID is returned with `Pending` status.
-5. **Track Status**: Enter application ID to view real-time status with green/orange badges.
-6. **Admin Records**: Browse records in responsive data tables and toggle status between `Pending` and `Complete`.
+1. **Database**: Create a free Serverless cluster on [TiDB Cloud](https://tidbcloud.com) and execute `database/database.sql` in the TiDB SQL Editor.
+2. **Backend & Frontend on Vercel**:
+   - Push repository to GitHub.
+   - Import repository into Vercel.
+   - Configure Environment Variables in Vercel Project Settings:
+     - `DB_HOST` = `<your-tidb-host>`
+     - `DB_PORT` = `4000`
+     - `DB_USER` = `<your-tidb-user>`
+     - `DB_PASSWORD` = `<your-tidb-password>`
+     - `DB_NAME` = `Aadhar`
+3. Deploy! Vercel routes `/api/*` to the serverless function `api/index.js` and serves `frontend/` as static assets.
 
 ---
 
-## 🔮 10. Future Improvements
+## 👥 9. Academic Coursework Submission & Credits
 
-- Add JWT-based administrative authentication to protect admin views and status-changing operations.
-- Integrate document upload simulation (e.g. proof of address/identity placeholders).
-- Generate downloadable PDF application acknowledgment slips.
-- Add SMS/Email notification simulation upon application completion.
+- **Course:** CS304: Database Management Systems Laboratory (DBMS)
+- **Guided By / Submitted To:** Prof. Faculty Guide, Department of Computer Science & Engineering
+- **Project Team Members (5 Students):**
+  1. Student 1 Name (`Scholar No: 2211XXXX1`)
+  2. Student 2 Name (`Scholar No: 2211XXXX2`)
+  3. Student 3 Name (`Scholar No: 2211XXXX3`)
+  4. Student 4 Name (`Scholar No: 2211XXXX4`)
+  5. Student 5 Name (`Scholar No: 2211XXXX5`)
 
+*(Team names and scholar numbers can be dynamically updated at any time using the **"✎ Edit Faculty & Team (5 Members)"** button on the website).*
 
+---
 
-
+## 📄 License
+This educational project is distributed under the MIT License for academic and learning purposes.
