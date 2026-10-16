@@ -13,21 +13,26 @@
 
 ## 📌 1. Project Overview
 
-The **Aadhaar Enrollment Management System** is a full-stack relational database portal built using **Vanilla JavaScript, Node.js, Express.js, and MySQL (TiDB Cloud)**. It models the core lifecycle of a national identity enrollment management service:
+The **Aadhaar Enrollment Management System** is a full-stack relational database portal built using **Vanilla JavaScript, Node.js, Express.js, and MySQL (TiDB Cloud)**. It provides a direct, clean, and intuitive **Table Operations Interface** for all core database entities:
 
-1. **Citizen Demographic Registration** (`Citizens` entity).
-2. **Demographic Updation & Corrections** (SQL `UPDATE` transactions modifying registered records).
-3. **Certified Enrollment Center Management** (`EnrollmentCenter` entity).
-4. **Application Creation with Foreign Key Constraints** (`AadharApplication` linking citizen and center).
-5. **Multi-Table Relational Status Tracking** (inspecting enrollment status with visual badges).
-6. **Official Aadhaar PVC Identity Proof Card Generation**:
+1. **`Citizens` Table** — Demographic records (`citizen_id` [PK], `citizen_name`, `dob`, `gender`, `mobile_number`).
+2. **`EnrollmentCenter` Table** — Authorized enrollment center locations (`center_id` [PK], `center_name`, `district`, `state`).
+3. **`AadharApplication` Table** — Relational tuples linking citizens and centers (`application_id` [PK], `citizen_id` [FK], `center_id` [FK], `application_date`, `status`).
+4. **`BiometricRecord` Table** — Security biometric hashes (`biometric_id` [PK], `application_id` [FK], `fingerprint_hash`, `iris_hash`).
+5. **In Front of Each Table — Complete CRUD Actions**:
+   - 👁️ **Show Data / Refresh**: Displays records currently stored in MySQL with live search filtering.
+   - ➕ **Add Data**: Collapsible inline form directly in front of the table to insert new tuples.
+   - ✏️ **Update Data**: Universal update modal pre-filled with existing attributes for instant editing (`PUT`).
+   - 🗑️ **Remove Data**: Deletes the record with referential integrity & cascading safeguards (`DELETE`).
+6. **Official Aadhaar PVC Identity Proof Card**:
    - High-resolution **.PNG Image Download** via HTML5 Canvas.
    - Standard CR80 wallet-card **Print / Save as PDF** via dedicated `@media print` rules.
-7. **Administrative Database Records Management** (SQL `JOIN` queries, real-time search, 1-click demographic editing, status toggles).
-8. **Academic Submission & 5-Member Team Spotlight**:
-   - Prominently highlighted at the bottom of the Home page and in Section 8.
-   - Supports **Faculty Guide / Teacher Name** and **5 Student Team Members with Scholar Numbers**.
+7. **Academic Submission Details (Highlighted at Bottom of Home Page)**:
+   - Dedicated Faculty Guide block (**Teacher Name & Department**).
+   - Project Team grid with **5 Student Members and Scholar Numbers**.
    - Interactive in-browser editing modal with instant `localStorage` persistence.
+8. **Simple, Clean Minimalist UI**:
+   - Strictly black-and-white, clean border layout designed like a classic academic system.
 
 ---
 
@@ -39,65 +44,46 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
 
 ---
 
-## 🚀 2. System Modules & Key Features
+## 🚀 2. System Modules & Table Operations
 
-### 👤 Module 1: Citizen Registration (`TABLE: Citizens`)
-- Records citizen identity: Full Name, Date of Birth, Gender, and 10-digit Mobile Number.
-- Client-side checks: blocks future dates of birth, enforces 10-digit numeric mobile validation.
-- Auto-increments primary key `citizen_id` and provides real-time confirmation.
+### 👥 1. Citizens Table (`Citizens`)
+- **Show Data**: Loads all citizens with columns: Citizen ID (PK), Citizen Name, Date of Birth, Gender, Mobile Number.
+- **Add Data**: Form directly above the table to insert new citizens with 10-digit mobile and DOB validation.
+- **Update Data**: 1-click modal to update Name, DOB, Gender, or Mobile Number (`PUT /api/citizens/:id`).
+- **Remove Data**: 1-click removal with cascading cleanup of dependent applications & biometrics (`DELETE /api/citizens/:id`).
+- **🪪 ID Card**: Shortcut button to view and download the official identity proof card for that citizen.
 
-### ✏️ Module 2: Demographic Details Updation Portal (`SQL UPDATE Citizens`)
-- Search and lookup existing registered citizens by ID or dropdown selector.
-- Pre-fills current demographic attributes (Full Name, Date of Birth, Gender, Registered Mobile).
-- Executes verified transactional `UPDATE Citizens SET citizen_name=?, dob=?, gender=?, mobile_number=? WHERE citizen_id=?`.
-- Preserves referential integrity across linked `AadharApplication` tuples.
-- One-click trigger **"🪪 View Updated ID Card"** to instantly render the corrected identity proof card.
+### 🏛️ 2. Enrollment Center Table (`EnrollmentCenter`)
+- **Show Data**: Displays authorized centers: Center ID (PK), Center Name, District, State.
+- **Add Data**: Inline form to register new centers into the relational database.
+- **Update Data**: Modal to update Center Name, District, or State (`PUT /api/centers/:id`).
+- **Remove Data**: Deletes center and cleans up dependent applications (`DELETE /api/centers/:id`).
 
-### 🏛️ Module 3: Enrollment Center Management (`TABLE: EnrollmentCenter`)
-- Registers authorized enrollment centers by Center Name, District, and State.
-- Auto-generates `center_id` for relational allocation.
-- Supports administrative updating of center location details via `PUT /api/centers/:id`.
+### 📝 3. Aadhaar Application Table (`AadharApplication`)
+- **Show Data**: Displays relational tuples linking citizens and centers: App ID (PK), Citizen (FK), Center (FK), Application Date, Status.
+- **Add Data**: Dropdowns dynamically populated from registered citizens and centers (`POST /api/applications`).
+- **Update Data**: Modal to edit citizen assignment, center assignment, or status (`Pending`, `Approved`, `Rejected`).
+- **Remove Data**: Removes application and linked biometric hashes (`DELETE /api/applications/:id`).
 
-### 📝 Module 4: New Enrollment Application (`TABLE: AadharApplication`)
-- Dynamically loads registered citizens and certified centers from the MySQL database into dropdowns.
-- Links `citizen_id` (FK) and `center_id` (FK) into an application record.
-- Automatically assigns `application_date = CURDATE()` and default status `Pending`.
+### 🔐 4. Biometric Record Table (`BiometricRecord`)
+- **Show Data**: Displays biometric hashes: Biometric ID (PK), Application ID (FK), Fingerprint Hash, Iris Hash.
+- **Add Data**: Form linked to applications with auto-generated SHA-256 cryptographic hashes (`POST /api/biometrics`).
+- **Update Data**: Modal to modify biometric hashes (`PUT /api/biometrics/:id`).
+- **Remove Data**: Removes biometric record (`DELETE /api/biometrics/:id`).
 
-### 🔍 Module 5: Application Status Tracking
-- Queries the relational database by Application ID.
-- Displays applicant demographics, assigned center, district/state, and application date.
-- Dynamic color-coded status badges:
-  - 🟧 **Pending** (Under demographic & biometric verification)
-  - 🟩 **Complete** (Approved & verified in database)
-- Includes quick-action **"🪪 View & Download Identity Card"** linking directly to the card generator.
-
-### 🪪 Module 6: Aadhaar Identity Proof Card Generator (Download & Print)
-- Generates a verified PVC-format identity proof card based on database records:
+### 🪪 5. Aadhaar Identity Proof Card Generator
+- Generates official-format identity proof card based on database records:
   - Ashoka Chakra emblem motif and bilingual header (*भारत सरकार | Government of India*).
-  - Photo frame with "Secure Smart Chip" badge and "✓ Verified" green seal.
-  - Digitally signed scalable QR code matrix pattern.
-  - Citizen details: Full Name, DOB, Gender, Masked Mobile (+91 XXXXXX1234), Center Name.
-  - Formatted 12-digit Aadhaar number (`XXXX XXXX XXXX`) derived deterministically from Citizen ID.
-- **Download Card (.PNG Image)**:
-  - Renders a crisp 1000×630px high-resolution PNG on an off-screen HTML5 Canvas.
-  - Automatically triggers clean file download: `Aadhaar_Card_<Citizen_Name>.png`.
-- **Print / Save as PDF**:
-  - Uses `@media print` calibrated precisely for standard wallet cardstock (CR80: 85.6mm × 53.98mm).
-  - Automatically suppresses navigation, headers, forms, and buttons during printing.
+  - Photo frame with "✓ VERIFIED" badge and simulated QR code.
+  - Formatted 12-digit Aadhaar number derived deterministically.
+- **Download Card (.PNG Image)**: Renders crisp 1000×630px high-resolution PNG on Canvas.
+- **Print / Save as PDF**: `@media print` calibrated precisely for standard wallet cardstock.
 
-### 📊 Module 7: Admin Database Records Viewer
-- Tabbed administrative interface with live counts for **Applications**, **Citizens**, and **Enrollment Centers**.
-- Real-time client-side search filtering across all table columns.
-- Performs multi-table SQL `JOIN` queries across `AadharApplication`, `Citizens`, and `EnrollmentCenter`.
-- Admin action to toggle status (`Mark Complete` / `Mark Pending`) with instant database update.
-- Quick **"✏️ Edit"** button to jump directly into the Demographic Updation portal for that citizen.
-- Quick **"🪪 ID Card"** button on each citizen row to view and download their identity card.
-
-### 🎓 Module 8: Highlighted Academic Submission & 5-Member Team Spotlight
-- **Prominently Featured at the Bottom of Home Page & Section 8**:
-  - Highlighted top banner with gold badge: `🎓 OFFICIAL ACADEMIC PROJECT EVALUATION`.
-  - **Faculty Guide Spotlight**: Highlighted card with 👨‍🏫 icon, Faculty Guide Name, Department, and Evaluator status.
-  - **Project Team Spotlight**: Full grid supporting **5 Student Team Members**, each with:
+### 🎓 6. Highlighted Academic Submission Area (Teacher & 5 Students)
+- Positioned prominently at the bottom of the page.
+- **Faculty Guide**: Teacher Name and Department.
+- **Project Team**: 5 Student Members with Scholar Numbers.
+- **Edit Modal**: Allows real-time updating and persistence across browser sessions via `localStorage`.
     - Member avatar badge (`S1`, `S2`, `S3`, `S4`, `S5`).
     - Student Full Name.
     - Official scholar number badge (`Scholar No: 2211XXXXX`).

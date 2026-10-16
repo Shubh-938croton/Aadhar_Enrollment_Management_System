@@ -241,6 +241,48 @@ app.put(["/api/citizens/:id", "/citizens/:id"], function (req, res) {
   });
 });
 
+// DELETE /api/citizens/:id - Remove a citizen and associated applications
+app.delete(["/api/citizens/:id", "/citizens/:id"], function (req, res) {
+  const citizenId = req.params.id;
+
+  // Clean up any dependent biometric records first
+  const deleteBioSql = `
+    DELETE FROM BiometricRecord 
+    WHERE application_id IN (SELECT application_id FROM AadharApplication WHERE citizen_id = ?)
+  `;
+  db.query(deleteBioSql, [citizenId], function () {
+    // Clean up dependent applications
+    const deleteAppsSql = "DELETE FROM AadharApplication WHERE citizen_id = ?";
+    db.query(deleteAppsSql, [citizenId], function () {
+      // Finally delete the citizen record
+      const deleteCitizenSql = "DELETE FROM Citizens WHERE citizen_id = ?";
+      db.query(deleteCitizenSql, [citizenId], function (error, result) {
+        if (error) {
+          console.error("Error deleting citizen:", error);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to remove citizen from database.",
+            error: error.message || error.code,
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "Citizen record not found.",
+          });
+        }
+
+        console.log(`Citizen #${citizenId} removed successfully!`);
+        res.status(200).json({
+          success: true,
+          message: `Citizen #${citizenId} removed successfully from database.`,
+        });
+      });
+    });
+  });
+});
+
 // ====================================================
 // 2. ENROLLMENT CENTER APIs
 // ====================================================
@@ -370,6 +412,45 @@ app.put(["/api/centers/:id", "/centers/:id"], function (req, res) {
       success: true,
       message: "Enrollment center updated successfully.",
       center_id: parseInt(centerId),
+    });
+  });
+});
+
+// DELETE /api/centers/:id - Remove an enrollment center
+app.delete(["/api/centers/:id", "/centers/:id"], function (req, res) {
+  const centerId = req.params.id;
+
+  const deleteBioSql = `
+    DELETE FROM BiometricRecord 
+    WHERE application_id IN (SELECT application_id FROM AadharApplication WHERE center_id = ?)
+  `;
+  db.query(deleteBioSql, [centerId], function () {
+    const deleteAppsSql = "DELETE FROM AadharApplication WHERE center_id = ?";
+    db.query(deleteAppsSql, [centerId], function () {
+      const deleteCenterSql = "DELETE FROM EnrollmentCenter WHERE center_id = ?";
+      db.query(deleteCenterSql, [centerId], function (error, result) {
+        if (error) {
+          console.error("Error deleting center:", error);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to delete enrollment center.",
+            error: error.message || error.code,
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "Enrollment center not found.",
+          });
+        }
+
+        console.log(`Center #${centerId} deleted successfully!`);
+        res.status(200).json({
+          success: true,
+          message: `Enrollment center #${centerId} removed successfully.`,
+        });
+      });
     });
   });
 });
@@ -565,6 +646,222 @@ app.put(["/api/applications/:id/status", "/applications/:id/status"], function (
       success: true,
       message: "Application status updated successfully",
       status: status,
+    });
+  });
+});
+
+// PUT /api/applications/:id - Update full application record
+app.put(["/api/applications/:id", "/applications/:id"], function (req, res) {
+  const applicationId = req.params.id;
+  const { citizen_id, center_id, status } = req.body;
+
+  if (!citizen_id || !center_id) {
+    return res.status(400).json({
+      success: false,
+      message: "citizen_id and center_id are required.",
+    });
+  }
+
+  const allowedStatuses = ["Pending", "Complete"];
+  const finalStatus = allowedStatuses.includes(status) ? status : "Pending";
+
+  const sql = `
+    UPDATE AadharApplication
+    SET citizen_id = ?, center_id = ?, status = ?
+    WHERE application_id = ?
+  `;
+  const values = [parseInt(citizen_id), parseInt(center_id), finalStatus, applicationId];
+
+  db.query(sql, values, function (error, result) {
+    if (error) {
+      console.error("Error updating application:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update application.",
+        error: error.message || error.code,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Application #${applicationId} updated successfully.`,
+    });
+  });
+});
+
+// DELETE /api/applications/:id - Remove an application
+app.delete(["/api/applications/:id", "/applications/:id"], function (req, res) {
+  const applicationId = req.params.id;
+
+  const deleteBioSql = "DELETE FROM BiometricRecord WHERE application_id = ?";
+  db.query(deleteBioSql, [applicationId], function () {
+    const deleteAppSql = "DELETE FROM AadharApplication WHERE application_id = ?";
+    db.query(deleteAppSql, [applicationId], function (error, result) {
+      if (error) {
+        console.error("Error deleting application:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to delete application.",
+          error: error.message || error.code,
+        });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Application not found.",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: `Application #${applicationId} removed successfully.`,
+      });
+    });
+  });
+});
+
+// ====================================================
+// 4. BIOMETRIC RECORD APIs
+// ====================================================
+
+// GET /api/biometrics - Retrieve all biometric records
+app.get(["/api/biometrics", "/biometrics"], function (req, res) {
+  const sql = `
+    SELECT
+      b.biometric_id,
+      b.application_id,
+      b.fingerprint_hash,
+      b.iris_hash,
+      c.citizen_name,
+      e.center_name
+    FROM BiometricRecord b
+    LEFT JOIN AadharApplication a ON b.application_id = a.application_id
+    LEFT JOIN Citizens c ON a.citizen_id = c.citizen_id
+    LEFT JOIN EnrollmentCenter e ON a.center_id = e.center_id
+    ORDER BY b.biometric_id DESC
+  `;
+
+  db.query(sql, function (error, results) {
+    if (error) {
+      return res.status(200).json({ success: true, biometrics: [] });
+    }
+
+    res.status(200).json({
+      success: true,
+      biometrics: results || [],
+    });
+  });
+});
+
+// POST /api/biometrics - Insert a new biometric record
+app.post(["/api/biometrics", "/biometrics"], function (req, res) {
+  const { application_id, fingerprint_hash, iris_hash } = req.body;
+
+  if (!application_id) {
+    return res.status(400).json({
+      success: false,
+      message: "application_id is required.",
+    });
+  }
+
+  const fp = fingerprint_hash && fingerprint_hash.trim() !== "" 
+    ? fingerprint_hash.trim() 
+    : "SHA256-FP-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  const iris = iris_hash && iris_hash.trim() !== "" 
+    ? iris_hash.trim() 
+    : "SHA256-IRIS-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  const sql = `
+    INSERT INTO BiometricRecord (application_id, fingerprint_hash, iris_hash)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(sql, [parseInt(application_id), fp, iris], function (error, result) {
+    if (error) {
+      console.error("Error creating biometric record:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create biometric record.",
+        error: error.message || error.code,
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Biometric record added successfully.",
+      biometric_id: result.insertId,
+    });
+  });
+});
+
+// PUT /api/biometrics/:id - Update biometric record
+app.put(["/api/biometrics/:id", "/biometrics/:id"], function (req, res) {
+  const bioId = req.params.id;
+  const { fingerprint_hash, iris_hash } = req.body;
+
+  const sql = `
+    UPDATE BiometricRecord
+    SET fingerprint_hash = ?, iris_hash = ?
+    WHERE biometric_id = ?
+  `;
+
+  db.query(sql, [fingerprint_hash, iris_hash, bioId], function (error, result) {
+    if (error) {
+      console.error("Error updating biometric record:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update biometric record.",
+        error: error.message || error.code,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Biometric record not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Biometric record #${bioId} updated successfully.`,
+    });
+  });
+});
+
+// DELETE /api/biometrics/:id - Delete biometric record
+app.delete(["/api/biometrics/:id", "/biometrics/:id"], function (req, res) {
+  const bioId = req.params.id;
+  const sql = "DELETE FROM BiometricRecord WHERE biometric_id = ?";
+
+  db.query(sql, [bioId], function (error, result) {
+    if (error) {
+      console.error("Error deleting biometric record:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete biometric record.",
+        error: error.message || error.code,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Biometric record not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Biometric record #${bioId} removed successfully.`,
     });
   });
 });
