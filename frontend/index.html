@@ -3,826 +3,510 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aadhaar Enrollment Management System | DBMS Laboratory Project</title>
+    <title>Aadhaar Enrollment System — Simple Form Interface</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Top Institutional & Disclaimer Banner -->
-    <header class="top-header">
-        <div class="top-header-content">
-            <div class="gov-identity">
-                <!-- Ashoka Emblem SVG Silhouette -->
-                <svg class="emblem-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/>
-                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
-                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="1.4"/>
-                </svg>
-                <div class="gov-titles">
-                    <span class="gov-hindi">भारत सरकार | Government of India</span>
-                    <span class="gov-sub">Department of Computer Science & Engineering — DBMS Laboratory Project</span>
+    <div class="page-wrapper">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-main">
+                <div>
+                    <h1 class="site-title">Aadhaar Enrollment Management System</h1>
+                    <p class="site-sub">Database Management Systems (DBMS) Laboratory Project — Simple Form Interface</p>
+                </div>
+                <div class="status-indicator" title="Click to view/change Backend API URL">
+                    <span class="status-dot"></span>
+                    <span id="backendStatusText">Backend: Connecting...</span>
                 </div>
             </div>
-            <div class="header-right">
-                <span class="academic-badge" id="headerCreditsBadge">
-                    Guide: <strong id="headerTeacherName">Prof. Faculty Guide</strong>
-                </span>
-                <span class="demo-tag">[Academic Demo]</span>
+        </header>
+
+        <!-- Simple Tab Navigation -->
+        <nav class="form-nav-bar">
+            <div class="nav-links" id="navLinks">
+                <button type="button" class="nav-item active" data-section="citizen-section">1. Register Citizen</button>
+                <button type="button" class="nav-item" data-section="update-section">2. Update Details</button>
+                <button type="button" class="nav-item" data-section="center-section">3. Add Center</button>
+                <button type="button" class="nav-item" data-section="application-section">4. New Application</button>
+                <button type="button" class="nav-item" data-section="track-section">5. Track Status</button>
+                <button type="button" class="nav-item" data-section="card-section">6. Download ID Card</button>
+                <button type="button" class="nav-item" data-section="records-section">7. View Records</button>
             </div>
-        </div>
-        <!-- Tricolor Indian Ribbon Accent -->
-        <div class="tricolor-bar">
-            <div class="tri-saffron"></div>
-            <div class="tri-white"></div>
-            <div class="tri-green"></div>
-        </div>
-    </header>
+        </nav>
 
-    <!-- Main Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <div class="brand-symbol">UID</div>
-                <div class="brand-text">
-                    <h1>Aadhaar Enrollment System</h1>
-                    <span class="brand-subtitle">Relational Database Management Portal</span>
-                </div>
-            </div>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <span class="toggle-bar"></span>
-                <span class="toggle-bar"></span>
-                <span class="toggle-bar"></span>
-            </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#home" class="nav-item active" data-section="home-section">Home</a></li>
-                <li><a href="#citizen" class="nav-item" data-section="citizen-section">Citizen Registration</a></li>
-                <li><a href="#update" class="nav-item" data-section="update-section">Update Details</a></li>
-                <li><a href="#center" class="nav-item" data-section="center-section">Enrollment Centers</a></li>
-                <li><a href="#application" class="nav-item" data-section="application-section">New Application</a></li>
-                <li><a href="#track" class="nav-item" data-section="track-section">Track Status</a></li>
-                <li><a href="#card" class="nav-item" data-section="card-section">Download ID Card</a></li>
-                <li><a href="#records" class="nav-item" data-section="records-section">Admin Records</a></li>
-                <li><a href="#about" class="nav-item" data-section="about-section">Project & Team</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main class="page-container">
-
-        <!-- ==============================================
-             SECTION 1: HOME DASHBOARD
-        ============================================== -->
-        <section id="home-section" class="app-section active">
-            
-            <!-- Hero Introduction -->
-            <div class="hero-card">
-                <div class="hero-text">
-                    <h2>Aadhaar Enrollment Management System</h2>
-                    <p class="hero-desc">
-                        A full-stack relational database portal built for educational demonstration. Demonstrates database normalization, foreign key constraints, citizen identity lifecycle, center allocation, and verified identity proof generation using Node.js, Express, and MySQL.
-                    </p>
-                </div>
-                <div class="status-indicator-box">
-                    <div class="status-indicator" title="Click to view or switch Backend API URL">
-                        <span class="status-dot"></span>
-                        <span id="backendStatusText">Checking backend connection...</span>
-                    </div>
-                    <span class="status-hint">Click status to configure API URL</span>
-                </div>
-            </div>
-
-            <!-- Portal Modules Grid -->
-            <div class="section-title-wrap">
-                <h3>Portal Operations & Management Modules</h3>
-                <span class="section-title-sub">Select an operation below to perform relational database transactions</span>
-            </div>
-
-            <div class="services-grid">
-                <!-- Card 1 -->
-                <div class="service-card" data-target="citizen-section">
-                    <div class="card-num">01</div>
-                    <div class="card-icon-box">👤</div>
-                    <h3>Citizen Registration</h3>
-                    <p>Register new citizens with validated demographic data, date of birth, and contact details.</p>
-                    <span class="card-action">Open Registration Form →</span>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="service-card" data-target="center-section">
-                    <div class="card-num">02</div>
-                    <div class="card-icon-box">🏛️</div>
-                    <h3>Enrollment Centers</h3>
-                    <p>Register and manage certified enrollment centers across districts and states.</p>
-                    <span class="card-action">Manage Centers →</span>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="service-card" data-target="application-section">
-                    <div class="card-num">03</div>
-                    <div class="card-icon-box">📝</div>
-                    <h3>New Application</h3>
-                    <p>Create an enrollment application linking a registered citizen to an authorized center.</p>
-                    <span class="card-action">Create Application →</span>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="service-card" data-target="track-section">
-                    <div class="card-num">04</div>
-                    <div class="card-icon-box">🔍</div>
-                    <h3>Track Status</h3>
-                    <p>Track live application progress, verification state, and inspect database records.</p>
-                    <span class="card-action">Track by ID →</span>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="service-card" data-target="card-section">
-                    <div class="card-num">05</div>
-                    <div class="card-icon-box">🪪</div>
-                    <h3>Download ID Card</h3>
-                    <p>Generate and download an official Aadhaar Identity Proof Card with QR code & biometric badge.</p>
-                    <span class="card-action">Generate ID Card →</span>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="service-card" data-target="records-section">
-                    <div class="card-num">06</div>
-                    <div class="card-icon-box">📊</div>
-                    <h3>Admin Database Records</h3>
-                    <p>Administrator table view with live search, SQL JOIN queries, and status update actions.</p>
-                    <span class="card-action">Open Records View →</span>
-                </div>
-
-                <!-- Card 7 -->
-                <div class="service-card" data-target="update-section">
-                    <div class="card-num">07</div>
-                    <div class="card-icon-box">✏️</div>
-                    <h3>Demographic Updation</h3>
-                    <p>Update registered citizen records, correct name, modify date of birth, or change registered mobile number.</p>
-                    <span class="card-action">Open Updation Portal →</span>
-                </div>
-            </div>
+        <!-- Main Form Container -->
+        <main class="main-content">
 
             <!-- ==============================================
-                 PROMINENTLY HIGHLIGHTED ACADEMIC SUBMISSION AREA
-                 (LOCATED AT THE BOTTOM OF HOME PAGE)
+                 SECTION 1: CITIZEN REGISTRATION
             ============================================== -->
-            <div class="academic-highlight-wrapper" id="academicHighlightWrapper">
-                <div class="academic-highlight-card">
-                    <!-- Top Ribbon Header -->
-                    <div class="highlight-topbar">
-                        <div class="highlight-title-block">
-                            <span class="highlight-badge-gold">🎓 OFFICIAL ACADEMIC PROJECT EVALUATION</span>
-                            <h3 class="highlight-title">Course: Database Management Systems Laboratory (DBMS)</h3>
-                            <span class="highlight-sub">Relational Database Normalization, Foreign Key Triggers, and Centralized Identity Management</span>
-                        </div>
-                        <button class="btn btn-outline-light" id="openEditCreditsBtn">
-                            ✎ Edit Faculty & Team (5 Members)
-                        </button>
+            <section id="citizen-section" class="app-section active">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>1. Citizen Registration Form</h2>
+                        <p>Insert a new citizen record into the <code>Citizens</code> table.</p>
                     </div>
 
-                    <!-- Faculty and 5-Student Team Spotlight Grid -->
-                    <div class="highlight-content-grid">
-                        <!-- Faculty Guide Spotlight -->
-                        <div class="faculty-spotlight">
-                            <div class="spotlight-label">GUIDED BY / SUBMITTED TO</div>
-                            <div class="faculty-card-inner">
-                                <div class="faculty-avatar">👨‍🏫</div>
-                                <div class="faculty-info">
-                                    <h4 class="faculty-name" id="displayTeacherName">Prof. Faculty Guide</h4>
-                                    <p class="faculty-dept" id="displayTeacherDept">Department of Computer Science & Engineering</p>
-                                    <span class="faculty-status-pill">Course Evaluator & Faculty Mentor</span>
-                                </div>
+                    <div id="citizenAlert" class="alert-box"></div>
+
+                    <form id="registrationform" class="simple-form">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="citizenname">Full Name <span class="required">*</span></label>
+                                <input type="text" id="citizenname" placeholder="Enter citizen full name" required maxlength="100">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="DOB">Date of Birth <span class="required">*</span></label>
+                                <input type="date" id="DOB" required>
                             </div>
                         </div>
 
-                        <!-- Project Development Team Spotlight (5 Members) -->
-                        <div class="team-spotlight">
-                            <div class="spotlight-label-row">
-                                <span class="spotlight-label">SUBMITTED BY / PROJECT DEVELOPMENT TEAM</span>
-                                <span class="team-badge" id="teamCountBadge">5 Members</span>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="gender">Gender <span class="required">*</span></label>
+                                <select id="gender" required>
+                                    <option value="">-- Select Gender --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
                             </div>
-                            <div class="students-grid" id="homeStudentsGrid">
-                                <!-- Populated dynamically by script.js with all 5 student profiles -->
+                            <div class="form-group flex-1">
+                                <label for="mobile">Mobile Number (10 digits) <span class="required">*</span></label>
+                                <input type="tel" id="mobile" placeholder="e.g. 9876543210" required pattern="[0-9]{10}" maxlength="10">
                             </div>
                         </div>
-                    </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="btn btn-primary" id="citizenSubmitBtn">Register Citizen</button>
+                            <button type="reset" class="btn btn-secondary">Clear</button>
+                        </div>
+                    </form>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ==============================================
-             SECTION 2: CITIZEN REGISTRATION
-        ============================================== -->
-        <section id="citizen-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">TABLE: Citizens</div>
-                    <h2>Citizen Demographic Registration</h2>
-                    <p>Record a new citizen's baseline identity into the centralized database.</p>
-                </div>
-
-                <div id="citizenAlert" class="alert-box"></div>
-
-                <form id="registrationform" class="standard-form">
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="citizenname">Citizen Full Name <span class="required">*</span></label>
-                            <input type="text" id="citizenname" placeholder="e.g. Ramesh Kumar Sharma" required maxlength="100">
-                            <span class="field-hint">Enter name as per official birth or school certificate</span>
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="DOB">Date of Birth <span class="required">*</span></label>
-                            <input type="date" id="DOB" required>
-                            <span class="field-hint">Must be today or in the past</span>
-                        </div>
+            <!-- ==============================================
+                 SECTION 2: DEMOGRAPHIC UPDATION
+            ============================================== -->
+            <section id="update-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>2. Demographic Details Updation</h2>
+                        <p>Search a registered citizen and update their demographic record (SQL <code>UPDATE</code>).</p>
                     </div>
 
-                    <div class="form-row">
+                    <!-- Citizen Search / Select -->
+                    <div class="lookup-bar">
                         <div class="form-group flex-1">
-                            <label for="gender">Gender <span class="required">*</span></label>
-                            <select id="gender" required>
-                                <option value="">-- Select Gender --</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Others">Others</option>
+                            <label for="updateCitizenSelect">Select Citizen to Update:</label>
+                            <select id="updateCitizenSelect">
+                                <option value="">-- Choose a Citizen --</option>
                             </select>
                         </div>
                         <div class="form-group flex-1">
-                            <label for="mobile">Mobile Number <span class="required">*</span></label>
-                            <input type="tel" id="mobile" placeholder="10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
-                            <span class="field-hint">10 digits without country code (+91)</span>
+                            <label for="updateCitizenIdInput">Or Enter Citizen ID:</label>
+                            <div class="input-inline">
+                                <input type="number" id="updateCitizenIdInput" placeholder="e.g. 1" min="1">
+                                <button type="button" class="btn btn-secondary" id="fetchCitizenForUpdateBtn">Fetch</button>
+                                <button type="button" class="btn btn-secondary" id="refreshUpdateCitizensBtn">↻ Refresh</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="citizenSubmitBtn">Register Citizen</button>
-                        <button type="reset" class="btn btn-secondary">Clear Form</button>
-                    </div>
-                </form>
-            </div>
-        </section>
+                    <div id="updateAlert" class="alert-box"></div>
 
-        <!-- ==============================================
-             SECTION: DEMOGRAPHIC UPDATION PORTAL
-        ============================================== -->
-        <section id="update-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">TABLE: Citizens (SQL UPDATE)</div>
-                    <h2>Demographic Details Updation Portal</h2>
-                    <p>Lookup an existing citizen record and perform verified SQL UPDATE transactions on demographic attributes.</p>
+                    <form id="updateCitizenForm" class="simple-form">
+                        <input type="hidden" id="editCitizenId" value="">
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="editCitizenName">Full Name <span class="required">*</span></label>
+                                <input type="text" id="editCitizenName" placeholder="Updated Full Name" required maxlength="100">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="editDOB">Date of Birth <span class="required">*</span></label>
+                                <input type="date" id="editDOB" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="editGender">Gender <span class="required">*</span></label>
+                                <select id="editGender" required>
+                                    <option value="">-- Select Gender --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="editMobile">Mobile Number <span class="required">*</span></label>
+                                <input type="tel" id="editMobile" placeholder="10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="btn btn-primary" id="updateCitizenSubmitBtn">Save Updated Details</button>
+                            <button type="button" class="btn btn-secondary" id="viewUpdatedCardBtn" style="display:none;">🪪 View Updated ID Card</button>
+                            <button type="button" class="btn btn-secondary" id="resetUpdateFormBtn">Clear Form</button>
+                        </div>
+                    </form>
                 </div>
+            </section>
 
-                <!-- Citizen Lookup Controls -->
-                <div class="card-controls-bar">
-                    <div class="control-group flex-1">
-                        <div class="label-row">
-                            <label for="updateCitizenSelect">Select Registered Citizen to Update:</label>
-                            <button type="button" class="link-btn" id="refreshUpdateCitizensBtn">↻ Refresh List</button>
-                        </div>
-                        <select id="updateCitizenSelect">
-                            <option value="">-- Choose a Citizen to Edit --</option>
-                        </select>
+            <!-- ==============================================
+                 SECTION 3: ENROLLMENT CENTER REGISTRATION
+            ============================================== -->
+            <section id="center-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>3. Enrollment Center Registration</h2>
+                        <p>Register an authorized center into the <code>EnrollmentCenter</code> table.</p>
                     </div>
-                    <div class="control-group flex-1">
-                        <label for="updateCitizenIdInput">Or Enter Citizen ID:</label>
-                        <div class="search-input-group">
-                            <input type="number" id="updateCitizenIdInput" placeholder="e.g. 1" min="1">
-                            <button type="button" class="btn btn-secondary" id="fetchCitizenForUpdateBtn">Fetch Details</button>
+
+                    <div id="centerAlert" class="alert-box"></div>
+
+                    <form id="centerform" class="simple-form">
+                        <div class="form-group">
+                            <label for="centername">Center Name <span class="required">*</span></label>
+                            <input type="text" id="centername" placeholder="e.g. City Central UIDAI Kendra" required maxlength="60">
                         </div>
-                    </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="district">District <span class="required">*</span></label>
+                                <input type="text" id="district" placeholder="e.g. Bhopal" required maxlength="60">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="state">State <span class="required">*</span></label>
+                                <input type="text" id="state" placeholder="e.g. Madhya Pradesh" required maxlength="60">
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="btn btn-primary" id="centerSubmitBtn">Register Center</button>
+                            <button type="reset" class="btn btn-secondary">Clear</button>
+                        </div>
+                    </form>
                 </div>
+            </section>
 
-                <div id="updateAlert" class="alert-box"></div>
-
-                <form id="updateCitizenForm" class="standard-form">
-                    <input type="hidden" id="editCitizenId" value="">
-
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="editCitizenName">Full Name <span class="required">*</span></label>
-                            <input type="text" id="editCitizenName" placeholder="Enter updated full name" required maxlength="100">
-                            <span class="field-hint">Update spelling as per certified documents</span>
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="editDOB">Date of Birth <span class="required">*</span></label>
-                            <input type="date" id="editDOB" required>
-                            <span class="field-hint">Must be today or in the past</span>
-                        </div>
+            <!-- ==============================================
+                 SECTION 4: NEW ENROLLMENT APPLICATION
+            ============================================== -->
+            <section id="application-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>4. New Enrollment Application Form</h2>
+                        <p>Link a citizen with an enrollment center via foreign keys in <code>AadharApplication</code>.</p>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="editGender">Gender <span class="required">*</span></label>
-                            <select id="editGender" required>
-                                <option value="">-- Select Gender --</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Others">Others</option>
+                    <div id="applicationAlert" class="alert-box"></div>
+
+                    <form id="applicationForm" class="simple-form">
+                        <div class="form-group">
+                            <div class="label-with-action">
+                                <label for="appCitizenSelect">Select Registered Citizen <span class="required">*</span></label>
+                                <button type="button" class="link-action" id="refreshCitizensDropdownBtn">↻ Refresh</button>
+                            </div>
+                            <select id="appCitizenSelect" required>
+                                <option value="">Loading citizens...</option>
                             </select>
                         </div>
-                        <div class="form-group flex-1">
-                            <label for="editMobile">Registered Mobile Number <span class="required">*</span></label>
-                            <input type="tel" id="editMobile" placeholder="10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
-                            <span class="field-hint">10 digits without country code (+91)</span>
+
+                        <div class="form-group">
+                            <div class="label-with-action">
+                                <label for="appCenterSelect">Select Enrollment Center <span class="required">*</span></label>
+                                <button type="button" class="link-action" id="refreshCentersDropdownBtn">↻ Refresh</button>
+                            </div>
+                            <select id="appCenterSelect" required>
+                                <option value="">Loading centers...</option>
+                            </select>
                         </div>
-                    </div>
 
-                    <div class="info-note">
-                        <strong>Relational Integrity Note:</strong> Executing this update modifies the primary tuple in <code>Citizens</code> table. All linked <code>AadharApplication</code> records will maintain referential integrity via foreign key constraints.
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="updateCitizenSubmitBtn">Save Updated Details</button>
-                        <button type="button" class="btn btn-success" id="viewUpdatedCardBtn" style="display:none;">🪪 View Updated ID Card</button>
-                        <button type="button" class="btn btn-secondary" id="resetUpdateFormBtn">Clear / Reset</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- ==============================================
-             SECTION 3: ENROLLMENT CENTER REGISTRATION
-        ============================================== -->
-        <section id="center-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">TABLE: EnrollmentCenter</div>
-                    <h2>Enrollment Center Registration</h2>
-                    <p>Register an authorized center responsible for demographic verification and biometric capture.</p>
+                        <div class="button-row">
+                            <button type="submit" class="btn btn-primary" id="appSubmitBtn">Submit Application</button>
+                        </div>
+                    </form>
                 </div>
+            </section>
 
-                <div id="centerAlert" class="alert-box"></div>
-
-                <form id="centerform" class="standard-form">
-                    <div class="form-group">
-                        <label for="centername">Center Name <span class="required">*</span></label>
-                        <input type="text" id="centername" placeholder="e.g. City Central UIDAI Kendra" required maxlength="60">
+            <!-- ==============================================
+                 SECTION 5: APPLICATION STATUS TRACKING
+            ============================================== -->
+            <section id="track-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>5. Track Application Status</h2>
+                        <p>Enter an Application ID to query application progress and details from the database.</p>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="district">District <span class="required">*</span></label>
-                            <input type="text" id="district" placeholder="e.g. Bhopal" required maxlength="60">
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="state">State <span class="required">*</span></label>
-                            <input type="text" id="state" placeholder="e.g. Madhya Pradesh" required maxlength="60">
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="centerSubmitBtn">Register Center</button>
-                        <button type="reset" class="btn btn-secondary">Clear Form</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- ==============================================
-             SECTION 4: AADHAAR APPLICATION CREATION
-        ============================================== -->
-        <section id="application-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">TABLE: AadharApplication (Foreign Keys)</div>
-                    <h2>New Enrollment Application</h2>
-                    <p>Link an existing registered citizen with an enrollment center to generate an enrollment record.</p>
-                </div>
-
-                <div id="applicationAlert" class="alert-box"></div>
-
-                <form id="applicationForm" class="standard-form">
-                    <div class="form-group">
-                        <div class="label-row">
-                            <label for="appCitizenSelect">Select Registered Citizen <span class="required">*</span></label>
-                            <button type="button" class="link-btn" id="refreshCitizensDropdownBtn">↻ Refresh List</button>
-                        </div>
-                        <select id="appCitizenSelect" required>
-                            <option value="">Loading citizens...</option>
-                        </select>
-                        <span class="field-hint">Citizen must be registered first in Section 1</span>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="label-row">
-                            <label for="appCenterSelect">Select Enrollment Center <span class="required">*</span></label>
-                            <button type="button" class="link-btn" id="refreshCentersDropdownBtn">↻ Refresh List</button>
-                        </div>
-                        <select id="appCenterSelect" required>
-                            <option value="">Loading centers...</option>
-                        </select>
-                    </div>
-
-                    <div class="info-note">
-                        <strong>Relational Trigger Note:</strong> Submission links <code>citizen_id</code> and <code>center_id</code> via foreign key constraints. Application date is automatically defaulted to current date with initial status <strong>Pending</strong>.
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="appSubmitBtn">Submit Application</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- ==============================================
-             SECTION 5: APPLICATION STATUS TRACKING
-        ============================================== -->
-        <section id="track-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">STATUS INQUIRY</div>
-                    <h2>Track Application Status</h2>
-                    <p>Enter an Application ID to query the relational status across Citizens, Center, and Application tables.</p>
-                </div>
-
-                <form id="trackForm" class="search-form">
-                    <div class="form-group">
-                        <label for="trackAppId">Application ID <span class="required">*</span></label>
-                        <div class="search-input-group">
-                            <input type="number" id="trackAppId" placeholder="e.g. 1" min="1" required>
-                            <button type="submit" class="btn btn-primary" id="trackSubmitBtn">Track Status</button>
-                        </div>
-                    </div>
-                </form>
-
-                <div id="trackAlert" class="alert-box"></div>
-
-                <!-- Result Card -->
-                <div id="trackResultCard" class="result-card hidden">
-                    <div class="result-header">
-                        <div>
-                            <span class="result-badge-label">APPLICATION INQUIRY RESULT</span>
-                            <h3>Enrollment Record #<span id="resAppIdNum">1</span></h3>
-                        </div>
-                        <span id="trackStatusBadge" class="status-badge">Pending</span>
-                    </div>
-                    <div class="result-body">
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <span class="result-label">Citizen Name</span>
-                                <strong class="result-value" id="resCitizenName">-</strong>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">Mobile Number</span>
-                                <span class="result-value" id="resMobile">-</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">Enrollment Center</span>
-                                <span class="result-value" id="resCenterName">-</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">District & State</span>
-                                <span class="result-value" id="resLocation">-</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">Application Date</span>
-                                <span class="result-value" id="resAppDate">-</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">Verification Status</span>
-                                <span class="result-value" id="resStatusText">-</span>
+                    <form id="trackForm" class="simple-form">
+                        <div class="form-group">
+                            <label for="trackAppId">Application ID <span class="required">*</span></label>
+                            <div class="input-inline">
+                                <input type="number" id="trackAppId" placeholder="e.g. 1" min="1" required>
+                                <button type="submit" class="btn btn-primary" id="trackSubmitBtn">Track Status</button>
                             </div>
                         </div>
+                    </form>
 
-                        <!-- Card Download CTA -->
-                        <div class="card-cta-box" id="trackCardCtaBox">
-                            <div class="cta-text">
-                                <strong>Official Identity Proof Available</strong>
-                                <p>You can generate and download the printable Aadhaar Identity Card for this record.</p>
-                            </div>
-                            <button type="button" class="btn btn-success" id="generateCardFromTrackBtn">
-                                🪪 View & Download Identity Card →
+                    <div id="trackAlert" class="alert-box"></div>
+
+                    <!-- Result Box -->
+                    <div id="trackResultCard" class="result-box hidden">
+                        <div class="result-box-header">
+                            <strong>Application Record #<span id="resAppIdNum">1</span></strong>
+                            <span id="trackStatusBadge" class="status-tag">Pending</span>
+                        </div>
+                        <div class="result-details-grid">
+                            <div><span>Citizen:</span> <strong id="resCitizenName">-</strong></div>
+                            <div><span>Mobile:</span> <span id="resMobile">-</span></div>
+                            <div><span>Center:</span> <span id="resCenterName">-</span></div>
+                            <div><span>Location:</span> <span id="resLocation">-</span></div>
+                            <div><span>Date:</span> <span id="resAppDate">-</span></div>
+                        </div>
+                        <div class="result-action-row">
+                            <button type="button" class="btn btn-secondary" id="generateCardFromTrackBtn">
+                                🪪 View & Download Identity Card
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ==============================================
-             SECTION 6: DOWNLOAD AADHAAR IDENTITY PROOF CARD
-        ============================================== -->
-        <section id="card-section" class="app-section">
-            <div class="card-generator-wrapper">
-                <div class="form-card">
-                    <div class="card-header">
-                        <div class="header-badge">IDENTITY VERIFICATION PROOF</div>
-                        <h2>Aadhaar Identity Proof Card Generator</h2>
-                        <p>Generate, preview, print, or download an official-format verified identity card based on database records.</p>
+            <!-- ==============================================
+                 SECTION 6: AADHAAR IDENTITY CARD GENERATOR
+            ============================================== -->
+            <section id="card-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>6. Aadhaar Identity Proof Card Generator</h2>
+                        <p>Select a registered citizen to generate an official Aadhaar identity card.</p>
                     </div>
 
-                    <div class="card-controls-bar">
-                        <div class="control-group flex-1">
+                    <div class="lookup-bar">
+                        <div class="form-group flex-1">
                             <label for="cardCitizenSelect">Choose Registered Citizen:</label>
                             <select id="cardCitizenSelect">
                                 <option value="">-- Select Citizen --</option>
                             </select>
                         </div>
-                        <div class="control-group flex-1">
+                        <div class="form-group flex-1">
                             <label for="cardAppIdInput">Or Enter Application ID:</label>
-                            <div class="search-input-group">
+                            <div class="input-inline">
                                 <input type="number" id="cardAppIdInput" placeholder="e.g. 1" min="1">
-                                <button type="button" class="btn btn-secondary" id="loadCardByAppBtn">Load</button>
+                                <button type="button" class="btn btn-secondary" id="loadCardByAppBtn">Load Card</button>
                             </div>
                         </div>
                     </div>
 
                     <div id="cardAlert" class="alert-box"></div>
 
-                    <!-- THE AADHAAR CARD PREVIEW (PRINTABLE & DOWNLOADABLE) -->
-                    <div class="id-card-display-area">
-                        <div class="aadhaar-pvc-card" id="aadhaarCardNode">
-                            <!-- Tricolor Top Ribbon -->
-                            <div class="card-tricolor">
-                                <div class="tri-saffron"></div>
-                                <div class="tri-white"></div>
-                                <div class="tri-green"></div>
+                    <!-- Monochrome Identity Card Container -->
+                    <div class="card-display-container">
+                        <div class="simple-aadhaar-card" id="aadhaarCardNode">
+                            <!-- Header -->
+                            <div class="card-top">
+                                <div class="card-logo">GOVERNMENT OF INDIA / UIDAI</div>
+                                <div class="card-title-hi">भारत सरकार — पहचान पत्र</div>
                             </div>
 
-                            <!-- Card Top Header -->
-                            <div class="aadhaar-header">
-                                <div class="aadhaar-emblem">
-                                    <svg viewBox="0 0 24 24" fill="#000000" width="32" height="32" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="10" fill="none" stroke="#000000" stroke-width="1.8"/>
-                                        <circle cx="12" cy="12" r="3" fill="#000000"/>
-                                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="#000000" stroke-width="1.4"/>
-                                    </svg>
+                            <!-- Body -->
+                            <div class="card-content">
+                                <div class="card-photo-box">
+                                    <div class="photo-icon" id="cardAvatar">👤</div>
+                                    <div class="verified-tag">✓ VERIFIED</div>
                                 </div>
-                                <div class="aadhaar-title-block">
-                                    <div class="aadhaar-title-hi">भारत सरकार</div>
-                                    <div class="aadhaar-title-en">GOVERNMENT OF INDIA</div>
-                                    <div class="aadhaar-authority">भारतीय विशिष्ट पहचान प्राधिकरण | UIDAI</div>
+                                <div class="card-info">
+                                    <div class="info-row"><span class="info-lbl">Name:</span> <strong id="cardCitizenName">Citizen Full Name</strong></div>
+                                    <div class="info-row"><span class="info-lbl">DOB:</span> <span id="cardDOB">DD/MM/YYYY</span></div>
+                                    <div class="info-row"><span class="info-lbl">Gender:</span> <span id="cardGender">Male / Female</span></div>
+                                    <div class="info-row"><span class="info-lbl">Mobile:</span> <span id="cardMobile">+91 XXXXXX0000</span></div>
+                                    <div class="info-row"><span class="info-lbl">Center:</span> <span id="cardCenter">Central Kendra</span></div>
                                 </div>
-                                <div class="aadhaar-logo-box">
-                                    <div class="aadhaar-sun-icon">☀️</div>
-                                    <span class="aadhaar-brand-name">आधार</span>
+                                <div class="card-qr-box" id="cardQrCode">
+                                    <div class="qr-mock">QR CODE</div>
                                 </div>
                             </div>
 
-                            <!-- Card Main Content -->
-                            <div class="aadhaar-body">
-                                <div class="aadhaar-photo-section">
-                                    <div class="aadhaar-photo-frame">
-                                        <div class="photo-placeholder" id="cardAvatar">
-                                            <span>👤</span>
-                                        </div>
-                                        <div class="security-chip">SECURE</div>
-                                    </div>
-                                    <div class="verified-stamp">✓ VERIFIED</div>
-                                </div>
-
-                                <div class="aadhaar-info-section">
-                                    <div class="info-field">
-                                        <span class="info-label-hi">नाम / Name</span>
-                                        <div class="info-value-name" id="cardCitizenName">Citizen Full Name</div>
-                                    </div>
-
-                                    <div class="info-field">
-                                        <span class="info-label-hi">जन्म तिथि / Date of Birth</span>
-                                        <div class="info-value" id="cardDOB">DD/MM/YYYY</div>
-                                    </div>
-
-                                    <div class="info-field">
-                                        <span class="info-label-hi">लिंग / Gender</span>
-                                        <div class="info-value" id="cardGender">Male / Female</div>
-                                    </div>
-
-                                    <div class="info-field">
-                                        <span class="info-label-hi">पंजीकृत मोबाइल / Mobile</span>
-                                        <div class="info-value" id="cardMobile">XXXXXX0000</div>
-                                    </div>
-
-                                    <div class="info-field">
-                                        <span class="info-label-hi">नामांकन केंद्र / Center</span>
-                                        <div class="info-value-sm" id="cardCenter">Central Center, District</div>
-                                    </div>
-                                </div>
-
-                                <div class="aadhaar-qr-section">
-                                    <div class="qr-code-box" id="cardQrCode">
-                                        <!-- Realistic Scalable QR Matrix simulation -->
-                                        <svg viewBox="0 0 100 100" width="85" height="85">
-                                            <rect width="100" height="100" fill="#ffffff"/>
-                                            <!-- Top-left finder -->
-                                            <rect x="5" y="5" width="28" height="28" fill="#1e293b"/>
-                                            <rect x="9" y="9" width="20" height="20" fill="#ffffff"/>
-                                            <rect x="13" y="13" width="12" height="12" fill="#1e293b"/>
-                                            <!-- Top-right finder -->
-                                            <rect x="67" y="5" width="28" height="28" fill="#1e293b"/>
-                                            <rect x="71" y="9" width="20" height="20" fill="#ffffff"/>
-                                            <rect x="75" y="13" width="12" height="12" fill="#1e293b"/>
-                                            <!-- Bottom-left finder -->
-                                            <rect x="5" y="67" width="28" height="28" fill="#1e293b"/>
-                                            <rect x="9" y="71" width="20" height="20" fill="#ffffff"/>
-                                            <rect x="13" y="75" width="12" height="12" fill="#1e293b"/>
-                                            <!-- Data clusters -->
-                                            <rect x="38" y="10" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="50" y="15" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="40" y="28" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="52" y="28" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="10" y="40" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="25" y="45" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="38" y="42" width="10" height="10" fill="#1e293b"/>
-                                            <rect x="54" y="45" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="68" y="40" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="80" y="45" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="38" y="60" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="50" y="65" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="68" y="60" width="6" height="6" fill="#1e293b"/>
-                                            <rect x="80" y="68" width="10" height="10" fill="#1e293b"/>
-                                            <rect x="42" y="78" width="8" height="8" fill="#1e293b"/>
-                                            <rect x="55" y="80" width="8" height="8" fill="#1e293b"/>
-                                        </svg>
-                                    </div>
-                                    <span class="qr-label">DIGITALLY SIGNED</span>
-                                </div>
+                            <!-- Number -->
+                            <div class="card-number-box">
+                                <div class="aadhaar-label">Your Aadhaar No. / आधार क्रमांक :</div>
+                                <div class="aadhaar-num" id="cardAadhaarNumber">2489 7132 <span id="cardLastDigits">8904</span></div>
                             </div>
 
-                            <!-- 12-Digit Formatted Aadhaar Number Banner -->
-                            <div class="aadhaar-number-strip">
-                                <span class="aadhaar-num-label">आपका आधार क्रमांक / Your Aadhaar No. :</span>
-                                <div class="aadhaar-digits" id="cardAadhaarNumber">
-                                    <span>2489</span>
-                                    <span>7132</span>
-                                    <span id="cardLastDigits">8904</span>
-                                </div>
-                            </div>
-
-                            <!-- Card Footer Slogan -->
-                            <div class="aadhaar-footer">
-                                <span class="slogan-hi">मेरा आधार, मेरी पहचान</span>
-                                <span class="slogan-en">My Aadhaar, My Identity</span>
-                                <span class="demo-watermark">[DBMS Lab Academic Verification Card]</span>
+                            <!-- Slogan -->
+                            <div class="card-bottom">
+                                <span>मेरा आधार, मेरी पहचान</span>
+                                <span>[DBMS Academic Verification Card]</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Action Buttons for Download and Print -->
-                    <div class="card-download-actions">
-                        <button type="button" class="btn btn-primary btn-lg" id="downloadCardPngBtn">
-                            ⬇ Download Card (.PNG Image)
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-lg" id="printCardBtn">
-                            🖨 Print / Save as PDF
-                        </button>
+                    <div class="button-row center">
+                        <button type="button" class="btn btn-primary" id="downloadCardPngBtn">⬇ Download Card (.PNG)</button>
+                        <button type="button" class="btn btn-secondary" id="printCardBtn">🖨 Print / PDF</button>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <!-- ==============================================
+                 SECTION 7: VIEW DATABASE RECORDS
+            ============================================== -->
+            <section id="records-section" class="app-section">
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h2>7. Database Records Management</h2>
+                        <p>Live relational queries across MySQL tables.</p>
+                    </div>
+
+                    <!-- Sub Tabs -->
+                    <div class="table-sub-tabs">
+                        <button class="sub-tab-btn active" data-tab="tab-applications">Applications (<span id="countApps">0</span>)</button>
+                        <button class="sub-tab-btn" data-tab="tab-citizens">Citizens (<span id="countCitizens">0</span>)</button>
+                        <button class="sub-tab-btn" data-tab="tab-centers">Centers (<span id="countCenters">0</span>)</button>
+                    </div>
+
+                    <!-- Tab 1: Applications -->
+                    <div id="tab-applications" class="sub-tab-content active">
+                        <div class="table-controls">
+                            <input type="text" id="searchApplications" placeholder="Search applications...">
+                            <button class="btn btn-secondary" id="refreshApplicationsBtn">↻ Refresh</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="simple-table" id="applicationsTable">
+                                <thead>
+                                    <tr>
+                                        <th>App ID</th>
+                                        <th>Citizen Name</th>
+                                        <th>Mobile</th>
+                                        <th>Center</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applicationsTableBody">
+                                    <tr><td colspan="7" class="empty-cell">Loading applications...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Citizens -->
+                    <div id="tab-citizens" class="sub-tab-content">
+                        <div class="table-controls">
+                            <input type="text" id="searchCitizens" placeholder="Search citizens...">
+                            <button class="btn btn-secondary" id="refreshCitizensBtn">↻ Refresh</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="simple-table" id="citizensTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Date of Birth</th>
+                                        <th>Gender</th>
+                                        <th>Mobile Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="citizensTableBody">
+                                    <tr><td colspan="6" class="empty-cell">Loading citizens...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Centers -->
+                    <div id="tab-centers" class="sub-tab-content">
+                        <div class="table-controls">
+                            <input type="text" id="searchCenters" placeholder="Search centers...">
+                            <button class="btn btn-secondary" id="refreshCentersBtn">↻ Refresh</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="simple-table" id="centersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Center ID</th>
+                                        <th>Center Name</th>
+                                        <th>District</th>
+                                        <th>State</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="centersTableBody">
+                                    <tr><td colspan="4" class="empty-cell">Loading centers...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
 
         <!-- ==============================================
-             SECTION 7: VIEW RECORDS (ADMIN DASHBOARD)
+             PROMINENTLY HIGHLIGHTED ACADEMIC SUBMISSION AREA
+             (PLACED AT THE BOTTOM OF THE PAGE)
         ============================================== -->
-        <section id="records-section" class="app-section">
-            <div class="records-container">
-                <div class="card-header">
-                    <div class="header-badge">RELATIONAL DATA VIEWER</div>
-                    <h2>Database Records Management</h2>
-                    <p class="admin-notice">Administrative relational inspection across MySQL tables (Citizens, EnrollmentCenter, AadharApplication).</p>
+        <section class="academic-credits-container" id="academicHighlightWrapper">
+            <div class="credits-box">
+                <div class="credits-header">
+                    <div>
+                        <strong class="credits-title">🎓 Academic Project Submission — DBMS Laboratory</strong>
+                        <div class="credits-subtitle">Coursework Evaluation & Relational Database System Design</div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="openEditCreditsBtn">
+                        ✎ Edit Teacher & Team Details
+                    </button>
                 </div>
 
-                <!-- Sub Navigation Tabs -->
-                <div class="sub-tabs">
-                    <button class="sub-tab-btn active" data-tab="tab-applications">Applications (<span id="countApps">0</span>)</button>
-                    <button class="sub-tab-btn" data-tab="tab-citizens">Citizens (<span id="countCitizens">0</span>)</button>
-                    <button class="sub-tab-btn" data-tab="tab-centers">Enrollment Centers (<span id="countCenters">0</span>)</button>
-                </div>
-
-                <!-- Sub-Tab 1: Applications Management (Section 8) -->
-                <div id="tab-applications" class="sub-tab-content active">
-                    <div class="table-toolbar">
-                        <input type="text" id="searchApplications" class="table-search" placeholder="Search by citizen, center, or ID...">
-                        <button class="btn btn-secondary" id="refreshApplicationsBtn">Refresh Table</button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table" id="applicationsTable">
-                            <thead>
-                                <tr>
-                                    <th>App ID</th>
-                                    <th>Citizen Name</th>
-                                    <th>Mobile</th>
-                                    <th>Enrollment Center</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Admin Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applicationsTableBody">
-                                <tr><td colspan="7" class="table-empty">Loading applications...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Sub-Tab 2: Citizens Records (Section 6) -->
-                <div id="tab-citizens" class="sub-tab-content">
-                    <div class="table-toolbar">
-                        <input type="text" id="searchCitizens" class="table-search" placeholder="Search citizens by name, mobile, or ID...">
-                        <button class="btn btn-secondary" id="refreshCitizensBtn">Refresh Table</button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table" id="citizensTable">
-                            <thead>
-                                <tr>
-                                    <th>Citizen ID</th>
-                                    <th>Full Name</th>
-                                    <th>Date of Birth</th>
-                                    <th>Gender</th>
-                                    <th>Mobile Number</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="citizensTableBody">
-                                <tr><td colspan="6" class="table-empty">Loading citizens...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Sub-Tab 3: Enrollment Centers (Section 7) -->
-                <div id="tab-centers" class="sub-tab-content">
-                    <div class="table-toolbar">
-                        <input type="text" id="searchCenters" class="table-search" placeholder="Search centers by name, district, or state...">
-                        <button class="btn btn-secondary" id="refreshCentersBtn">Refresh Table</button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table" id="centersTable">
-                            <thead>
-                                <tr>
-                                    <th>Center ID</th>
-                                    <th>Center Name</th>
-                                    <th>District</th>
-                                    <th>State</th>
-                                </tr>
-                            </thead>
-                            <tbody id="centersTableBody">
-                                <tr><td colspan="4" class="table-empty">Loading centers...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ==============================================
-             SECTION 8: ACADEMIC PROJECT & TEAM CREDITS
-        ============================================== -->
-        <section id="about-section" class="app-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <div class="header-badge">ACADEMIC CREDITS</div>
-                    <h2>Project Submission & Team Details</h2>
-                    <p>Database Management Systems (DBMS) Laboratory Evaluation & Coursework Project.</p>
-                </div>
-
-                <div class="about-grid">
-                    <div class="about-card">
-                        <h3>🎓 Faculty Guide (Submitted To)</h3>
-                        <div class="about-profile">
-                            <div class="profile-icon">👨‍🏫</div>
-                            <div>
-                                <h4 id="aboutTeacherName">Prof. Faculty Guide</h4>
-                                <p class="text-muted" id="aboutTeacherDept">Department of Computer Science & Engineering</p>
-                                <span class="badge badge-info">Course Evaluator & Mentor</span>
-                            </div>
+                <div class="credits-content">
+                    <!-- Faculty Guide -->
+                    <div class="credits-block">
+                        <span class="block-label">SUBMITTED TO (FACULTY GUIDE):</span>
+                        <div class="faculty-display">
+                            <strong id="displayTeacherName">Prof. Faculty Guide</strong>
+                            <div class="text-sub" id="displayTeacherDept">Department of Computer Science & Engineering</div>
                         </div>
                     </div>
 
-                    <div class="about-card">
-                        <div class="spotlight-label-row">
-                            <h3>👥 Project Development Team (Submitted By)</h3>
-                            <span class="team-badge">5 Team Members</span>
+                    <!-- Student Team -->
+                    <div class="credits-block flex-2">
+                        <div class="team-label-row">
+                            <span class="block-label">SUBMITTED BY (PROJECT TEAM):</span>
+                            <span class="badge" id="teamCountBadge">5 Members</span>
                         </div>
-                        <div class="team-cards-container" id="aboutTeamContainer">
-                            <!-- Populated dynamically with all 5 student profiles -->
+                        <div class="students-list-grid" id="homeStudentsGrid">
+                            <!-- Dynamically loaded with 5 student profiles -->
                         </div>
                     </div>
-                </div>
-
-                <div class="dbms-schema-summary">
-                    <h3>🗄️ Relational Schema Implementation</h3>
-                    <div class="schema-tags">
-                        <span class="schema-tag">Citizens (citizen_id [PK], citizen_name, dob, gender, mobile_number)</span>
-                        <span class="schema-tag">EnrollmentCenter (center_id [PK], center_name, district, state)</span>
-                        <span class="schema-tag">AadharApplication (application_id [PK], citizen_id [FK], center_id [FK], application_date, status)</span>
-                        <span class="schema-tag">BiometricRecord (biometric_id [PK], application_id [FK], fingerprint_hash, iris_hash)</span>
-                    </div>
-                </div>
-
-                <div class="edit-credits-banner">
-                    <p>Need to update your faculty guide or team members' scholar numbers?</p>
-                    <button type="button" class="btn btn-primary" id="openEditCreditsBtn2">✎ Edit Faculty & Team (5 Members)</button>
                 </div>
             </div>
         </section>
 
-    </main>
+        <!-- Hidden canvas for generating clean high-res PNG download -->
+        <canvas id="offscreenCardCanvas" width="1000" height="630" style="display:none;"></canvas>
 
-    <!-- Modal for Editing Teacher & 5-Member Team Details -->
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p><strong>Aadhaar Enrollment System</strong> | DBMS Laboratory Project</p>
+            <p class="footer-meta">
+                Teacher: <span id="footerTeacherName">Prof. Faculty Guide</span> |
+                Team: <span id="footerTeamNames">5 Students</span>
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Modal for Editing Faculty Guide & 5-Member Team Details -->
     <div class="modal-backdrop hidden" id="creditsModal">
-        <div class="modal-dialog modal-dialog-lg">
+        <div class="modal-box">
             <div class="modal-header">
                 <h3>Edit Faculty Guide & Team Information (5 Members)</h3>
                 <button type="button" class="modal-close" id="closeCreditsModalBtn">&times;</button>
@@ -830,112 +514,54 @@
             <form id="creditsForm" class="modal-body">
                 <div class="form-group">
                     <label for="inputTeacherName">Teacher / Faculty Guide Name:</label>
-                    <input type="text" id="inputTeacherName" placeholder="e.g. Prof. Faculty Guide / Dr. A. K. Sharma" required>
+                    <input type="text" id="inputTeacherName" placeholder="e.g. Prof. Faculty Guide" required>
                 </div>
                 <div class="form-group">
                     <label for="inputTeacherDept">Department / Institution:</label>
                     <input type="text" id="inputTeacherDept" placeholder="e.g. Department of Computer Science & Engineering">
                 </div>
 
-                <hr class="modal-divider">
-                <div class="modal-subheading-wrap">
-                    <h4 class="modal-subheading">Project Team Members (5 Students):</h4>
-                    <span class="field-hint">Enter student name and college scholar / roll number</span>
-                </div>
+                <hr class="divider">
+                <div class="form-label-note">Project Team Members (5 Students):</div>
 
-                <div class="members-input-scroll">
-                    <!-- Member 1 -->
+                <!-- 5 Member Inputs -->
+                <div class="member-inputs-container">
                     <div class="member-input-row">
-                        <span class="member-num-tag">Member 1</span>
-                        <div class="form-row flex-1">
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputMember1" placeholder="Student 1 Name" required>
-                            </div>
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputScholar1" placeholder="Scholar No. 1" required>
-                            </div>
-                        </div>
+                        <span class="member-tag">S1</span>
+                        <input type="text" id="inputMember1" placeholder="Student 1 Name" required class="flex-1">
+                        <input type="text" id="inputScholar1" placeholder="Scholar No. 1" required class="flex-1">
                     </div>
-
-                    <!-- Member 2 -->
                     <div class="member-input-row">
-                        <span class="member-num-tag">Member 2</span>
-                        <div class="form-row flex-1">
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputMember2" placeholder="Student 2 Name">
-                            </div>
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputScholar2" placeholder="Scholar No. 2">
-                            </div>
-                        </div>
+                        <span class="member-tag">S2</span>
+                        <input type="text" id="inputMember2" placeholder="Student 2 Name" class="flex-1">
+                        <input type="text" id="inputScholar2" placeholder="Scholar No. 2" class="flex-1">
                     </div>
-
-                    <!-- Member 3 -->
                     <div class="member-input-row">
-                        <span class="member-num-tag">Member 3</span>
-                        <div class="form-row flex-1">
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputMember3" placeholder="Student 3 Name">
-                            </div>
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputScholar3" placeholder="Scholar No. 3">
-                            </div>
-                        </div>
+                        <span class="member-tag">S3</span>
+                        <input type="text" id="inputMember3" placeholder="Student 3 Name" class="flex-1">
+                        <input type="text" id="inputScholar3" placeholder="Scholar No. 3" class="flex-1">
                     </div>
-
-                    <!-- Member 4 -->
                     <div class="member-input-row">
-                        <span class="member-num-tag">Member 4</span>
-                        <div class="form-row flex-1">
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputMember4" placeholder="Student 4 Name">
-                            </div>
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputScholar4" placeholder="Scholar No. 4">
-                            </div>
-                        </div>
+                        <span class="member-tag">S4</span>
+                        <input type="text" id="inputMember4" placeholder="Student 4 Name" class="flex-1">
+                        <input type="text" id="inputScholar4" placeholder="Scholar No. 4" class="flex-1">
                     </div>
-
-                    <!-- Member 5 -->
                     <div class="member-input-row">
-                        <span class="member-num-tag">Member 5</span>
-                        <div class="form-row flex-1">
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputMember5" placeholder="Student 5 Name">
-                            </div>
-                            <div class="form-group flex-1">
-                                <input type="text" id="inputScholar5" placeholder="Scholar No. 5">
-                            </div>
-                        </div>
+                        <span class="member-tag">S5</span>
+                        <input type="text" id="inputMember5" placeholder="Student 5 Name" class="flex-1">
+                        <input type="text" id="inputScholar5" placeholder="Scholar No. 5" class="flex-1">
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save Team Details</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                     <button type="button" class="btn btn-secondary" id="cancelCreditsModalBtn">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Hidden Offscreen Canvas for Exporting Clean PNG Aadhaar Card -->
-    <canvas id="offscreenCardCanvas" width="800" height="500" style="display:none;"></canvas>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-left">
-                <p><strong>Aadhaar Enrollment Management System</strong> — DBMS Laboratory Coursework</p>
-                <p class="text-muted">Developed as an educational relational database project with MySQL, Express.js & Vanilla JavaScript.</p>
-            </div>
-            <div class="footer-right">
-                <p>Submitted to: <span id="footerTeacherName">Prof. Faculty Guide</span></p>
-                <p>Team: <span id="footerTeamNames">Student 1 & Student 2</span></p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Frontend Logic -->
+    <!-- Frontend Script -->
     <script src="script.js"></script>
 </body>
 </html>
