@@ -173,6 +173,74 @@ app.get(["/api/citizens/:id", "/citizens/:id"], function (req, res) {
   });
 });
 
+// PUT /api/citizens/:id - Update an existing citizen's demographic details
+app.put(["/api/citizens/:id", "/citizens/:id"], function (req, res) {
+  const citizenId = req.params.id;
+  const { citizen_name, dob, gender, mobile_number } = req.body;
+
+  if (!citizen_name || citizen_name.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Citizen name is required.",
+    });
+  }
+
+  if (!dob) {
+    return res.status(400).json({
+      success: false,
+      message: "Date of birth is required.",
+    });
+  }
+
+  const validGenders = ["Male", "Female", "Others"];
+  if (!gender || !validGenders.includes(gender)) {
+    return res.status(400).json({
+      success: false,
+      message: "Gender must be 'Male', 'Female', or 'Others'.",
+    });
+  }
+
+  const mobileRegex = /^[0-9]{10}$/;
+  if (!mobile_number || !mobileRegex.test(mobile_number.trim())) {
+    return res.status(400).json({
+      success: false,
+      message: "Mobile number must be exactly 10 digits.",
+    });
+  }
+
+  const sql = `
+    UPDATE Citizens
+    SET citizen_name = ?, dob = ?, gender = ?, mobile_number = ?
+    WHERE citizen_id = ?
+  `;
+  const values = [citizen_name.trim(), dob, gender, mobile_number.trim(), citizenId];
+
+  db.query(sql, values, function (error, result) {
+    if (error) {
+      console.error("Error updating citizen:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update citizen record in database.",
+        error: error.message || error.code,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Citizen record not found.",
+      });
+    }
+
+    console.log(`Citizen #${citizenId} updated successfully!`);
+    res.status(200).json({
+      success: true,
+      message: "Citizen demographic details updated successfully.",
+      citizen_id: parseInt(citizenId),
+    });
+  });
+});
+
 // ====================================================
 // 2. ENROLLMENT CENTER APIs
 // ====================================================
@@ -258,6 +326,50 @@ app.get(["/api/centers/:id", "/centers/:id"], function (req, res) {
     res.status(200).json({
       success: true,
       center: results[0],
+    });
+  });
+});
+
+// PUT /api/centers/:id - Update an existing enrollment center
+app.put(["/api/centers/:id", "/centers/:id"], function (req, res) {
+  const centerId = req.params.id;
+  const { center_name, district, state } = req.body;
+
+  if (!center_name || !district || !state) {
+    return res.status(400).json({
+      success: false,
+      message: "Center name, district, and state are all required.",
+    });
+  }
+
+  const sql = `
+    UPDATE EnrollmentCenter
+    SET center_name = ?, district = ?, state = ?
+    WHERE center_id = ?
+  `;
+  const values = [center_name.trim(), district.trim(), state.trim(), centerId];
+
+  db.query(sql, values, function (error, result) {
+    if (error) {
+      console.error("Error updating center:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update center data.",
+        error: error.message || error.code,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Enrollment center not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Enrollment center updated successfully.",
+      center_id: parseInt(centerId),
     });
   });
 });

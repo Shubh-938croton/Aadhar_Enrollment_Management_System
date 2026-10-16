@@ -66,6 +66,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Setup Aadhaar Identity Card Generator
   setupCardGenerator();
 
+  // Setup Demographic Updation Portal
+  setupUpdatePortal();
+
   // Restrict DOB input so future dates cannot be selected
   const dobInput = document.getElementById("DOB");
   if (dobInput) {
@@ -156,6 +159,8 @@ function switchSection(sectionId) {
     loadApplicationsTable();
     loadCitizensTable();
     loadCentersTable();
+  } else if (sectionId === "update-section") {
+    loadCitizensDropdown();
   }
 
   // Scroll to top of window smoothly
@@ -428,7 +433,8 @@ if (centerForm) {
 function loadCitizensDropdown() {
   const select = document.getElementById("appCitizenSelect");
   const cardSelect = document.getElementById("cardCitizenSelect");
-  if (!select && !cardSelect) return;
+  const updateSelect = document.getElementById("updateCitizenSelect");
+  if (!select && !cardSelect && !updateSelect) return;
 
   fetch(`${API_BASE_URL}/citizens`)
     .then((res) => res.json())
@@ -439,6 +445,11 @@ function loadCitizensDropdown() {
         // Also update card section citizen dropdown
         if (typeof loadCardCitizensDropdown === "function") {
           loadCardCitizensDropdown(allCitizens);
+        }
+
+        // Also update demographic updation section dropdown
+        if (typeof loadUpdateCitizensDropdown === "function") {
+          loadUpdateCitizensDropdown(allCitizens);
         }
 
         if (!select) return;
@@ -458,6 +469,7 @@ function loadCitizensDropdown() {
       console.error("Error loading citizens dropdown:", err);
       if (select) select.innerHTML = '<option value="">Failed to load citizens from backend</option>';
       if (cardSelect) cardSelect.innerHTML = '<option value="">Failed to load citizens</option>';
+      if (updateSelect) updateSelect.innerHTML = '<option value="">Failed to load citizens</option>';
     });
 }
 
@@ -778,6 +790,9 @@ function renderCitizensTable(citizens) {
         <td>${c.gender}</td>
         <td>+91 ${escapeHtml(c.mobile_number)}</td>
         <td>
+          <button class="action-btn-sm" style="margin-right: 4px;" onclick="openUpdateCitizen(${c.citizen_id})" title="Update demographic details">
+            ✏️ Edit
+          </button>
           <button class="action-btn-sm" onclick="viewCitizenCard(${c.citizen_id})" title="View and download Aadhaar Identity Card">
             🪪 ID Card
           </button>
@@ -1529,3 +1544,257 @@ function downloadAadhaarCardPng() {
   downloadLink.click();
   document.body.removeChild(downloadLink);
 }
+
+// ====================================================
+// 11. DEMOGRAPHIC UPDATION PORTAL (SECTION: UPDATE)
+// ====================================================
+function loadUpdateCitizensDropdown(citizens) {
+  const select = document.getElementById("updateCitizenSelect");
+  if (!select) return;
+
+  const currentVal = select.value;
+  let options = '<option value="">-- Choose a Citizen to Edit --</option>';
+  if (Array.isArray(citizens)) {
+    citizens.forEach((c) => {
+      options += `<option value="${c.citizen_id}">#${c.citizen_id} - ${c.citizen_name} (Mobile: ${c.mobile_number})</option>`;
+    });
+  }
+  select.innerHTML = options;
+  if (currentVal) select.value = currentVal;
+}
+
+function populateUpdateForm(citizen) {
+  if (!citizen) return;
+
+  const editId = document.getElementById("editCitizenId");
+  const editName = document.getElementById("editCitizenName");
+  const editDob = document.getElementById("editDOB");
+  const editGender = document.getElementById("editGender");
+  const editMobile = document.getElementById("editMobile");
+  const viewCardBtn = document.getElementById("viewUpdatedCardBtn");
+
+  if (editId) editId.value = citizen.citizen_id;
+  if (editName) editName.value = citizen.citizen_name || "";
+  if (editDob) editDob.value = citizen.dob ? citizen.dob.split("T")[0] : "";
+  if (editGender) editGender.value = citizen.gender || "";
+  if (editMobile) editMobile.value = citizen.mobile_number || "";
+
+  if (viewCardBtn) viewCardBtn.style.display = "inline-block";
+
+  showAlert(
+    "updateAlert",
+    `[Loaded] Citizen <strong>#${citizen.citizen_id} - ${escapeHtml(citizen.citizen_name)}</strong> is ready for demographic updates.`,
+    "info"
+  );
+}
+
+window.openUpdateCitizen = function (citizenId) {
+  switchSection("update-section");
+
+  const updateSelect = document.getElementById("updateCitizenSelect");
+  if (updateSelect) updateSelect.value = citizenId;
+
+  const citizen = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
+  if (citizen) {
+    populateUpdateForm(citizen);
+  } else {
+    const idInput = document.getElementById("updateCitizenIdInput");
+    if (idInput) {
+      idInput.value = citizenId;
+      const fetchBtn = document.getElementById("fetchCitizenForUpdateBtn");
+      if (fetchBtn) fetchBtn.click();
+    }
+  }
+};
+
+function setupUpdatePortal() {
+  const updateSelect = document.getElementById("updateCitizenSelect");
+  const idInput = document.getElementById("updateCitizenIdInput");
+  const fetchBtn = document.getElementById("fetchCitizenForUpdateBtn");
+  const refreshBtn = document.getElementById("refreshUpdateCitizensBtn");
+  const updateForm = document.getElementById("updateCitizenForm");
+  const resetBtn = document.getElementById("resetUpdateFormBtn");
+  const viewUpdatedCardBtn = document.getElementById("viewUpdatedCardBtn");
+  const editDobInput = document.getElementById("editDOB");
+
+  // Restrict DOB to today or earlier
+  if (editDobInput) {
+    const today = new Date().toISOString().split("T")[0];
+    editDobInput.setAttribute("max", today);
+  }
+
+  // Handle dropdown selection change
+  if (updateSelect) {
+    updateSelect.addEventListener("change", function () {
+      const citizenId = this.value;
+      if (!citizenId) return;
+      if (idInput) idInput.value = citizenId;
+      const citizen = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
+      if (citizen) {
+        populateUpdateForm(citizen);
+      }
+    });
+  }
+
+  // Handle manual ID search / fetch button
+  if (fetchBtn && idInput) {
+    fetchBtn.addEventListener("click", function () {
+      const citizenId = idInput.value.trim();
+      if (!citizenId) {
+        showAlert("updateAlert", "Please enter a valid numeric Citizen ID.", "error");
+        return;
+      }
+
+      const existing = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
+      if (existing) {
+        if (updateSelect) updateSelect.value = existing.citizen_id;
+        populateUpdateForm(existing);
+        return;
+      }
+
+      // If not in local cache yet, fetch from backend
+      fetchBtn.disabled = true;
+      fetchBtn.textContent = "Fetching...";
+
+      fetch(`${API_BASE_URL}/citizens`)
+        .then((res) => res.json())
+        .then((data) => {
+          fetchBtn.disabled = false;
+          fetchBtn.textContent = "Fetch Details";
+
+          if (data.success && Array.isArray(data.citizens)) {
+            allCitizens = data.citizens;
+            loadUpdateCitizensDropdown(allCitizens);
+            const found = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
+            if (found) {
+              if (updateSelect) updateSelect.value = found.citizen_id;
+              populateUpdateForm(found);
+            } else {
+              showAlert("updateAlert", `Citizen ID #${citizenId} was not found in the database.`, "error");
+            }
+          }
+        })
+        .catch((err) => {
+          fetchBtn.disabled = false;
+          fetchBtn.textContent = "Fetch Details";
+          console.error("Fetch citizen error:", err);
+          showAlert("updateAlert", "Could not connect to backend to fetch citizen details.", "error");
+        });
+    });
+  }
+
+  // Handle refresh list button
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", function () {
+      loadCitizensDropdown();
+    });
+  }
+
+  // Handle form submission (PUT /api/citizens/:id)
+  if (updateForm) {
+    updateForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const citizenId = document.getElementById("editCitizenId").value;
+      const citizenName = document.getElementById("editCitizenName").value.trim();
+      const dob = document.getElementById("editDOB").value;
+      const gender = document.getElementById("editGender").value;
+      const mobileNumber = document.getElementById("editMobile").value.trim();
+      const submitBtn = document.getElementById("updateCitizenSubmitBtn");
+
+      if (!citizenId) {
+        showAlert("updateAlert", "Please select or fetch a citizen record before submitting updates.", "error");
+        return;
+      }
+
+      if (!citizenName || !dob || !gender || !mobileNumber) {
+        showAlert("updateAlert", "Please fill in all required fields.", "error");
+        return;
+      }
+
+      if (!/^\d{10}$/.test(mobileNumber)) {
+        showAlert("updateAlert", "Mobile number must be exactly 10 digits.", "error");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Updating Database Record...";
+
+      fetch(`${API_BASE_URL}/citizens/${citizenId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          citizen_name: citizenName,
+          dob: dob,
+          gender: gender,
+          mobile_number: mobileNumber
+        })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Save Updated Details";
+
+          if (data.success) {
+            showAlert(
+              "updateAlert",
+              `[Success] Citizen #${citizenId} updated successfully! Demographic changes saved to database.`,
+              "success"
+            );
+
+            if (viewUpdatedCardBtn) viewUpdatedCardBtn.style.display = "inline-block";
+
+            // Update in-memory cache
+            const idx = allCitizens.findIndex((c) => String(c.citizen_id) === String(citizenId));
+            if (idx !== -1) {
+              allCitizens[idx] = {
+                ...allCitizens[idx],
+                citizen_name: citizenName,
+                dob: dob,
+                gender: gender,
+                mobile_number: mobileNumber
+              };
+            }
+
+            // Refresh tables and dropdowns
+            loadCitizensDropdown();
+            loadCitizensTable();
+            loadApplicationsTable();
+          } else {
+            const detail = data.error ? ` Details: ${data.error}` : "";
+            showAlert("updateAlert", `[Error] ${data.message || "Failed to update citizen."}${detail}`, "error");
+          }
+        })
+        .catch((error) => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Save Updated Details";
+          console.error("Demographic update error:", error);
+          showAlert("updateAlert", "[Error] Could not connect to backend server.", "error");
+        });
+    });
+  }
+
+  // Handle View Updated ID Card button
+  if (viewUpdatedCardBtn) {
+    viewUpdatedCardBtn.addEventListener("click", function () {
+      const citizenId = document.getElementById("editCitizenId").value;
+      if (citizenId) {
+        window.viewCitizenCard(citizenId);
+      }
+    });
+  }
+
+  // Handle Form Reset
+  if (resetBtn) {
+    resetBtn.addEventListener("click", function () {
+      if (updateForm) updateForm.reset();
+      document.getElementById("editCitizenId").value = "";
+      if (updateSelect) updateSelect.value = "";
+      if (idInput) idInput.value = "";
+      if (viewUpdatedCardBtn) viewUpdatedCardBtn.style.display = "none";
+      const alertEl = document.getElementById("updateAlert");
+      if (alertEl) alertEl.style.display = "none";
+    });
+  }
+}
+

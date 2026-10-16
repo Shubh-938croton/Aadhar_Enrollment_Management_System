@@ -56,6 +56,7 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="#home" class="nav-item active" data-section="home-section">Home</a></li>
                 <li><a href="#citizen" class="nav-item" data-section="citizen-section">Citizen Registration</a></li>
+                <li><a href="#update" class="nav-item" data-section="update-section">Update Details</a></li>
                 <li><a href="#center" class="nav-item" data-section="center-section">Enrollment Centers</a></li>
                 <li><a href="#application" class="nav-item" data-section="application-section">New Application</a></li>
                 <li><a href="#track" class="nav-item" data-section="track-section">Track Status</a></li>
@@ -149,6 +150,15 @@
                     <h3>Admin Database Records</h3>
                     <p>Administrator table view with live search, SQL JOIN queries, and status update actions.</p>
                     <span class="card-action">Open Records View →</span>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="service-card" data-target="update-section">
+                    <div class="card-num">07</div>
+                    <div class="card-icon-box">✏️</div>
+                    <h3>Demographic Updation</h3>
+                    <p>Update registered citizen records, correct name, modify date of birth, or change registered mobile number.</p>
+                    <span class="card-action">Open Updation Portal →</span>
                 </div>
             </div>
 
@@ -247,6 +257,85 @@
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary" id="citizenSubmitBtn">Register Citizen</button>
                         <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION: DEMOGRAPHIC UPDATION PORTAL
+        ============================================== -->
+        <section id="update-section" class="app-section">
+            <div class="form-card">
+                <div class="card-header">
+                    <div class="header-badge">TABLE: Citizens (SQL UPDATE)</div>
+                    <h2>Demographic Details Updation Portal</h2>
+                    <p>Lookup an existing citizen record and perform verified SQL UPDATE transactions on demographic attributes.</p>
+                </div>
+
+                <!-- Citizen Lookup Controls -->
+                <div class="card-controls-bar">
+                    <div class="control-group flex-1">
+                        <div class="label-row">
+                            <label for="updateCitizenSelect">Select Registered Citizen to Update:</label>
+                            <button type="button" class="link-btn" id="refreshUpdateCitizensBtn">↻ Refresh List</button>
+                        </div>
+                        <select id="updateCitizenSelect">
+                            <option value="">-- Choose a Citizen to Edit --</option>
+                        </select>
+                    </div>
+                    <div class="control-group flex-1">
+                        <label for="updateCitizenIdInput">Or Enter Citizen ID:</label>
+                        <div class="search-input-group">
+                            <input type="number" id="updateCitizenIdInput" placeholder="e.g. 1" min="1">
+                            <button type="button" class="btn btn-secondary" id="fetchCitizenForUpdateBtn">Fetch Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="updateAlert" class="alert-box"></div>
+
+                <form id="updateCitizenForm" class="standard-form">
+                    <input type="hidden" id="editCitizenId" value="">
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="editCitizenName">Full Name <span class="required">*</span></label>
+                            <input type="text" id="editCitizenName" placeholder="Enter updated full name" required maxlength="100">
+                            <span class="field-hint">Update spelling as per certified documents</span>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="editDOB">Date of Birth <span class="required">*</span></label>
+                            <input type="date" id="editDOB" required>
+                            <span class="field-hint">Must be today or in the past</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="editGender">Gender <span class="required">*</span></label>
+                            <select id="editGender" required>
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="editMobile">Registered Mobile Number <span class="required">*</span></label>
+                            <input type="tel" id="editMobile" placeholder="10-digit mobile number" required pattern="[0-9]{10}" maxlength="10">
+                            <span class="field-hint">10 digits without country code (+91)</span>
+                        </div>
+                    </div>
+
+                    <div class="info-note">
+                        <strong>Relational Integrity Note:</strong> Executing this update modifies the primary tuple in <code>Citizens</code> table. All linked <code>AadharApplication</code> records will maintain referential integrity via foreign key constraints.
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="updateCitizenSubmitBtn">Save Updated Details</button>
+                        <button type="button" class="btn btn-success" id="viewUpdatedCardBtn" style="display:none;">🪪 View Updated ID Card</button>
+                        <button type="button" class="btn btn-secondary" id="resetUpdateFormBtn">Clear / Reset</button>
                     </div>
                 </form>
             </div>
@@ -641,7 +730,7 @@
                                     <th>Date of Birth</th>
                                     <th>Gender</th>
                                     <th>Mobile Number</th>
-                                    <th>Card Action</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="citizensTableBody">

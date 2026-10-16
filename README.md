@@ -16,14 +16,15 @@
 The **Aadhaar Enrollment Management System** is a full-stack relational database portal built using **Vanilla JavaScript, Node.js, Express.js, and MySQL (TiDB Cloud)**. It models the core lifecycle of a national identity enrollment management service:
 
 1. **Citizen Demographic Registration** (`Citizens` entity).
-2. **Certified Enrollment Center Management** (`EnrollmentCenter` entity).
-3. **Application Creation with Foreign Key Constraints** (`AadharApplication` linking citizen and center).
-4. **Multi-Table Relational Status Tracking** (inspecting enrollment status with visual badges).
-5. **Official Aadhaar PVC Identity Proof Card Generation**:
+2. **Demographic Updation & Corrections** (SQL `UPDATE` transactions modifying registered records).
+3. **Certified Enrollment Center Management** (`EnrollmentCenter` entity).
+4. **Application Creation with Foreign Key Constraints** (`AadharApplication` linking citizen and center).
+5. **Multi-Table Relational Status Tracking** (inspecting enrollment status with visual badges).
+6. **Official Aadhaar PVC Identity Proof Card Generation**:
    - High-resolution **.PNG Image Download** via HTML5 Canvas.
    - Standard CR80 wallet-card **Print / Save as PDF** via dedicated `@media print` rules.
-6. **Administrative Database Records Management** (SQL `JOIN` queries, real-time search, status toggles).
-7. **Academic Submission & 5-Member Team Spotlight**:
+7. **Administrative Database Records Management** (SQL `JOIN` queries, real-time search, 1-click demographic editing, status toggles).
+8. **Academic Submission & 5-Member Team Spotlight**:
    - Prominently highlighted at the bottom of the Home page and in Section 8.
    - Supports **Faculty Guide / Teacher Name** and **5 Student Team Members with Scholar Numbers**.
    - Interactive in-browser editing modal with instant `localStorage` persistence.
@@ -45,16 +46,24 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
 - Client-side checks: blocks future dates of birth, enforces 10-digit numeric mobile validation.
 - Auto-increments primary key `citizen_id` and provides real-time confirmation.
 
-### 🏛️ Module 2: Enrollment Center Management (`TABLE: EnrollmentCenter`)
+### ✏️ Module 2: Demographic Details Updation Portal (`SQL UPDATE Citizens`)
+- Search and lookup existing registered citizens by ID or dropdown selector.
+- Pre-fills current demographic attributes (Full Name, Date of Birth, Gender, Registered Mobile).
+- Executes verified transactional `UPDATE Citizens SET citizen_name=?, dob=?, gender=?, mobile_number=? WHERE citizen_id=?`.
+- Preserves referential integrity across linked `AadharApplication` tuples.
+- One-click trigger **"🪪 View Updated ID Card"** to instantly render the corrected identity proof card.
+
+### 🏛️ Module 3: Enrollment Center Management (`TABLE: EnrollmentCenter`)
 - Registers authorized enrollment centers by Center Name, District, and State.
 - Auto-generates `center_id` for relational allocation.
+- Supports administrative updating of center location details via `PUT /api/centers/:id`.
 
-### 📝 Module 3: New Enrollment Application (`TABLE: AadharApplication`)
+### 📝 Module 4: New Enrollment Application (`TABLE: AadharApplication`)
 - Dynamically loads registered citizens and certified centers from the MySQL database into dropdowns.
 - Links `citizen_id` (FK) and `center_id` (FK) into an application record.
 - Automatically assigns `application_date = CURDATE()` and default status `Pending`.
 
-### 🔍 Module 4: Application Status Tracking
+### 🔍 Module 5: Application Status Tracking
 - Queries the relational database by Application ID.
 - Displays applicant demographics, assigned center, district/state, and application date.
 - Dynamic color-coded status badges:
@@ -62,7 +71,7 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
   - 🟩 **Complete** (Approved & verified in database)
 - Includes quick-action **"🪪 View & Download Identity Card"** linking directly to the card generator.
 
-### 🪪 Module 5: Aadhaar Identity Proof Card Generator (Download & Print)
+### 🪪 Module 6: Aadhaar Identity Proof Card Generator (Download & Print)
 - Generates a verified PVC-format identity proof card based on database records:
   - Ashoka Chakra emblem motif and bilingual header (*भारत सरकार | Government of India*).
   - Photo frame with "Secure Smart Chip" badge and "✓ Verified" green seal.
@@ -76,14 +85,15 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
   - Uses `@media print` calibrated precisely for standard wallet cardstock (CR80: 85.6mm × 53.98mm).
   - Automatically suppresses navigation, headers, forms, and buttons during printing.
 
-### 📊 Module 6: Admin Database Records Viewer
+### 📊 Module 7: Admin Database Records Viewer
 - Tabbed administrative interface with live counts for **Applications**, **Citizens**, and **Enrollment Centers**.
 - Real-time client-side search filtering across all table columns.
 - Performs multi-table SQL `JOIN` queries across `AadharApplication`, `Citizens`, and `EnrollmentCenter`.
 - Admin action to toggle status (`Mark Complete` / `Mark Pending`) with instant database update.
+- Quick **"✏️ Edit"** button to jump directly into the Demographic Updation portal for that citizen.
 - Quick **"🪪 ID Card"** button on each citizen row to view and download their identity card.
 
-### 🎓 Module 7: Highlighted Academic Submission & 5-Member Team Spotlight
+### 🎓 Module 8: Highlighted Academic Submission & 5-Member Team Spotlight
 - **Prominently Featured at the Bottom of Home Page & Section 8**:
   - Highlighted top banner with gold badge: `🎓 OFFICIAL ACADEMIC PROJECT EVALUATION`.
   - **Faculty Guide Spotlight**: Highlighted card with 👨‍🏫 icon, Faculty Guide Name, Department, and Evaluator status.
@@ -204,9 +214,11 @@ Base URL (Production): `https://aadhar-enrollment-management-system-croton2.verc
 | `POST` | `/citizens` | Register a new citizen | `{ citizen_name, dob, gender, mobile_number }` |
 | `GET` | `/citizens` | Fetch list of all citizens | *None* |
 | `GET` | `/citizens/:id` | Fetch specific citizen by ID | *None* |
+| `PUT` | `/citizens/:id` | Update citizen demographic details (SQL `UPDATE`) | `{ citizen_name, dob, gender, mobile_number }` |
 | `POST` | `/centers` | Register a new enrollment center | `{ center_name, district, state }` |
 | `GET` | `/centers` | Fetch list of all enrollment centers | *None* |
 | `GET` | `/centers/:id` | Fetch specific center by ID | *None* |
+| `PUT` | `/centers/:id` | Update enrollment center details (SQL `UPDATE`) | `{ center_name, district, state }` |
 | `POST` | `/applications` | Create a new Aadhaar application | `{ citizen_id, center_id }` |
 | `GET` | `/applications` | Fetch all applications (SQL `JOIN`) | *None* |
 | `GET` | `/applications/:id` | Fetch application details (SQL `JOIN`) | *None* |
