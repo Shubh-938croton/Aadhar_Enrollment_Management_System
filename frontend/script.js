@@ -1327,22 +1327,18 @@ function downloadAadhaarCardPng() {
     if (stroke) ctx.stroke();
   }
 
-  // Card Outer Shadow & Background
+  // Card Outer Border & Background
   ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "#cbd5e1";
-  ctx.lineWidth = 3;
-  roundRect(ctx, 15, 15, 970, 600, 20, true, true);
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 2.5;
+  roundRect(ctx, 15, 15, 970, 600, 12, true, true);
 
-  // Top Tricolor Indian Ribbon
-  ctx.fillStyle = "#ff9933"; // Saffron
-  ctx.fillRect(15, 15, 970, 5);
-  ctx.fillStyle = "#ffffff"; // White
-  ctx.fillRect(15, 20, 970, 5);
-  ctx.fillStyle = "#138808"; // Green
-  ctx.fillRect(15, 25, 970, 5);
+  // Top Clean Black Rule
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(15, 15, 970, 6);
 
   // Header Divider
-  ctx.strokeStyle = "#e2e8f0";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(15, 115);
@@ -1351,14 +1347,14 @@ function downloadAadhaarCardPng() {
 
   // Emblem Circle / Chakra on Left
   ctx.save();
-  ctx.strokeStyle = "#0f2e5a";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(68, 68, 28, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(68, 68, 8, 0, Math.PI * 2);
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.fill();
   for (let i = 0; i < 24; i++) {
     const angle = (i * 15 * Math.PI) / 180;
@@ -1371,58 +1367,57 @@ function downloadAadhaarCardPng() {
 
   // Header Titles
   ctx.textAlign = "center";
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("भारत सरकार", 500, 52);
 
-  ctx.fillStyle = "#1e293b";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 15px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("GOVERNMENT OF INDIA", 500, 74);
 
-  ctx.fillStyle = "#ea580c";
+  ctx.fillStyle = "#333333";
   ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("भारतीय विशिष्ट पहचान प्राधिकरण | UIDAI", 500, 95);
 
   // Sun Aadhaar Logo on Right
-  ctx.fillStyle = "#b91c1c";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("आधार", 920, 80);
-  ctx.fillStyle = "#ea580c";
   ctx.font = "24px Arial";
   ctx.fillText("☀️", 920, 52);
 
   // Photo Frame on Left (x: 50, y: 140, w: 170, h: 215)
-  ctx.fillStyle = "#f8fafc";
-  ctx.strokeStyle = "#94a3b8";
-  ctx.lineWidth = 2;
-  roundRect(ctx, 50, 140, 170, 215, 8, true, true);
+  ctx.fillStyle = "#f7f7f7";
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, 50, 140, 170, 215, 4, true, true);
 
   // Silhouette / Avatar inside Photo Box
   ctx.save();
   ctx.beginPath();
   ctx.arc(135, 215, 42, 0, Math.PI * 2);
-  ctx.fillStyle = "#cbd5e1";
+  ctx.fillStyle = "#cccccc";
   ctx.fill();
   ctx.beginPath();
   ctx.arc(135, 335, 75, Math.PI, 0, false);
-  ctx.fillStyle = "#94a3b8";
+  ctx.fillStyle = "#999999";
   ctx.fill();
   ctx.restore();
 
   // Chip bar on Photo
-  ctx.fillStyle = "rgba(15, 46, 90, 0.9)";
-  roundRect(ctx, 50, 325, 170, 30, 4, true, false);
+  ctx.fillStyle = "#000000";
+  roundRect(ctx, 50, 325, 170, 30, 0, true, false);
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("SECURE SMART CHIP", 135, 345);
 
   // Verified Stamp under Photo
-  ctx.fillStyle = "#f0fdf4";
-  ctx.strokeStyle = "#16a34a";
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
-  roundRect(ctx, 50, 370, 170, 32, 6, true, true);
-  ctx.fillStyle = "#166534";
+  roundRect(ctx, 50, 370, 170, 32, 4, true, true);
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("✓ VERIFIED IDENTITY", 135, 391);
 
@@ -1430,16 +1425,16 @@ function downloadAadhaarCardPng() {
   ctx.textAlign = "left";
 
   function drawInfoLine(labelHi, labelEn, value, yPos, isTitle = false) {
-    ctx.fillStyle = "#64748b";
+    ctx.fillStyle = "#555555";
     ctx.font = "600 13px 'Segoe UI', Arial, sans-serif";
     ctx.fillText(`${labelHi} / ${labelEn} :`, 250, yPos);
 
     if (isTitle) {
-      ctx.fillStyle = "#0f2e5a";
+      ctx.fillStyle = "#000000";
       ctx.font = "bold 23px 'Segoe UI', Arial, sans-serif";
       ctx.fillText(value, 250, yPos + 26);
     } else {
-      ctx.fillStyle = "#1e293b";
+      ctx.fillStyle = "#111111";
       ctx.font = "bold 17px 'Segoe UI', Arial, sans-serif";
       ctx.fillText(value, 250, yPos + 22);
     }
@@ -1453,31 +1448,31 @@ function downloadAadhaarCardPng() {
 
   // Right Side: Realistic QR Code Box (x: 755, y: 140, w: 185, h: 220)
   ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "#cbd5e1";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
-  roundRect(ctx, 755, 140, 185, 220, 8, true, true);
+  roundRect(ctx, 755, 140, 185, 220, 4, true, true);
 
   // QR Code Finder Patterns & modules
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   // Finder 1: top-left (775, 160)
   ctx.fillRect(775, 160, 42, 42);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(781, 166, 30, 30);
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.fillRect(787, 172, 18, 18);
 
   // Finder 2: top-right (875, 160)
   ctx.fillRect(875, 160, 42, 42);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(881, 166, 30, 30);
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.fillRect(887, 172, 18, 18);
 
   // Finder 3: bottom-left (775, 260)
   ctx.fillRect(775, 260, 42, 42);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(781, 266, 30, 30);
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.fillRect(787, 272, 18, 18);
 
   // Random data clusters inside QR for realistic matrix
@@ -1491,41 +1486,41 @@ function downloadAadhaarCardPng() {
     ctx.fillRect(dx, dy, dw, dh);
   });
 
-  ctx.fillStyle = "#64748b";
+  ctx.fillStyle = "#555555";
   ctx.font = "bold 11px 'Segoe UI', Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("DIGITALLY SIGNED QR", 847, 342);
 
   // 12-Digit Aadhaar Number Strip (y: 440 to 525)
-  ctx.fillStyle = "#f8fafc";
-  roundRect(ctx, 35, 440, 930, 80, 8, true, false);
-  ctx.strokeStyle = "#e2e8f0";
-  ctx.lineWidth = 1;
+  ctx.fillStyle = "#f7f7f7";
+  roundRect(ctx, 35, 440, 930, 80, 4, true, false);
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 1.5;
   ctx.strokeRect(35, 440, 930, 80);
 
-  ctx.fillStyle = "#64748b";
+  ctx.fillStyle = "#555555";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("आपका आधार क्रमांक / Your Aadhaar No. :", 500, 465);
 
-  ctx.fillStyle = "#b91c1c";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 32px 'Courier New', Courier, monospace";
   ctx.fillText(aadhaarNumber, 500, 505);
 
   // Card Bottom Footer Slogan (y: 535 to 600)
-  ctx.strokeStyle = "#f1f5f9";
+  ctx.strokeStyle = "#000000";
   ctx.beginPath();
   ctx.moveTo(35, 545);
   ctx.lineTo(965, 545);
   ctx.stroke();
 
   ctx.textAlign = "left";
-  ctx.fillStyle = "#0f2e5a";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("मेरा आधार, मेरी पहचान", 50, 580);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#475569";
+  ctx.fillStyle = "#333333";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("My Aadhaar, My Identity", 500, 580);
 
