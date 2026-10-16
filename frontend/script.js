@@ -1486,32 +1486,36 @@ function downloadAadhaarCardPng() {
 
   // Card Outer Border & Background
   ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#0f2b5c";
   ctx.lineWidth = 2.5;
   roundRect(ctx, 15, 15, 970, 600, 12, true, true);
 
-  // Top Rule
-  ctx.fillStyle = "#000000";
-  ctx.fillRect(15, 15, 970, 6);
+  // Top Indian Tricolor Rule (Saffron, White, Green)
+  ctx.fillStyle = "#ff9933";
+  ctx.fillRect(15, 15, 323, 7);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(338, 15, 323, 7);
+  ctx.fillStyle = "#138808";
+  ctx.fillRect(661, 15, 324, 7);
 
   // Header Divider
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#e2e8f0";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(15, 115);
   ctx.lineTo(985, 115);
   ctx.stroke();
 
-  // Ashoka Chakra Emblem Simulation
+  // Ashoka Chakra Emblem Simulation (Navy Blue)
   ctx.save();
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#000080";
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(68, 68, 28, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(68, 68, 8, 0, Math.PI * 2);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#000080";
   ctx.fill();
   for (let i = 0; i < 24; i++) {
     const angle = (i * 15 * Math.PI) / 180;
@@ -1524,28 +1528,28 @@ function downloadAadhaarCardPng() {
 
   // Header Titles
   ctx.textAlign = "center";
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f2b5c";
   ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("भारत सरकार", 500, 52);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f2b5c";
   ctx.font = "bold 15px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("GOVERNMENT OF INDIA", 500, 74);
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("भारतीय विशिष्ट पहचान प्राधिकरण | UIDAI", 500, 95);
 
   // Sun Logo
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#b45309";
   ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("आधार", 920, 80);
   ctx.font = "24px Arial";
   ctx.fillText("☀️", 920, 52);
 
   // Photo Frame
-  ctx.fillStyle = "#f7f7f7";
-  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#f8fafc";
+  ctx.strokeStyle = "#cbd5e1";
   ctx.lineWidth = 1.5;
   roundRect(ctx, 50, 140, 170, 215, 4, true, true);
 
@@ -1553,18 +1557,18 @@ function downloadAadhaarCardPng() {
   ctx.save();
   ctx.beginPath();
   ctx.arc(135, 215, 42, 0, Math.PI * 2);
-  ctx.fillStyle = "#cccccc";
+  ctx.fillStyle = "#94a3b8";
   ctx.fill();
   ctx.beginPath();
   ctx.arc(135, 335, 80, Math.PI * 1.25, Math.PI * 1.75);
   ctx.lineTo(210, 350);
   ctx.lineTo(60, 350);
-  ctx.fillStyle = "#aaaaaa";
+  ctx.fillStyle = "#64748b";
   ctx.fill();
   ctx.restore();
 
-  // Verified Badge
-  ctx.fillStyle = "#000000";
+  // Verified Badge (Emerald Green)
+  ctx.fillStyle = "#047857";
   ctx.fillRect(50, 325, 170, 30);
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
@@ -1573,86 +1577,86 @@ function downloadAadhaarCardPng() {
 
   // Citizen Demographic Details
   ctx.textAlign = "left";
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f2b5c";
   ctx.font = "bold 24px 'Segoe UI', Arial, sans-serif";
   ctx.fillText(citizen.citizen_name || "Citizen Full Name", 255, 175);
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("जन्म तिथि / DOB :", 255, 215);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f172a";
   ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText(citizen.dob ? formatDate(citizen.dob) : "01/01/2000", 410, 215);
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("लिंग / Gender :", 255, 250);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f172a";
   ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText(citizen.gender || "Citizen", 410, 250);
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("मोबाइल / Mobile :", 255, 285);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f172a";
   ctx.font = "bold 16px 'Courier New', monospace";
   ctx.fillText(`+91 XXXXXX${(citizen.mobile_number || "0000").slice(-4)}`, 410, 285);
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("केंद्र / Center :", 255, 320);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f172a";
   ctx.font = "14px 'Segoe UI', Arial, sans-serif";
   ctx.fillText(centerText, 410, 320);
 
   // Simulated QR Code
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#0f2b5c";
   ctx.lineWidth = 1.5;
   ctx.fillStyle = "#ffffff";
   roundRect(ctx, 770, 140, 175, 175, 4, true, true);
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       if ((r + c * 3 + citizen.citizen_id) % 3 !== 0) {
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = "#0f2b5c";
         ctx.fillRect(785 + c * 18, 155 + r * 18, 14, 14);
       }
     }
   }
 
-  // Large Aadhaar Number Box
-  ctx.fillStyle = "#f5f5f5";
-  ctx.strokeStyle = "#000000";
+  // Large Aadhaar Number Box (Warm Saffron / Ivory Tint)
+  ctx.fillStyle = "#fffbeb";
+  ctx.strokeStyle = "#fde68a";
   ctx.lineWidth = 1.5;
   roundRect(ctx, 35, 415, 930, 110, 8, true, true);
 
-  ctx.fillStyle = "#555555";
+  ctx.fillStyle = "#b45309";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("आपका आधार क्रमांक / Your Aadhaar No. :", 500, 445);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f2b5c";
   ctx.font = "bold 32px 'Courier New', Courier, monospace";
   ctx.fillText(aadhaarNumber, 500, 490);
 
   // Footer Slogan
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#e2e8f0";
   ctx.beginPath();
   ctx.moveTo(35, 545);
   ctx.lineTo(965, 545);
   ctx.stroke();
 
   ctx.textAlign = "left";
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#0f2b5c";
   ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("मेरा आधार, मेरी पहचान", 50, 580);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = "#64748b";
   ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("My Aadhaar, My Identity", 500, 580);
 
   ctx.textAlign = "right";
-  ctx.fillStyle = "#666666";
+  ctx.fillStyle = "#94a3b8";
   ctx.font = "12px 'Segoe UI', Arial, sans-serif";
   ctx.fillText("[DBMS Laboratory Project — Academic Evaluation]", 950, 580);
 
