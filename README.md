@@ -24,14 +24,11 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
    - ➕ **Add Data**: Collapsible inline form directly in front of the table to insert new tuples.
    - ✏️ **Update Data**: Universal update modal pre-filled with existing attributes for instant editing (`PUT`).
    - 🗑️ **Remove Data**: Deletes the record with referential integrity & cascading safeguards (`DELETE`).
-6. **Official Aadhaar PVC Identity Proof Card**:
-   - High-resolution **.PNG Image Download** via HTML5 Canvas.
-   - Standard CR80 wallet-card **Print / Save as PDF** via dedicated `@media print` rules.
-7. **Academic Submission Details (Highlighted at Bottom of Home Page)**:
+6. **Academic Submission Details (Highlighted at Bottom of Home Page)**:
    - Dedicated Faculty Guide block (**Teacher Name & Department**).
    - Project Team grid with **5 Student Members and Scholar Numbers**.
    - Interactive in-browser editing modal with instant `localStorage` persistence.
-8. **Simple, Clean Minimalist UI**:
+7. **Simple, Clean Minimalist UI**:
    - Strictly black-and-white, clean border layout designed like a classic academic system.
 
 ---
@@ -51,7 +48,6 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
 - **Add Data**: Form directly above the table to insert new citizens with 10-digit mobile and DOB validation.
 - **Update Data**: 1-click modal to update Name, DOB, Gender, or Mobile Number (`PUT /api/citizens/:id`).
 - **Remove Data**: 1-click removal with cascading cleanup of dependent applications & biometrics (`DELETE /api/citizens/:id`).
-- **🪪 ID Card**: Shortcut button to view and download the official identity proof card for that citizen.
 
 ### 🏛️ 2. Enrollment Center Table (`EnrollmentCenter`)
 - **Show Data**: Displays authorized centers: Center ID (PK), Center Name, District, State.
@@ -71,15 +67,7 @@ The **Aadhaar Enrollment Management System** is a full-stack relational database
 - **Update Data**: Modal to modify biometric hashes (`PUT /api/biometrics/:id`).
 - **Remove Data**: Removes biometric record (`DELETE /api/biometrics/:id`).
 
-### 🪪 5. Aadhaar Identity Proof Card Generator
-- Generates official-format identity proof card based on database records:
-  - Ashoka Chakra emblem motif and bilingual header (*भारत सरकार | Government of India*).
-  - Photo frame with "✓ VERIFIED" badge and simulated QR code.
-  - Formatted 12-digit Aadhaar number derived deterministically.
-- **Download Card (.PNG Image)**: Renders crisp 1000×630px high-resolution PNG on Canvas.
-- **Print / Save as PDF**: `@media print` calibrated precisely for standard wallet cardstock.
-
-### 🎓 6. Highlighted Academic Submission Area (Teacher & 5 Students)
+### 🎓 5. Highlighted Academic Submission Area (Teacher & 5 Students)
 - Positioned prominently at the bottom of the page.
 - **Faculty Guide**: Teacher Name and Department.
 - **Project Team**: 5 Student Members with Scholar Numbers.

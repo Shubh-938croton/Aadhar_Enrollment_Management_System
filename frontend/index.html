@@ -48,10 +48,6 @@
                         <span class="roman-index">iv)</span>
                         <a href="?section=BiometricRecord" class="table-link" data-section="BiometricRecord">Biometric Records</a>
                     </div>
-                    <div class="table-list-row">
-                        <span class="roman-index">v)</span>
-                        <a href="?section=IdentityCard" class="table-link" data-section="IdentityCard">Aadhaar Identity Card Generator</a>
-                    </div>
                 </div>
 
                 <!-- Academic Submission Details (Highlighted at Bottom of Dashboard) -->
@@ -527,77 +523,7 @@
             </div>
         </section>
 
-
-        <!-- ==============================================
-             6. IDENTITY CARD GENERATOR VIEW
-        ============================================== -->
-        <section id="view-IdentityCard" class="page-view">
-            <div class="view-header">
-                <h2>Aadhaar Identity Card <a href="index.html" class="back-link">← Back to Dashboard</a></h2>
-            </div>
-
-            <div id="cardAlert" class="ref-alert"></div>
-
-            <div class="card-controls-panel">
-                <div class="form-field" style="min-width: 280px;">
-                    <label for="cardCitizenSelect">Select Registered Citizen:</label>
-                    <select id="cardCitizenSelect">
-                        <option value="">-- Select Citizen --</option>
-                    </select>
-                </div>
-                <div class="form-field" style="min-width: 220px;">
-                    <label for="cardAppIdInput">Or Enter Application ID:</label>
-                    <div style="display:flex; gap:6px;">
-                        <input type="number" id="cardAppIdInput" placeholder="e.g. 1" min="1">
-                        <button type="button" class="ref-btn" id="loadCardByAppBtn">Load</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aadhaar Card Display -->
-            <div class="card-preview-wrapper">
-                <div class="simple-aadhaar-card" id="aadhaarCardNode">
-                    <div class="card-top">
-                        <div class="card-logo">GOVERNMENT OF INDIA / UIDAI</div>
-                        <div class="card-title-hi">भारत सरकार — पहचान पत्र</div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-photo-box">
-                            <div class="photo-icon" id="cardAvatar">👤</div>
-                            <div class="verified-tag">✓ VERIFIED</div>
-                        </div>
-                        <div class="card-info">
-                            <div class="info-row"><span class="info-lbl">Name:</span> <strong id="cardCitizenName">Citizen Full Name</strong></div>
-                            <div class="info-row"><span class="info-lbl">DOB:</span> <span id="cardDOB">DD/MM/YYYY</span></div>
-                            <div class="info-row"><span class="info-lbl">Gender:</span> <span id="cardGender">Male / Female</span></div>
-                            <div class="info-row"><span class="info-lbl">Mobile:</span> <span id="cardMobile">+91 XXXXXX0000</span></div>
-                            <div class="info-row"><span class="info-lbl">Center:</span> <span id="cardCenter">Central Kendra</span></div>
-                        </div>
-                        <div class="card-qr-box" id="cardQrCode">
-                            <div>QR CODE</div>
-                        </div>
-                    </div>
-                    <div class="card-number-box">
-                        <div class="aadhaar-label">Your Aadhaar No. / आधार क्रमांक :</div>
-                        <div class="aadhaar-num" id="cardAadhaarNumber">2489 7132 <span id="cardLastDigits">8904</span></div>
-                    </div>
-                    <div class="card-bottom">
-                        <span>मेरा आधार, मेरी पहचान</span>
-                        <span>[DBMS Academic Verification Card]</span>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex; justify-content:center; gap:12px; margin-top:16px;">
-                <button type="button" class="ref-btn" id="downloadCardPngBtn">⬇ Download Card (.PNG)</button>
-                <button type="button" class="ref-btn" id="printCardBtn">🖨 Print / PDF</button>
-            </div>
-        </section>
-
     </div>
-
-    <!-- Hidden canvas for high-res PNG export -->
-    <canvas id="offscreenCardCanvas" width="1000" height="630" style="display:none;"></canvas>
 
     <!-- Modal for Editing Faculty Guide & 5-Member Team Details -->
     <div class="modal-backdrop hidden" id="creditsModal">
