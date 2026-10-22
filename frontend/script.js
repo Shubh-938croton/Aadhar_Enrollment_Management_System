@@ -1,10 +1,8 @@
 // ====================================================
-// Aadhaar Enrollment Management System — Frontend JavaScript
-// Complete Table Operations: Show, Add, Update, Remove
-// Relational Database Management System (DBMS) Project
+// Aadhaar Enrollment System — Frontend JavaScript
+// Matching College DBMS Reference System (Traffic Challan Architecture)
 // ====================================================
 
-// Primary backend domain on Vercel
 const DEPLOYED_BACKEND_URL = "https://aadhar-enrollment-management-system-croton2.vercel.app";
 
 // Automatic API base resolution
@@ -31,7 +29,7 @@ function getApiBaseUrl() {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// In-memory data store for live search, relations, and prefilling
+// Global caches for dropdowns and cross-table references
 let allCitizens = [];
 let allCenters = [];
 let allApplications = [];
@@ -39,100 +37,130 @@ let allBiometrics = [];
 let currentCardCitizen = null;
 
 // ====================================================
-// 1. INITIALIZATION
+// 1. INITIALIZATION & ROUTING
 // ====================================================
 document.addEventListener("DOMContentLoaded", function () {
-  setupNavigation();
   checkBackendHealth();
-
-  // Load all tables on startup
-  loadCitizensTable(false);
-  loadCentersTable(false);
-  loadApplicationsTable(false);
-  loadBiometricsTable(false);
-
-  // Setup form toggles and submissions for each table
-  setupCitizensOperations();
-  setupCentersOperations();
-  setupApplicationsOperations();
-  setupBiometricsOperations();
-
-  // Setup Universal Update Record Modal
-  setupUniversalUpdateModal();
-
-  // Setup Live Search for each table
-  setupSearchFilters();
-
-  // Setup Identity Card generator
+  setupRouting();
+  setupAllForms();
   setupCardGenerator();
-
-  // Setup Academic Credits (Teacher & 5 Student members)
   loadAcademicCredits();
   setupAcademicCreditsModal();
 
-  // Restrict Date of Birth pickers to today or earlier
+  // Restrict DOB to today or earlier
   const today = new Date().toISOString().split("T")[0];
-  const dobInput = document.getElementById("DOB");
-  if (dobInput) dobInput.setAttribute("max", today);
+  const dob = document.getElementById("citizenDob");
+  if (dob) dob.setAttribute("max", today);
+  const editDob = document.getElementById("editCitizenDob");
+  if (editDob) editDob.setAttribute("max", today);
+
+  // Load all foundational data
+  loadAllData();
 });
 
-// ====================================================
-// 2. NAVIGATION BETWEEN TABLE SECTIONS
-// ====================================================
-function setupNavigation() {
-  const navButtons = document.querySelectorAll(".nav-item");
+// Check URL query parameters and switch views
+function setupRouting() {
+  // Listen for browser back/forward buttons
+  window.addEventListener("popstate", function () {
+    routeByUrl();
+  });
 
-  navButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const sectionId = this.getAttribute("data-section");
-      switchSection(sectionId);
+  // Handle table link clicks on Dashboard
+  document.querySelectorAll(".table-link").forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const section = this.getAttribute("data-section");
+      navigateToSection(section);
     });
   });
+
+  // Handle back link clicks
+  document.querySelectorAll(".back-link").forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      navigateToSection("");
+    });
+  });
+
+  // Initial routing
+  routeByUrl();
 }
 
-function switchSection(sectionId) {
-  const sections = document.querySelectorAll(".app-section");
-  const navButtons = document.querySelectorAll(".nav-item");
+function routeByUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const section = params.get("section");
 
-  sections.forEach((sec) => sec.classList.remove("active"));
-  navButtons.forEach((btn) => btn.classList.remove("active"));
-
-  const targetSection = document.getElementById(sectionId);
-  if (targetSection) targetSection.classList.add("active");
-
-  const activeBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
-  if (activeBtn) activeBtn.classList.add("active");
-
-  // Populate dropdowns when switching
-  if (sectionId === "section-applications") {
-    populateApplicationDropdowns();
-  } else if (sectionId === "section-biometrics") {
-    populateBiometricDropdowns();
-  } else if (sectionId === "section-card") {
-    populateCardDropdown();
+  if (section && document.getElementById(`view-${section}`)) {
+    showView(`view-${section}`);
+  } else {
+    showView("view-dashboard");
   }
+}
 
+function navigateToSection(section) {
+  const newUrl = section ? `?section=${section}` : window.location.pathname;
+  window.history.pushState({ section }, "", newUrl);
+
+  if (section && document.getElementById(`view-${section}`)) {
+    showView(`view-${section}`);
+  } else {
+    showView("view-dashboard");
+  }
+}
+
+function showView(viewId) {
+  document.querySelectorAll(".page-view").forEach((v) => v.classList.remove("active"));
+  const target = document.getElementById(viewId);
+  if (target) {
+    target.classList.add("active");
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// Accordion toggle helper
+window.toggleAccordion = function (accordionId) {
+  const item = document.getElementById(accordionId);
+  if (!item) return;
+
+  const isOpen = item.classList.contains("open");
+  const indicator = item.querySelector(".acc-indicator");
+
+  if (isOpen) {
+    item.classList.remove("open");
+    if (indicator) {
+      indicator.textContent = "+";
+    }
+  } else {
+    item.classList.add("open");
+    if (indicator) {
+      indicator.textContent = "-";
+    }
+  }
+};
+
 // ====================================================
-// 3. UTILITY FUNCTIONS
+// 2. DATA LOADERS & RENDERERS
 // ====================================================
+function loadAllData() {
+  loadCitizensTable();
+  loadCentersTable();
+  loadApplicationsTable();
+  loadBiometricsTable();
+}
+
 function showAlert(elementId, message, type) {
   const el = document.getElementById(elementId);
   if (!el) return;
 
-  el.className = `alert-box alert-${type}`;
+  el.className = `ref-alert ${type}`;
   el.innerHTML = message;
   el.style.display = "block";
 
-  if (type === "success") {
-    setTimeout(() => {
-      if (el.innerHTML === message) {
-        el.style.display = "none";
-      }
-    }, 6000);
-  }
+  setTimeout(() => {
+    if (el.innerHTML === message) {
+      el.style.display = "none";
+    }
+  }, 5000);
 }
 
 function escapeHtml(str) {
@@ -150,10 +178,10 @@ function formatDate(dateStr) {
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   } catch (e) {
     return dateStr;
   }
@@ -162,91 +190,34 @@ function formatDate(dateStr) {
 function generateRandomHash(prefix) {
   const chars = "0123456789abcdef";
   let hash = prefix ? prefix + "_" : "";
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < 28; i++) {
     hash += chars[Math.floor(Math.random() * chars.length)];
   }
   return hash;
 }
 
-// ====================================================
-// 4. BACKEND CONNECTIVITY CHECK
-// ====================================================
-function checkBackendHealth() {
-  const statusText = document.getElementById("backendStatusText");
-  const statusContainer = document.querySelector(".status-indicator");
-
-  if (statusText) statusText.textContent = "Backend: Connecting...";
-
-  if (statusContainer && !statusContainer.dataset.configured) {
-    statusContainer.dataset.configured = "true";
-    statusContainer.style.cursor = "pointer";
-    statusContainer.addEventListener("click", () => {
-      const current = localStorage.getItem("API_URL") || API_BASE_URL;
-      const custom = prompt("Enter Backend API Base URL (leave blank to restore automatic):", current);
-      if (custom !== null) {
-        if (custom.trim() === "") {
-          localStorage.removeItem("API_URL");
-        } else {
-          localStorage.setItem("API_URL", custom.trim().replace(/\/+$/, ""));
-        }
-        window.location.reload();
-      }
-    });
-  }
-
-  fetch(`${API_BASE_URL}/health`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.status === "OK") {
-        if (statusText) {
-          const mode = data.database ? data.database.mode : "connected";
-          statusText.textContent = `Backend: Connected (${mode})`;
-        }
-        if (statusContainer) statusContainer.classList.add("online");
-      }
-    })
-    .catch(() => {
-      if (statusText) statusText.textContent = "Backend: Offline / Using Cache";
-      if (statusContainer) statusContainer.classList.remove("online");
-    });
-}
-
-// ====================================================
-// 5. TABLE 1: CITIZENS OPERATIONS (SHOW, ADD, UPDATE, REMOVE)
-// ====================================================
-function loadCitizensTable(showFeedback = true) {
+// ----------------------------------------------------
+// TABLE 1: CITIZENS
+// ----------------------------------------------------
+function loadCitizensTable() {
   const tbody = document.getElementById("citizensTableBody");
-  const countEl = document.getElementById("countCitizens");
-
-  if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Loading citizens from database...</td></tr>';
-  }
 
   fetch(`${API_BASE_URL}/citizens`)
     .then((res) => res.json())
     .then((data) => {
       if (data.success && Array.isArray(data.citizens)) {
         allCitizens = data.citizens;
-        if (countEl) countEl.textContent = allCitizens.length;
         renderCitizensTable(allCitizens);
+        populateCitizenDropdowns();
         populateApplicationDropdowns();
-        populateCardDropdown();
-
-        if (showFeedback) {
-          showAlert("citizenAlert", `[Refreshed] Loaded ${allCitizens.length} citizen records from database.`, "success");
-        }
+        populateCardCitizenDropdown();
       } else {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No citizen records found.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No citizen records found.</td></tr>';
       }
     })
     .catch((err) => {
       console.error("Load citizens error:", err);
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-cell error-text">Failed to fetch citizens from server. Click "Show Data / Refresh" to retry.</td></tr>';
-      }
-      if (showFeedback) {
-        showAlert("citizenAlert", "Failed to connect to backend server.", "error");
-      }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Failed to connect to backend server.</td></tr>';
     });
 }
 
@@ -255,7 +226,7 @@ function renderCitizensTable(list) {
   if (!tbody) return;
 
   if (!list || list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No citizen records match the search criteria.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No records found.</td></tr>';
     return;
   }
 
@@ -263,172 +234,51 @@ function renderCitizensTable(list) {
     .map((c) => {
       return `
         <tr>
-          <td><strong>#${c.citizen_id}</strong></td>
-          <td><strong>${escapeHtml(c.citizen_name)}</strong></td>
+          <td>${c.citizen_id}</td>
+          <td>${escapeHtml(c.citizen_name)}</td>
           <td>${formatDate(c.dob)}</td>
-          <td><span class="tag-gender">${escapeHtml(c.gender)}</span></td>
-          <td><code>${escapeHtml(c.mobile_number)}</code></td>
-          <td class="table-actions">
-            <button type="button" class="action-btn btn-update" onclick="handleOpenUpdateModal('citizens', ${c.citizen_id})">✏️ Update</button>
-            <button type="button" class="action-btn btn-remove" onclick="handleDeleteCitizen(${c.citizen_id}, '${escapeHtml(c.citizen_name).replace(/'/g, "\\'")}')">🗑️ Remove</button>
-            <button type="button" class="action-btn btn-card" onclick="handleViewCardForCitizen(${c.citizen_id})">🪪 ID Card</button>
-          </td>
+          <td>${escapeHtml(c.gender)}</td>
+          <td>${escapeHtml(c.mobile_number)}</td>
         </tr>
       `;
     })
     .join("");
 }
 
-function setupCitizensOperations() {
-  const showBtn = document.getElementById("btnShowCitizens");
-  const toggleAddBtn = document.getElementById("toggleAddCitizenBtn");
-  const closeAddBtn = document.getElementById("closeAddCitizenBtn");
-  const cancelAddBtn = document.getElementById("cancelAddCitizenBtn");
-  const addContainer = document.getElementById("addCitizenContainer");
-  const form = document.getElementById("registrationform");
+function populateCitizenDropdowns() {
+  const delSelect = document.getElementById("deleteCitizenSelect");
+  const editSelect = document.getElementById("editCitizenSelect");
 
-  if (showBtn) {
-    showBtn.addEventListener("click", () => loadCitizensTable(true));
-  }
+  let options = '<option value="">-- Select citizen --</option>';
+  allCitizens.forEach((c) => {
+    options += `<option value="${c.citizen_id}">${c.citizen_id} - ${escapeHtml(c.citizen_name)} (${c.mobile_number})</option>`;
+  });
 
-  if (toggleAddBtn && addContainer) {
-    toggleAddBtn.addEventListener("click", () => {
-      addContainer.classList.toggle("hidden");
-      if (!addContainer.classList.contains("hidden")) {
-        document.getElementById("citizenname")?.focus();
-      }
-    });
-  }
-
-  const hideAdd = () => {
-    if (addContainer) addContainer.classList.add("hidden");
-  };
-  if (closeAddBtn) closeAddBtn.addEventListener("click", hideAdd);
-  if (cancelAddBtn) cancelAddBtn.addEventListener("click", hideAdd);
-
-  // Add Citizen Submission (POST /api/citizens)
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById("citizenname").value.trim();
-      const dob = document.getElementById("DOB").value;
-      const gender = document.getElementById("gender").value;
-      const mobile = document.getElementById("mobile").value.trim();
-      const submitBtn = document.getElementById("citizenSubmitBtn");
-
-      if (!name || !dob || !gender || !mobile) {
-        showAlert("citizenAlert", "Please fill in all required fields.", "error");
-        return;
-      }
-
-      if (!/^\d{10}$/.test(mobile)) {
-        showAlert("citizenAlert", "Mobile number must be exactly 10 digits.", "error");
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Inserting Record...";
-
-      fetch(`${API_BASE_URL}/citizens`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          citizen_name: name,
-          dob: dob,
-          gender: gender,
-          mobile_number: mobile
-        })
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Citizen Data";
-
-          if (data.success) {
-            showAlert("citizenAlert", `[Success] Inserted Citizen record: <strong>#${data.citizen_id} - ${escapeHtml(name)}</strong>.`, "success");
-            form.reset();
-            hideAdd();
-            loadCitizensTable(false);
-          } else {
-            const detail = data.error ? ` (${data.error})` : "";
-            showAlert("citizenAlert", `[Error] ${data.message || "Failed to insert citizen."}${detail}`, "error");
-          }
-        })
-        .catch((err) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Citizen Data";
-          console.error("Citizen insert error:", err);
-          showAlert("citizenAlert", "[Error] Could not connect to backend server.", "error");
-        });
-    });
-  }
+  if (delSelect) delSelect.innerHTML = options;
+  if (editSelect) editSelect.innerHTML = options;
 }
 
-// Remove Citizen (DELETE /api/citizens/:id)
-window.handleDeleteCitizen = function (citizenId, citizenName) {
-  const confirmed = confirm(
-    `WARNING: Are you sure you want to remove Citizen #${citizenId} ("${citizenName}")?\n\n` +
-      `Cascading Rule: All related applications and biometric records for this citizen will also be removed.`
-  );
-
-  if (!confirmed) return;
-
-  fetch(`${API_BASE_URL}/citizens/${citizenId}`, {
-    method: "DELETE"
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        showAlert("citizenAlert", `[Removed] Citizen record #${citizenId} successfully deleted from database.`, "success");
-        loadCitizensTable(false);
-        loadApplicationsTable(false);
-        loadBiometricsTable(false);
-      } else {
-        showAlert("citizenAlert", `[Error] ${data.message || "Could not delete citizen."}`, "error");
-      }
-    })
-    .catch((err) => {
-      console.error("Citizen delete error:", err);
-      showAlert("citizenAlert", "[Error] Could not connect to backend server to delete record.", "error");
-    });
-};
-
-// ====================================================
-// 6. TABLE 2: ENROLLMENT CENTER OPERATIONS
-// ====================================================
-function loadCentersTable(showFeedback = true) {
+// ----------------------------------------------------
+// TABLE 2: ENROLLMENT CENTERS
+// ----------------------------------------------------
+function loadCentersTable() {
   const tbody = document.getElementById("centersTableBody");
-  const countEl = document.getElementById("countCenters");
-
-  if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Loading enrollment centers from database...</td></tr>';
-  }
 
   fetch(`${API_BASE_URL}/centers`)
     .then((res) => res.json())
     .then((data) => {
       if (data.success && Array.isArray(data.centers)) {
         allCenters = data.centers;
-        if (countEl) countEl.textContent = allCenters.length;
         renderCentersTable(allCenters);
+        populateCenterDropdowns();
         populateApplicationDropdowns();
-
-        if (showFeedback) {
-          showAlert("centerAlert", `[Refreshed] Loaded ${allCenters.length} enrollment center records.`, "success");
-        }
       } else {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No center records found.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">No center records found.</td></tr>';
       }
     })
     .catch((err) => {
       console.error("Load centers error:", err);
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell error-text">Failed to fetch centers from server.</td></tr>';
-      }
-      if (showFeedback) {
-        showAlert("centerAlert", "Failed to connect to backend server.", "error");
-      }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Failed to connect to backend server.</td></tr>';
     });
 }
 
@@ -437,7 +287,7 @@ function renderCentersTable(list) {
   if (!tbody) return;
 
   if (!list || list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No center records match the search criteria.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">No records found.</td></tr>';
     return;
   }
 
@@ -445,188 +295,50 @@ function renderCentersTable(list) {
     .map((ctr) => {
       return `
         <tr>
-          <td><strong>#${ctr.center_id}</strong></td>
-          <td><strong>${escapeHtml(ctr.center_name)}</strong></td>
+          <td>${ctr.center_id}</td>
+          <td>${escapeHtml(ctr.center_name)}</td>
           <td>${escapeHtml(ctr.district)}</td>
           <td>${escapeHtml(ctr.state)}</td>
-          <td class="table-actions">
-            <button type="button" class="action-btn btn-update" onclick="handleOpenUpdateModal('centers', ${ctr.center_id})">✏️ Update</button>
-            <button type="button" class="action-btn btn-remove" onclick="handleDeleteCenter(${ctr.center_id}, '${escapeHtml(ctr.center_name).replace(/'/g, "\\'")}')">🗑️ Remove</button>
-          </td>
         </tr>
       `;
     })
     .join("");
 }
 
-function setupCentersOperations() {
-  const showBtn = document.getElementById("btnShowCenters");
-  const toggleAddBtn = document.getElementById("toggleAddCenterBtn");
-  const closeAddBtn = document.getElementById("closeAddCenterBtn");
-  const cancelAddBtn = document.getElementById("cancelAddCenterBtn");
-  const addContainer = document.getElementById("addCenterContainer");
-  const form = document.getElementById("centerform");
+function populateCenterDropdowns() {
+  const delSelect = document.getElementById("deleteCenterSelect");
+  const editSelect = document.getElementById("editCenterSelect");
 
-  if (showBtn) {
-    showBtn.addEventListener("click", () => loadCentersTable(true));
-  }
+  let options = '<option value="">-- Select center --</option>';
+  allCenters.forEach((ctr) => {
+    options += `<option value="${ctr.center_id}">${ctr.center_id} - ${escapeHtml(ctr.center_name)} (${escapeHtml(ctr.district)})</option>`;
+  });
 
-  if (toggleAddBtn && addContainer) {
-    toggleAddBtn.addEventListener("click", () => {
-      addContainer.classList.toggle("hidden");
-      if (!addContainer.classList.contains("hidden")) {
-        document.getElementById("centername")?.focus();
-      }
-    });
-  }
-
-  const hideAdd = () => {
-    if (addContainer) addContainer.classList.add("hidden");
-  };
-  if (closeAddBtn) closeAddBtn.addEventListener("click", hideAdd);
-  if (cancelAddBtn) cancelAddBtn.addEventListener("click", hideAdd);
-
-  // Add Center Submission (POST /api/centers)
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById("centername").value.trim();
-      const district = document.getElementById("district").value.trim();
-      const state = document.getElementById("state").value.trim();
-      const submitBtn = document.getElementById("centerSubmitBtn");
-
-      if (!name || !district || !state) {
-        showAlert("centerAlert", "Please fill in all center details.", "error");
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Inserting Center...";
-
-      fetch(`${API_BASE_URL}/centers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          center_name: name,
-          district: district,
-          state: state
-        })
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Center Data";
-
-          if (data.success) {
-            showAlert("centerAlert", `[Success] Center record created: <strong>#${data.center_id} - ${escapeHtml(name)}</strong>.`, "success");
-            form.reset();
-            hideAdd();
-            loadCentersTable(false);
-          } else {
-            const detail = data.error ? ` (${data.error})` : "";
-            showAlert("centerAlert", `[Error] ${data.message || "Failed to insert center."}${detail}`, "error");
-          }
-        })
-        .catch((err) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Center Data";
-          console.error("Center insert error:", err);
-          showAlert("centerAlert", "[Error] Could not connect to backend server.", "error");
-        });
-    });
-  }
+  if (delSelect) delSelect.innerHTML = options;
+  if (editSelect) editSelect.innerHTML = options;
 }
 
-// Remove Center (DELETE /api/centers/:id)
-window.handleDeleteCenter = function (centerId, centerName) {
-  const confirmed = confirm(
-    `WARNING: Are you sure you want to remove Enrollment Center #${centerId} ("${centerName}")?\n\n` +
-      `Cascading Rule: All related applications and biometric records processed at this center will also be removed.`
-  );
-
-  if (!confirmed) return;
-
-  fetch(`${API_BASE_URL}/centers/${centerId}`, {
-    method: "DELETE"
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        showAlert("centerAlert", `[Removed] Enrollment center #${centerId} deleted successfully.`, "success");
-        loadCentersTable(false);
-        loadApplicationsTable(false);
-        loadBiometricsTable(false);
-      } else {
-        showAlert("centerAlert", `[Error] ${data.message || "Could not delete center."}`, "error");
-      }
-    })
-    .catch((err) => {
-      console.error("Center delete error:", err);
-      showAlert("centerAlert", "[Error] Could not connect to backend server.", "error");
-    });
-};
-
-// ====================================================
-// 7. TABLE 3: AADHAAR APPLICATION OPERATIONS
-// ====================================================
-function populateApplicationDropdowns() {
-  const citizenSelect = document.getElementById("appCitizenSelect");
-  const centerSelect = document.getElementById("appCenterSelect");
-
-  if (citizenSelect) {
-    const curVal = citizenSelect.value;
-    let opts = '<option value="">-- Choose Registered Citizen --</option>';
-    allCitizens.forEach((c) => {
-      opts += `<option value="${c.citizen_id}">#${c.citizen_id} - ${escapeHtml(c.citizen_name)} (${c.mobile_number})</option>`;
-    });
-    citizenSelect.innerHTML = opts;
-    if (curVal) citizenSelect.value = curVal;
-  }
-
-  if (centerSelect) {
-    const curVal = centerSelect.value;
-    let opts = '<option value="">-- Choose Enrollment Center --</option>';
-    allCenters.forEach((ctr) => {
-      opts += `<option value="${ctr.center_id}">#${ctr.center_id} - ${escapeHtml(ctr.center_name)} (${escapeHtml(ctr.district)})</option>`;
-    });
-    centerSelect.innerHTML = opts;
-    if (curVal) centerSelect.value = curVal;
-  }
-}
-
-function loadApplicationsTable(showFeedback = true) {
+// ----------------------------------------------------
+// TABLE 3: AADHAAR APPLICATIONS
+// ----------------------------------------------------
+function loadApplicationsTable() {
   const tbody = document.getElementById("applicationsTableBody");
-  const countEl = document.getElementById("countApps");
-
-  if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Loading applications from database...</td></tr>';
-  }
 
   fetch(`${API_BASE_URL}/applications`)
     .then((res) => res.json())
     .then((data) => {
       if (data.success && Array.isArray(data.applications)) {
         allApplications = data.applications;
-        if (countEl) countEl.textContent = allApplications.length;
         renderApplicationsTable(allApplications);
+        populateApplicationDropdowns();
         populateBiometricDropdowns();
-
-        if (showFeedback) {
-          showAlert("applicationAlert", `[Refreshed] Loaded ${allApplications.length} application records.`, "success");
-        }
       } else {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No application records found.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No application records found.</td></tr>';
       }
     })
     .catch((err) => {
       console.error("Load applications error:", err);
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-cell error-text">Failed to fetch applications from server.</td></tr>';
-      }
-      if (showFeedback) {
-        showAlert("applicationAlert", "Failed to connect to backend server.", "error");
-      }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Failed to connect to backend server.</td></tr>';
     });
 }
 
@@ -635,187 +347,78 @@ function renderApplicationsTable(list) {
   if (!tbody) return;
 
   if (!list || list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No application records match search criteria.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No records found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = list
     .map((app) => {
-      const statusClass = `status-${(app.status || "pending").toLowerCase()}`;
       return `
         <tr>
-          <td><strong>#${app.application_id}</strong></td>
-          <td>
-            <strong>${escapeHtml(app.citizen_name || "Citizen #" + app.citizen_id)}</strong>
-            <div class="cell-sub">ID: #${app.citizen_id} | Mobile: ${escapeHtml(app.mobile_number || "-")}</div>
-          </td>
-          <td>
-            <strong>${escapeHtml(app.center_name || "Center #" + app.center_id)}</strong>
-            <div class="cell-sub">${escapeHtml(app.district || "")}, ${escapeHtml(app.state || "")}</div>
-          </td>
+          <td>${app.application_id}</td>
+          <td>${escapeHtml(app.citizen_name || "Citizen #" + app.citizen_id)}</td>
+          <td>${escapeHtml(app.center_name || "Center #" + app.center_id)}</td>
           <td>${formatDate(app.application_date)}</td>
-          <td><span class="status-badge ${statusClass}">${escapeHtml(app.status || "Pending")}</span></td>
-          <td class="table-actions">
-            <button type="button" class="action-btn btn-update" onclick="handleOpenUpdateModal('applications', ${app.application_id})">✏️ Update</button>
-            <button type="button" class="action-btn btn-remove" onclick="handleDeleteApplication(${app.application_id})">🗑️ Remove</button>
-            <button type="button" class="action-btn btn-card" onclick="handleViewCardForCitizen(${app.citizen_id})">🪪 ID Card</button>
-          </td>
+          <td>${escapeHtml(app.status || "Pending")}</td>
         </tr>
       `;
     })
     .join("");
 }
 
-function setupApplicationsOperations() {
-  const showBtn = document.getElementById("btnShowApplications");
-  const toggleAddBtn = document.getElementById("toggleAddAppBtn");
-  const closeAddBtn = document.getElementById("closeAddAppBtn");
-  const cancelAddBtn = document.getElementById("cancelAddAppBtn");
-  const addContainer = document.getElementById("addAppContainer");
-  const form = document.getElementById("applicationForm");
+function populateApplicationDropdowns() {
+  const addCit = document.getElementById("appCitizenSelect");
+  const addCtr = document.getElementById("appCenterSelect");
+  const editCit = document.getElementById("editAppCitizen");
+  const editCtr = document.getElementById("editAppCenter");
+  const delApp = document.getElementById("deleteAppSelect");
+  const editApp = document.getElementById("editAppSelect");
 
-  if (showBtn) {
-    showBtn.addEventListener("click", () => loadApplicationsTable(true));
-  }
-
-  if (toggleAddBtn && addContainer) {
-    toggleAddBtn.addEventListener("click", () => {
-      addContainer.classList.toggle("hidden");
-      populateApplicationDropdowns();
-    });
-  }
-
-  const hideAdd = () => {
-    if (addContainer) addContainer.classList.add("hidden");
-  };
-  if (closeAddBtn) closeAddBtn.addEventListener("click", hideAdd);
-  if (cancelAddBtn) cancelAddBtn.addEventListener("click", hideAdd);
-
-  // Add Application Submission (POST /api/applications)
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const citizenId = document.getElementById("appCitizenSelect").value;
-      const centerId = document.getElementById("appCenterSelect").value;
-      const submitBtn = document.getElementById("appSubmitBtn");
-
-      if (!citizenId || !centerId) {
-        showAlert("applicationAlert", "Please select both a citizen and an enrollment center.", "error");
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Inserting Application...";
-
-      fetch(`${API_BASE_URL}/applications`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          citizen_id: citizenId,
-          center_id: centerId
-        })
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Application Data";
-
-          if (data.success) {
-            showAlert("applicationAlert", `[Success] Application created: <strong>App ID: #${data.application_id} | Status: ${data.status}</strong>.`, "success");
-            form.reset();
-            hideAdd();
-            loadApplicationsTable(false);
-          } else {
-            const detail = data.error ? ` (${data.error})` : "";
-            showAlert("applicationAlert", `[Error] ${data.message || "Failed to create application."}${detail}`, "error");
-          }
-        })
-        .catch((err) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Application Data";
-          console.error("Application insert error:", err);
-          showAlert("applicationAlert", "[Error] Could not connect to backend server.", "error");
-        });
-    });
-  }
-}
-
-// Remove Application (DELETE /api/applications/:id)
-window.handleDeleteApplication = function (applicationId) {
-  const confirmed = confirm(
-    `WARNING: Are you sure you want to remove Application #${applicationId}?\n\n` +
-      `Cascading Rule: Any associated BiometricRecord will also be removed.`
-  );
-
-  if (!confirmed) return;
-
-  fetch(`${API_BASE_URL}/applications/${applicationId}`, {
-    method: "DELETE"
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        showAlert("applicationAlert", `[Removed] Application #${applicationId} deleted successfully.`, "success");
-        loadApplicationsTable(false);
-        loadBiometricsTable(false);
-      } else {
-        showAlert("applicationAlert", `[Error] ${data.message || "Could not delete application."}`, "error");
-      }
-    })
-    .catch((err) => {
-      console.error("Application delete error:", err);
-      showAlert("applicationAlert", "[Error] Could not connect to backend server.", "error");
-    });
-};
-
-// ====================================================
-// 8. TABLE 4: BIOMETRIC RECORD OPERATIONS
-// ====================================================
-function populateBiometricDropdowns() {
-  const bioAppSelect = document.getElementById("bioAppSelect");
-  if (!bioAppSelect) return;
-
-  const curVal = bioAppSelect.value;
-  let opts = '<option value="">-- Choose Application ID --</option>';
-  allApplications.forEach((app) => {
-    opts += `<option value="${app.application_id}">App #${app.application_id} — ${escapeHtml(app.citizen_name || "Citizen #" + app.citizen_id)} (${escapeHtml(app.status)})</option>`;
+  // Citizen options
+  let citOpts = '<option value="">-- Select citizen --</option>';
+  allCitizens.forEach((c) => {
+    citOpts += `<option value="${c.citizen_id}">${c.citizen_id} - ${escapeHtml(c.citizen_name)}</option>`;
   });
-  bioAppSelect.innerHTML = opts;
-  if (curVal) bioAppSelect.value = curVal;
+  if (addCit) addCit.innerHTML = citOpts;
+  if (editCit) editCit.innerHTML = citOpts;
+
+  // Center options
+  let ctrOpts = '<option value="">-- Select center --</option>';
+  allCenters.forEach((ctr) => {
+    ctrOpts += `<option value="${ctr.center_id}">${ctr.center_id} - ${escapeHtml(ctr.center_name)}</option>`;
+  });
+  if (addCtr) addCtr.innerHTML = ctrOpts;
+  if (editCtr) editCtr.innerHTML = ctrOpts;
+
+  // Application options
+  let appOpts = '<option value="">-- Select application --</option>';
+  allApplications.forEach((app) => {
+    appOpts += `<option value="${app.application_id}">App #${app.application_id} - ${escapeHtml(app.citizen_name || "Citizen #" + app.citizen_id)} (${app.status})</option>`;
+  });
+  if (delApp) delApp.innerHTML = appOpts;
+  if (editApp) editApp.innerHTML = appOpts;
 }
 
-function loadBiometricsTable(showFeedback = true) {
+// ----------------------------------------------------
+// TABLE 4: BIOMETRIC RECORDS
+// ----------------------------------------------------
+function loadBiometricsTable() {
   const tbody = document.getElementById("biometricsTableBody");
-  const countEl = document.getElementById("countBiometrics");
-
-  if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Loading biometric records from database...</td></tr>';
-  }
 
   fetch(`${API_BASE_URL}/biometrics`)
     .then((res) => res.json())
     .then((data) => {
       if (data.success && Array.isArray(data.biometrics)) {
         allBiometrics = data.biometrics;
-        if (countEl) countEl.textContent = allBiometrics.length;
         renderBiometricsTable(allBiometrics);
-
-        if (showFeedback) {
-          showAlert("biometricAlert", `[Refreshed] Loaded ${allBiometrics.length} biometric records.`, "success");
-        }
+        populateBiometricDropdowns();
       } else {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No biometric records found.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">No biometric records found.</td></tr>';
       }
     })
     .catch((err) => {
       console.error("Load biometrics error:", err);
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell error-text">Failed to fetch biometrics from server.</td></tr>';
-      }
-      if (showFeedback) {
-        showAlert("biometricAlert", "Failed to connect to backend server.", "error");
-      }
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Failed to connect to backend server.</td></tr>';
     });
 }
 
@@ -824,520 +427,493 @@ function renderBiometricsTable(list) {
   if (!tbody) return;
 
   if (!list || list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No biometric records match search criteria.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">No records found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = list
-    .map((bio) => {
+    .map((b) => {
       return `
         <tr>
-          <td><strong>#${bio.biometric_id}</strong></td>
-          <td>
-            <strong>App #${bio.application_id}</strong>
-            <div class="cell-sub">${escapeHtml(bio.citizen_name || "Citizen #" + (bio.citizen_id || ""))}</div>
-          </td>
-          <td><code>${escapeHtml(bio.fingerprint_hash || "NULL")}</code></td>
-          <td><code>${escapeHtml(bio.iris_hash || "NULL")}</code></td>
-          <td class="table-actions">
-            <button type="button" class="action-btn btn-update" onclick="handleOpenUpdateModal('biometrics', ${bio.biometric_id})">✏️ Update</button>
-            <button type="button" class="action-btn btn-remove" onclick="handleDeleteBiometric(${bio.biometric_id})">🗑️ Remove</button>
-          </td>
+          <td>${b.biometric_id}</td>
+          <td>App #${b.application_id}</td>
+          <td><code style="font-size:12px;">${escapeHtml(b.fingerprint_hash || "-")}</code></td>
+          <td><code style="font-size:12px;">${escapeHtml(b.iris_hash || "-")}</code></td>
         </tr>
       `;
     })
     .join("");
 }
 
-function setupBiometricsOperations() {
-  const showBtn = document.getElementById("btnShowBiometrics");
-  const toggleAddBtn = document.getElementById("toggleAddBioBtn");
-  const closeAddBtn = document.getElementById("closeAddBioBtn");
-  const cancelAddBtn = document.getElementById("cancelAddBioBtn");
-  const addContainer = document.getElementById("addBioContainer");
-  const form = document.getElementById("biometricForm");
+function populateBiometricDropdowns() {
+  const bioAppSelect = document.getElementById("bioAppSelect");
+  const delBioSelect = document.getElementById("deleteBioSelect");
+  const editBioSelect = document.getElementById("editBioSelect");
 
-  if (showBtn) {
-    showBtn.addEventListener("click", () => loadBiometricsTable(true));
-  }
+  let appOpts = '<option value="">-- Select application --</option>';
+  allApplications.forEach((app) => {
+    appOpts += `<option value="${app.application_id}">App #${app.application_id} - ${escapeHtml(app.citizen_name || "Citizen #" + app.citizen_id)}</option>`;
+  });
+  if (bioAppSelect) bioAppSelect.innerHTML = appOpts;
 
-  if (toggleAddBtn && addContainer) {
-    toggleAddBtn.addEventListener("click", () => {
-      addContainer.classList.toggle("hidden");
-      populateBiometricDropdowns();
-      // Pre-fill suggested SHA-256 hashes
-      const fpInput = document.getElementById("fingerprintHash");
-      const irisInput = document.getElementById("irisHash");
-      if (fpInput && !fpInput.value) fpInput.value = generateRandomHash("fp_sha256");
-      if (irisInput && !irisInput.value) irisInput.value = generateRandomHash("iris_sha256");
+  let bioOpts = '<option value="">-- Select biometric record --</option>';
+  allBiometrics.forEach((b) => {
+    bioOpts += `<option value="${b.biometric_id}">Record #${b.biometric_id} (App #${b.application_id})</option>`;
+  });
+  if (delBioSelect) delBioSelect.innerHTML = bioOpts;
+  if (editBioSelect) editBioSelect.innerHTML = bioOpts;
+}
+
+// ====================================================
+// 3. FORM SUBMISSIONS & CRUD ACTIONS
+// ====================================================
+function setupAllForms() {
+  // 1. CITIZEN CRUD
+  const addCitForm = document.getElementById("addCitizenForm");
+  if (addCitForm) {
+    addCitForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("citizenName").value.trim();
+      const dob = document.getElementById("citizenDob").value;
+      const gender = document.getElementById("citizenGender").value;
+      const mobile = document.getElementById("citizenMobile").value.trim();
+      const btn = document.getElementById("btnAddCitizen");
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
+
+      fetch(`${API_BASE_URL}/citizens`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ citizen_name: name, dob, gender, mobile_number: mobile })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          if (data.success) {
+            showAlert("citizenAlert", `Record #${data.citizen_id} (${escapeHtml(name)}) added successfully.`, "success");
+            addCitForm.reset();
+            loadCitizensTable();
+          } else {
+            showAlert("citizenAlert", `Error: ${data.message || "Failed to add citizen."}`, "error");
+          }
+        })
+        .catch((err) => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          showAlert("citizenAlert", "Failed to connect to backend.", "error");
+        });
     });
   }
 
-  const hideAdd = () => {
-    if (addContainer) addContainer.classList.add("hidden");
-  };
-  if (closeAddBtn) closeAddBtn.addEventListener("click", hideAdd);
-  if (cancelAddBtn) cancelAddBtn.addEventListener("click", hideAdd);
-
-  // Add Biometric Submission (POST /api/biometrics)
-  if (form) {
-    form.addEventListener("submit", function (e) {
+  const delCitForm = document.getElementById("deleteCitizenForm");
+  if (delCitForm) {
+    delCitForm.addEventListener("submit", function (e) {
       e.preventDefault();
+      const id = document.getElementById("deleteCitizenSelect").value;
+      if (!id) return;
 
-      const appId = document.getElementById("bioAppSelect").value;
-      let fpHash = document.getElementById("fingerprintHash").value.trim();
-      let irisHash = document.getElementById("irisHash").value.trim();
-      const submitBtn = document.getElementById("bioSubmitBtn");
-
-      if (!appId) {
-        showAlert("biometricAlert", "Please select an Application ID.", "error");
+      if (!confirm(`Are you sure you want to delete Citizen #${id}? Any related applications will also be deleted.`)) {
         return;
       }
 
-      if (!fpHash) fpHash = generateRandomHash("fp_sha256");
-      if (!irisHash) irisHash = generateRandomHash("iris_sha256");
+      fetch(`${API_BASE_URL}/citizens/${id}`, { method: "DELETE" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("citizenAlert", `Citizen #${id} deleted successfully.`, "success");
+            loadCitizensTable();
+            loadApplicationsTable();
+            loadBiometricsTable();
+          } else {
+            showAlert("citizenAlert", `Error: ${data.message || "Could not delete."}`, "error");
+          }
+        })
+        .catch(() => showAlert("citizenAlert", "Failed to delete.", "error"));
+    });
+  }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Inserting Biometric...";
+  const editCitSelect = document.getElementById("editCitizenSelect");
+  if (editCitSelect) {
+    editCitSelect.addEventListener("change", function () {
+      const id = this.value;
+      const citizen = allCitizens.find((c) => String(c.citizen_id) === String(id));
+      if (citizen) {
+        document.getElementById("editCitizenName").value = citizen.citizen_name || "";
+        document.getElementById("editCitizenDob").value = citizen.dob ? citizen.dob.split("T")[0] : "";
+        document.getElementById("editCitizenGender").value = citizen.gender || "";
+        document.getElementById("editCitizenMobile").value = citizen.mobile_number || "";
+      }
+    });
+  }
+
+  const editCitForm = document.getElementById("editCitizenForm");
+  if (editCitForm) {
+    editCitForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("editCitizenSelect").value;
+      if (!id) {
+        showAlert("citizenAlert", "Please select a citizen to edit.", "error");
+        return;
+      }
+
+      const name = document.getElementById("editCitizenName").value.trim();
+      const dob = document.getElementById("editCitizenDob").value;
+      const gender = document.getElementById("editCitizenGender").value;
+      const mobile = document.getElementById("editCitizenMobile").value.trim();
+
+      fetch(`${API_BASE_URL}/citizens/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ citizen_name: name, dob, gender, mobile_number: mobile })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("citizenAlert", `Citizen #${id} updated successfully.`, "success");
+            loadCitizensTable();
+          } else {
+            showAlert("citizenAlert", `Error: ${data.message || "Update failed."}`, "error");
+          }
+        })
+        .catch(() => showAlert("citizenAlert", "Update failed.", "error"));
+    });
+  }
+
+  // 2. ENROLLMENT CENTER CRUD
+  const addCtrForm = document.getElementById("addCenterForm");
+  if (addCtrForm) {
+    addCtrForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("centerName").value.trim();
+      const district = document.getElementById("centerDistrict").value.trim();
+      const state = document.getElementById("centerState").value.trim();
+      const btn = document.getElementById("btnAddCenter");
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
+
+      fetch(`${API_BASE_URL}/centers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ center_name: name, district, state })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          if (data.success) {
+            showAlert("centerAlert", `Center #${data.center_id} (${escapeHtml(name)}) added successfully.`, "success");
+            addCtrForm.reset();
+            loadCentersTable();
+          } else {
+            showAlert("centerAlert", `Error: ${data.message || "Failed to add center."}`, "error");
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          showAlert("centerAlert", "Failed to connect to backend.", "error");
+        });
+    });
+  }
+
+  const delCtrForm = document.getElementById("deleteCenterForm");
+  if (delCtrForm) {
+    delCtrForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("deleteCenterSelect").value;
+      if (!id) return;
+
+      if (!confirm(`Are you sure you want to delete Center #${id}?`)) return;
+
+      fetch(`${API_BASE_URL}/centers/${id}`, { method: "DELETE" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("centerAlert", `Center #${id} deleted successfully.`, "success");
+            loadCentersTable();
+            loadApplicationsTable();
+          } else {
+            showAlert("centerAlert", `Error: ${data.message || "Could not delete center."}`, "error");
+          }
+        })
+        .catch(() => showAlert("centerAlert", "Failed to delete.", "error"));
+    });
+  }
+
+  const editCtrSelect = document.getElementById("editCenterSelect");
+  if (editCtrSelect) {
+    editCtrSelect.addEventListener("change", function () {
+      const id = this.value;
+      const ctr = allCenters.find((c) => String(c.center_id) === String(id));
+      if (ctr) {
+        document.getElementById("editCenterName").value = ctr.center_name || "";
+        document.getElementById("editCenterDistrict").value = ctr.district || "";
+        document.getElementById("editCenterState").value = ctr.state || "";
+      }
+    });
+  }
+
+  const editCtrForm = document.getElementById("editCenterForm");
+  if (editCtrForm) {
+    editCtrForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("editCenterSelect").value;
+      if (!id) {
+        showAlert("centerAlert", "Please select a center to edit.", "error");
+        return;
+      }
+
+      const name = document.getElementById("editCenterName").value.trim();
+      const district = document.getElementById("editCenterDistrict").value.trim();
+      const state = document.getElementById("editCenterState").value.trim();
+
+      fetch(`${API_BASE_URL}/centers/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ center_name: name, district, state })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("centerAlert", `Center #${id} updated successfully.`, "success");
+            loadCentersTable();
+          } else {
+            showAlert("centerAlert", `Error: ${data.message || "Update failed."}`, "error");
+          }
+        })
+        .catch(() => showAlert("centerAlert", "Update failed.", "error"));
+    });
+  }
+
+  // 3. APPLICATION CRUD
+  const addAppForm = document.getElementById("addApplicationForm");
+  if (addAppForm) {
+    addAppForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const citizen_id = document.getElementById("appCitizenSelect").value;
+      const center_id = document.getElementById("appCenterSelect").value;
+      const btn = document.getElementById("btnAddApp");
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
+
+      fetch(`${API_BASE_URL}/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ citizen_id, center_id })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          if (data.success) {
+            showAlert("applicationAlert", `Application #${data.application_id} created successfully.`, "success");
+            addAppForm.reset();
+            loadApplicationsTable();
+          } else {
+            showAlert("applicationAlert", `Error: ${data.message || "Failed to create application."}`, "error");
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          showAlert("applicationAlert", "Failed to connect to backend.", "error");
+        });
+    });
+  }
+
+  const delAppForm = document.getElementById("deleteAppForm");
+  if (delAppForm) {
+    delAppForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("deleteAppSelect").value;
+      if (!id) return;
+
+      if (!confirm(`Are you sure you want to delete Application #${id}?`)) return;
+
+      fetch(`${API_BASE_URL}/applications/${id}`, { method: "DELETE" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("applicationAlert", `Application #${id} deleted successfully.`, "success");
+            loadApplicationsTable();
+            loadBiometricsTable();
+          } else {
+            showAlert("applicationAlert", `Error: ${data.message || "Could not delete."}`, "error");
+          }
+        })
+        .catch(() => showAlert("applicationAlert", "Failed to delete.", "error"));
+    });
+  }
+
+  const editAppSelect = document.getElementById("editAppSelect");
+  if (editAppSelect) {
+    editAppSelect.addEventListener("change", function () {
+      const id = this.value;
+      const app = allApplications.find((a) => String(a.application_id) === String(id));
+      if (app) {
+        document.getElementById("editAppCitizen").value = app.citizen_id || "";
+        document.getElementById("editAppCenter").value = app.center_id || "";
+        document.getElementById("editAppStatus").value = app.status || "Pending";
+      }
+    });
+  }
+
+  const editAppForm = document.getElementById("editAppForm");
+  if (editAppForm) {
+    editAppForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("editAppSelect").value;
+      if (!id) {
+        showAlert("applicationAlert", "Please select an application to edit.", "error");
+        return;
+      }
+
+      const citizen_id = document.getElementById("editAppCitizen").value;
+      const center_id = document.getElementById("editAppCenter").value;
+      const status = document.getElementById("editAppStatus").value;
+
+      fetch(`${API_BASE_URL}/applications/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ citizen_id, center_id, status })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("applicationAlert", `Application #${id} updated successfully.`, "success");
+            loadApplicationsTable();
+          } else {
+            showAlert("applicationAlert", `Error: ${data.message || "Update failed."}`, "error");
+          }
+        })
+        .catch(() => showAlert("applicationAlert", "Update failed.", "error"));
+    });
+  }
+
+  // 4. BIOMETRIC CRUD
+  const addBioForm = document.getElementById("addBiometricForm");
+  if (addBioForm) {
+    addBioForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const application_id = document.getElementById("bioAppSelect").value;
+      let fp = document.getElementById("bioFingerprint").value.trim();
+      let iris = document.getElementById("bioIris").value.trim();
+      const btn = document.getElementById("btnAddBio");
+
+      if (!fp) fp = generateRandomHash("fp_sha256");
+      if (!iris) iris = generateRandomHash("iris_sha256");
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
 
       fetch(`${API_BASE_URL}/biometrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          application_id: appId,
-          fingerprint_hash: fpHash,
-          iris_hash: irisHash
-        })
+        body: JSON.stringify({ application_id, fingerprint_hash: fp, iris_hash: iris })
       })
         .then((res) => res.json())
         .then((data) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Biometric Data";
-
+          btn.disabled = false;
+          btn.textContent = "Add";
           if (data.success) {
-            showAlert("biometricAlert", `[Success] Biometric record created: <strong>ID #${data.biometric_id}</strong> for Application #${appId}.`, "success");
-            form.reset();
-            hideAdd();
-            loadBiometricsTable(false);
+            showAlert("biometricAlert", `Biometric record #${data.biometric_id} added successfully.`, "success");
+            addBioForm.reset();
+            loadBiometricsTable();
           } else {
-            const detail = data.error ? ` (${data.error})` : "";
-            showAlert("biometricAlert", `[Error] ${data.message || "Failed to insert biometrics."}${detail}`, "error");
+            showAlert("biometricAlert", `Error: ${data.message || "Failed to add biometric record."}`, "error");
           }
         })
-        .catch((err) => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Insert Biometric Data";
-          console.error("Biometric insert error:", err);
-          showAlert("biometricAlert", "[Error] Could not connect to backend server.", "error");
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = "Add";
+          showAlert("biometricAlert", "Failed to connect to backend.", "error");
         });
     });
   }
-}
 
-// Remove Biometric Record (DELETE /api/biometrics/:id)
-window.handleDeleteBiometric = function (biometricId) {
-  const confirmed = confirm(`Are you sure you want to remove Biometric Record #${biometricId}?`);
-  if (!confirmed) return;
-
-  fetch(`${API_BASE_URL}/biometrics/${biometricId}`, {
-    method: "DELETE"
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        showAlert("biometricAlert", `[Removed] Biometric record #${biometricId} deleted successfully.`, "success");
-        loadBiometricsTable(false);
-      } else {
-        showAlert("biometricAlert", `[Error] ${data.message || "Could not delete record."}`, "error");
-      }
-    })
-    .catch((err) => {
-      console.error("Biometric delete error:", err);
-      showAlert("biometricAlert", "[Error] Could not connect to backend server.", "error");
-    });
-};
-
-// ====================================================
-// 9. UNIVERSAL UPDATE RECORD MODAL
-// ====================================================
-function setupUniversalUpdateModal() {
-  const modal = document.getElementById("updateRecordModal");
-  const form = document.getElementById("updateRecordForm");
-  const closeBtn = document.getElementById("closeUpdateModalBtn");
-  const cancelBtn = document.getElementById("cancelUpdateModalBtn");
-
-  const closeModal = () => {
-    if (modal) modal.classList.add("hidden");
-    const alertEl = document.getElementById("modalUpdateAlert");
-    if (alertEl) alertEl.style.display = "none";
-  };
-
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-  if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
-
-  if (form) {
-    form.addEventListener("submit", function (e) {
+  const delBioForm = document.getElementById("deleteBiometricForm");
+  if (delBioForm) {
+    delBioForm.addEventListener("submit", function (e) {
       e.preventDefault();
+      const id = document.getElementById("deleteBioSelect").value;
+      if (!id) return;
 
-      const target = document.getElementById("updateTableTarget").value;
-      const recordId = document.getElementById("updateRecordId").value;
-      const saveBtn = document.getElementById("saveUpdateRecordBtn");
+      if (!confirm(`Are you sure you want to delete Biometric Record #${id}?`)) return;
 
-      let payload = {};
-      let endpoint = `${API_BASE_URL}/${target}/${recordId}`;
+      fetch(`${API_BASE_URL}/biometrics/${id}`, { method: "DELETE" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            showAlert("biometricAlert", `Biometric record #${id} deleted successfully.`, "success");
+            loadBiometricsTable();
+          } else {
+            showAlert("biometricAlert", `Error: ${data.message || "Could not delete."}`, "error");
+          }
+        })
+        .catch(() => showAlert("biometricAlert", "Failed to delete.", "error"));
+    });
+  }
 
-      if (target === "citizens") {
-        const name = document.getElementById("modalEditName").value.trim();
-        const dob = document.getElementById("modalEditDob").value;
-        const gender = document.getElementById("modalEditGender").value;
-        const mobile = document.getElementById("modalEditMobile").value.trim();
+  const editBioSelect = document.getElementById("editBioSelect");
+  if (editBioSelect) {
+    editBioSelect.addEventListener("change", function () {
+      const id = this.value;
+      const b = allBiometrics.find((item) => String(item.biometric_id) === String(id));
+      if (b) {
+        document.getElementById("editBioFingerprint").value = b.fingerprint_hash || "";
+        document.getElementById("editBioIris").value = b.iris_hash || "";
+      }
+    });
+  }
 
-        if (!name || !dob || !gender || !mobile) {
-          showAlert("modalUpdateAlert", "Please fill in all fields.", "error");
-          return;
-        }
-        if (!/^\d{10}$/.test(mobile)) {
-          showAlert("modalUpdateAlert", "Mobile must be 10 digits.", "error");
-          return;
-        }
-
-        payload = {
-          citizen_name: name,
-          dob: dob,
-          gender: gender,
-          mobile_number: mobile
-        };
-      } else if (target === "centers") {
-        const name = document.getElementById("modalEditCenterName").value.trim();
-        const district = document.getElementById("modalEditDistrict").value.trim();
-        const state = document.getElementById("modalEditState").value.trim();
-
-        if (!name || !district || !state) {
-          showAlert("modalUpdateAlert", "Please fill in all fields.", "error");
-          return;
-        }
-
-        payload = {
-          center_name: name,
-          district: district,
-          state: state
-        };
-      } else if (target === "applications") {
-        const citizenId = document.getElementById("modalEditAppCitizen").value;
-        const centerId = document.getElementById("modalEditAppCenter").value;
-        const status = document.getElementById("modalEditAppStatus").value;
-
-        if (!citizenId || !centerId || !status) {
-          showAlert("modalUpdateAlert", "Please select all application fields.", "error");
-          return;
-        }
-
-        payload = {
-          citizen_id: citizenId,
-          center_id: centerId,
-          status: status
-        };
-      } else if (target === "biometrics") {
-        const fpHash = document.getElementById("modalEditFpHash").value.trim();
-        const irisHash = document.getElementById("modalEditIrisHash").value.trim();
-
-        if (!fpHash || !irisHash) {
-          showAlert("modalUpdateAlert", "Please provide biometric hashes.", "error");
-          return;
-        }
-
-        payload = {
-          fingerprint_hash: fpHash,
-          iris_hash: irisHash
-        };
+  const editBioForm = document.getElementById("editBiometricForm");
+  if (editBioForm) {
+    editBioForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("editBioSelect").value;
+      if (!id) {
+        showAlert("biometricAlert", "Please select a record to edit.", "error");
+        return;
       }
 
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Saving Changes...";
+      const fp = document.getElementById("editBioFingerprint").value.trim();
+      const iris = document.getElementById("editBioIris").value.trim();
 
-      fetch(endpoint, {
+      fetch(`${API_BASE_URL}/biometrics/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ fingerprint_hash: fp, iris_hash: iris })
       })
         .then((res) => res.json())
         .then((data) => {
-          saveBtn.disabled = false;
-          saveBtn.textContent = "Save Updates";
-
           if (data.success) {
-            closeModal();
-            // Refresh corresponding table and show alert
-            if (target === "citizens") {
-              showAlert("citizenAlert", `[Updated] Citizen record #${recordId} successfully updated.`, "success");
-              loadCitizensTable(false);
-              loadApplicationsTable(false);
-            } else if (target === "centers") {
-              showAlert("centerAlert", `[Updated] Center record #${recordId} successfully updated.`, "success");
-              loadCentersTable(false);
-              loadApplicationsTable(false);
-            } else if (target === "applications") {
-              showAlert("applicationAlert", `[Updated] Application record #${recordId} successfully updated.`, "success");
-              loadApplicationsTable(false);
-              loadBiometricsTable(false);
-            } else if (target === "biometrics") {
-              showAlert("biometricAlert", `[Updated] Biometric record #${recordId} successfully updated.`, "success");
-              loadBiometricsTable(false);
-            }
+            showAlert("biometricAlert", `Biometric record #${id} updated successfully.`, "success");
+            loadBiometricsTable();
           } else {
-            showAlert("modalUpdateAlert", `[Error] ${data.message || "Failed to update record."}`, "error");
+            showAlert("biometricAlert", `Error: ${data.message || "Update failed."}`, "error");
           }
         })
-        .catch((err) => {
-          saveBtn.disabled = false;
-          saveBtn.textContent = "Save Updates";
-          console.error("Update error:", err);
-          showAlert("modalUpdateAlert", "[Error] Could not connect to backend server.", "error");
-        });
-    });
-  }
-}
-
-window.handleOpenUpdateModal = function (tableName, recordId) {
-  const modal = document.getElementById("updateRecordModal");
-  const modalTitle = document.getElementById("updateModalTitle");
-  const tableTarget = document.getElementById("updateTableTarget");
-  const recordIdInput = document.getElementById("updateRecordId");
-  const fieldsContainer = document.getElementById("updateFormFieldsContainer");
-  const alertEl = document.getElementById("modalUpdateAlert");
-
-  if (!modal || !fieldsContainer) return;
-
-  if (alertEl) alertEl.style.display = "none";
-  tableTarget.value = tableName;
-  recordIdInput.value = recordId;
-
-  // Build fields dynamically depending on table
-  if (tableName === "citizens") {
-    const item = allCitizens.find((c) => String(c.citizen_id) === String(recordId));
-    if (!item) {
-      alert("Citizen record not found in cache.");
-      return;
-    }
-
-    modalTitle.textContent = `✏️ Update Citizen Record (ID: #${recordId})`;
-    const rawDob = item.dob ? item.dob.split("T")[0] : "";
-
-    fieldsContainer.innerHTML = `
-      <div class="form-group">
-        <label for="modalEditName">Citizen Full Name <span class="required">*</span></label>
-        <input type="text" id="modalEditName" value="${escapeHtml(item.citizen_name)}" required maxlength="100">
-      </div>
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="modalEditDob">Date of Birth <span class="required">*</span></label>
-          <input type="date" id="modalEditDob" value="${rawDob}" required max="${new Date().toISOString().split("T")[0]}">
-        </div>
-        <div class="form-group flex-1">
-          <label for="modalEditGender">Gender <span class="required">*</span></label>
-          <select id="modalEditGender" required>
-            <option value="Male" ${item.gender === "Male" ? "selected" : ""}>Male</option>
-            <option value="Female" ${item.gender === "Female" ? "selected" : ""}>Female</option>
-            <option value="Others" ${item.gender === "Others" ? "selected" : ""}>Others</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="modalEditMobile">Mobile Number (10 digits) <span class="required">*</span></label>
-        <input type="tel" id="modalEditMobile" value="${escapeHtml(item.mobile_number)}" required pattern="[0-9]{10}" maxlength="10">
-      </div>
-    `;
-  } else if (tableName === "centers") {
-    const item = allCenters.find((c) => String(c.center_id) === String(recordId));
-    if (!item) {
-      alert("Center record not found in cache.");
-      return;
-    }
-
-    modalTitle.textContent = `✏️ Update Enrollment Center (ID: #${recordId})`;
-    fieldsContainer.innerHTML = `
-      <div class="form-group">
-        <label for="modalEditCenterName">Center Name <span class="required">*</span></label>
-        <input type="text" id="modalEditCenterName" value="${escapeHtml(item.center_name)}" required maxlength="60">
-      </div>
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="modalEditDistrict">District <span class="required">*</span></label>
-          <input type="text" id="modalEditDistrict" value="${escapeHtml(item.district)}" required maxlength="60">
-        </div>
-        <div class="form-group flex-1">
-          <label for="modalEditState">State <span class="required">*</span></label>
-          <input type="text" id="modalEditState" value="${escapeHtml(item.state)}" required maxlength="60">
-        </div>
-      </div>
-    `;
-  } else if (tableName === "applications") {
-    const item = allApplications.find((a) => String(a.application_id) === String(recordId));
-    if (!item) {
-      alert("Application record not found in cache.");
-      return;
-    }
-
-    modalTitle.textContent = `✏️ Update Application (ID: #${recordId})`;
-
-    let citOptions = "";
-    allCitizens.forEach((c) => {
-      const sel = String(c.citizen_id) === String(item.citizen_id) ? "selected" : "";
-      citOptions += `<option value="${c.citizen_id}" ${sel}>#${c.citizen_id} - ${escapeHtml(c.citizen_name)} (${c.mobile_number})</option>`;
-    });
-
-    let ctrOptions = "";
-    allCenters.forEach((ctr) => {
-      const sel = String(ctr.center_id) === String(item.center_id) ? "selected" : "";
-      ctrOptions += `<option value="${ctr.center_id}" ${sel}>#${ctr.center_id} - ${escapeHtml(ctr.center_name)} (${escapeHtml(ctr.district)})</option>`;
-    });
-
-    fieldsContainer.innerHTML = `
-      <div class="form-group">
-        <label for="modalEditAppCitizen">Citizen (FK) <span class="required">*</span></label>
-        <select id="modalEditAppCitizen" required>${citOptions}</select>
-      </div>
-      <div class="form-group">
-        <label for="modalEditAppCenter">Enrollment Center (FK) <span class="required">*</span></label>
-        <select id="modalEditAppCenter" required>${ctrOptions}</select>
-      </div>
-      <div class="form-group">
-        <label for="modalEditAppStatus">Application Status <span class="required">*</span></label>
-        <select id="modalEditAppStatus" required>
-          <option value="Pending" ${item.status === "Pending" ? "selected" : ""}>Pending</option>
-          <option value="Approved" ${item.status === "Approved" ? "selected" : ""}>Approved</option>
-          <option value="Rejected" ${item.status === "Rejected" ? "selected" : ""}>Rejected</option>
-        </select>
-      </div>
-    `;
-  } else if (tableName === "biometrics") {
-    const item = allBiometrics.find((b) => String(b.biometric_id) === String(recordId));
-    if (!item) {
-      alert("Biometric record not found in cache.");
-      return;
-    }
-
-    modalTitle.textContent = `✏️ Update Biometric Record (ID: #${recordId})`;
-    fieldsContainer.innerHTML = `
-      <div class="form-group">
-        <label>Application ID (FK)</label>
-        <input type="text" value="Application #${item.application_id}" disabled>
-      </div>
-      <div class="form-group">
-        <label for="modalEditFpHash">Fingerprint Hash <span class="required">*</span></label>
-        <input type="text" id="modalEditFpHash" value="${escapeHtml(item.fingerprint_hash || "")}" required>
-      </div>
-      <div class="form-group">
-        <label for="modalEditIrisHash">Iris Scan Hash <span class="required">*</span></label>
-        <input type="text" id="modalEditIrisHash" value="${escapeHtml(item.iris_hash || "")}" required>
-      </div>
-    `;
-  }
-
-  modal.classList.remove("hidden");
-};
-
-// ====================================================
-// 10. REAL-TIME SEARCH FILTERS
-// ====================================================
-function setupSearchFilters() {
-  const searchCitizens = document.getElementById("searchCitizens");
-  if (searchCitizens) {
-    searchCitizens.addEventListener("input", function () {
-      const q = this.value.toLowerCase().trim();
-      if (!q) {
-        renderCitizensTable(allCitizens);
-        return;
-      }
-      const filtered = allCitizens.filter((c) => {
-        return (
-          String(c.citizen_id).includes(q) ||
-          (c.citizen_name && c.citizen_name.toLowerCase().includes(q)) ||
-          (c.mobile_number && c.mobile_number.includes(q)) ||
-          (c.gender && c.gender.toLowerCase().includes(q))
-        );
-      });
-      renderCitizensTable(filtered);
-    });
-  }
-
-  const searchCenters = document.getElementById("searchCenters");
-  if (searchCenters) {
-    searchCenters.addEventListener("input", function () {
-      const q = this.value.toLowerCase().trim();
-      if (!q) {
-        renderCentersTable(allCenters);
-        return;
-      }
-      const filtered = allCenters.filter((ctr) => {
-        return (
-          String(ctr.center_id).includes(q) ||
-          (ctr.center_name && ctr.center_name.toLowerCase().includes(q)) ||
-          (ctr.district && ctr.district.toLowerCase().includes(q)) ||
-          (ctr.state && ctr.state.toLowerCase().includes(q))
-        );
-      });
-      renderCentersTable(filtered);
-    });
-  }
-
-  const searchApps = document.getElementById("searchApplications");
-  if (searchApps) {
-    searchApps.addEventListener("input", function () {
-      const q = this.value.toLowerCase().trim();
-      if (!q) {
-        renderApplicationsTable(allApplications);
-        return;
-      }
-      const filtered = allApplications.filter((app) => {
-        return (
-          String(app.application_id).includes(q) ||
-          (app.citizen_name && app.citizen_name.toLowerCase().includes(q)) ||
-          (app.center_name && app.center_name.toLowerCase().includes(q)) ||
-          (app.status && app.status.toLowerCase().includes(q)) ||
-          (app.mobile_number && app.mobile_number.includes(q))
-        );
-      });
-      renderApplicationsTable(filtered);
-    });
-  }
-
-  const searchBio = document.getElementById("searchBiometrics");
-  if (searchBio) {
-    searchBio.addEventListener("input", function () {
-      const q = this.value.toLowerCase().trim();
-      if (!q) {
-        renderBiometricsTable(allBiometrics);
-        return;
-      }
-      const filtered = allBiometrics.filter((b) => {
-        return (
-          String(b.biometric_id).includes(q) ||
-          String(b.application_id).includes(q) ||
-          (b.citizen_name && b.citizen_name.toLowerCase().includes(q)) ||
-          (b.fingerprint_hash && b.fingerprint_hash.toLowerCase().includes(q)) ||
-          (b.iris_hash && b.iris_hash.toLowerCase().includes(q))
-        );
-      });
-      renderBiometricsTable(filtered);
+        .catch(() => showAlert("biometricAlert", "Update failed.", "error"));
     });
   }
 }
 
 // ====================================================
-// 11. IDENTITY PROOF CARD PREVIEW & DOWNLOAD
+// 4. IDENTITY CARD GENERATOR
 // ====================================================
-function populateCardDropdown() {
+function populateCardCitizenDropdown() {
   const select = document.getElementById("cardCitizenSelect");
   if (!select) return;
 
-  const curVal = select.value;
-  let opts = '<option value="">-- Select Citizen to Generate Card --</option>';
+  let opts = '<option value="">-- Select Citizen --</option>';
   allCitizens.forEach((c) => {
     opts += `<option value="${c.citizen_id}">#${c.citizen_id} - ${escapeHtml(c.citizen_name)} (${c.mobile_number})</option>`;
   });
   select.innerHTML = opts;
-  if (curVal) select.value = curVal;
 }
 
 function generateAadhaarNumber(citizenId, mobile) {
@@ -1368,34 +944,19 @@ function updateAadhaarCardUI(citizen, centerName) {
   if (numEl) numEl.textContent = aadhaarNum;
 }
 
-function displayCitizenCard(citizenId) {
-  if (!citizenId) return;
-
-  const citizen = allCitizens.find((c) => String(c.citizen_id) === String(citizenId));
-  if (!citizen) {
-    showAlert("cardAlert", `Citizen #${citizenId} not found in database records.`, "error");
-    return;
-  }
-
-  const app = allApplications.find((a) => String(a.citizen_id) === String(citizenId));
-  const centerName = app ? `${app.center_name} (${app.district})` : "Central UIDAI Kendra";
-
-  updateAadhaarCardUI(citizen, centerName);
-  showAlert("cardAlert", `[Generated] Identity Card generated for <strong>${escapeHtml(citizen.citizen_name)}</strong> (#${citizen.citizen_id}).`, "success");
-}
-
-window.handleViewCardForCitizen = function (citizenId) {
-  switchSection("section-card");
-  const select = document.getElementById("cardCitizenSelect");
-  if (select) select.value = citizenId;
-  displayCitizenCard(citizenId);
-};
-
 function setupCardGenerator() {
   const select = document.getElementById("cardCitizenSelect");
   if (select) {
     select.addEventListener("change", function () {
-      displayCitizenCard(this.value);
+      const id = this.value;
+      if (!id) return;
+      const citizen = allCitizens.find((c) => String(c.citizen_id) === String(id));
+      if (citizen) {
+        const app = allApplications.find((a) => String(a.citizen_id) === String(id));
+        const centerName = app ? `${app.center_name} (${app.district})` : "Central UIDAI Kendra";
+        updateAadhaarCardUI(citizen, centerName);
+        showAlert("cardAlert", `Generated ID Card for ${escapeHtml(citizen.citizen_name)}.`, "success");
+      }
     });
   }
 
@@ -1423,15 +984,12 @@ function setupCardGenerator() {
             };
             const centerInfo = `${app.center_name} (${app.district})`;
             updateAadhaarCardUI(pseudoCitizen, centerInfo);
-            showAlert("cardAlert", `[Found] Generated ID Card from Application #${appId} for <strong>${escapeHtml(app.citizen_name)}</strong>.`, "success");
+            showAlert("cardAlert", `Loaded Identity Card for ${escapeHtml(app.citizen_name)}.`, "success");
           } else {
             showAlert("cardAlert", `Application #${appId} not found in database.`, "error");
           }
         })
-        .catch((err) => {
-          console.error(err);
-          showAlert("cardAlert", "Failed to retrieve application from server.", "error");
-        });
+        .catch(() => showAlert("cardAlert", "Failed to retrieve application.", "error"));
     });
   }
 
@@ -1452,12 +1010,12 @@ function downloadAadhaarCardPng() {
   const citizen = currentCardCitizen || {
     citizen_id: 1,
     citizen_name: document.getElementById("cardCitizenName")?.textContent || "Citizen Full Name",
-    dob: document.getElementById("cardDOB")?.textContent || "01/01/2000",
+    dob: document.getElementById("cardDOB")?.textContent || "2000-01-01",
     gender: document.getElementById("cardGender")?.textContent || "Citizen",
     mobile_number: (document.getElementById("cardMobile")?.textContent || "9876543210").replace(/\D/g, "")
   };
 
-  const centerText = document.getElementById("cardCenter")?.textContent || "Central UIDAI Kendra, District";
+  const centerText = document.getElementById("cardCenter")?.textContent || "Central UIDAI Kendra";
   const aadhaarNumber = generateAadhaarNumber(citizen.citizen_id, citizen.mobile_number);
 
   const canvas = document.getElementById("offscreenCardCanvas") || document.createElement("canvas");
@@ -1465,7 +1023,6 @@ function downloadAadhaarCardPng() {
   canvas.height = 630;
   const ctx = canvas.getContext("2d");
 
-  // Clear canvas
   ctx.clearRect(0, 0, 1000, 630);
 
   function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
@@ -1484,38 +1041,34 @@ function downloadAadhaarCardPng() {
     if (stroke) ctx.stroke();
   }
 
-  // Card Outer Border & Background
+  // Card Outer
   ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "#0f2b5c";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 2.5;
-  roundRect(ctx, 15, 15, 970, 600, 12, true, true);
+  roundRect(ctx, 15, 15, 970, 600, 10, true, true);
 
-  // Top Indian Tricolor Rule (Saffron, White, Green)
-  ctx.fillStyle = "#ff9933";
-  ctx.fillRect(15, 15, 323, 7);
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(338, 15, 323, 7);
-  ctx.fillStyle = "#138808";
-  ctx.fillRect(661, 15, 324, 7);
+  // Top Rule
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(15, 15, 970, 6);
 
-  // Header Divider
-  ctx.strokeStyle = "#e2e8f0";
+  // Header
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(15, 115);
   ctx.lineTo(985, 115);
   ctx.stroke();
 
-  // Ashoka Chakra Emblem Simulation (Navy Blue)
+  // Chakra
   ctx.save();
-  ctx.strokeStyle = "#000080";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(68, 68, 28, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(68, 68, 8, 0, Math.PI * 2);
-  ctx.fillStyle = "#000080";
+  ctx.fillStyle = "#000000";
   ctx.fill();
   for (let i = 0; i < 24; i++) {
     const angle = (i * 15 * Math.PI) / 180;
@@ -1526,141 +1079,141 @@ function downloadAadhaarCardPng() {
   }
   ctx.restore();
 
-  // Header Titles
+  // Titles
   ctx.textAlign = "center";
-  ctx.fillStyle = "#0f2b5c";
-  ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 20px Arial, sans-serif";
   ctx.fillText("भारत सरकार", 500, 52);
 
-  ctx.fillStyle = "#0f2b5c";
-  ctx.font = "bold 15px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 15px Arial, sans-serif";
   ctx.fillText("GOVERNMENT OF INDIA", 500, 74);
 
-  ctx.fillStyle = "#64748b";
-  ctx.font = "bold 12px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "bold 12px Arial, sans-serif";
   ctx.fillText("भारतीय विशिष्ट पहचान प्राधिकरण | UIDAI", 500, 95);
 
-  // Sun Logo
-  ctx.fillStyle = "#b45309";
-  ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+  // Sun
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 18px Arial, sans-serif";
   ctx.fillText("आधार", 920, 80);
   ctx.font = "24px Arial";
   ctx.fillText("☀️", 920, 52);
 
-  // Photo Frame
-  ctx.fillStyle = "#f8fafc";
-  ctx.strokeStyle = "#cbd5e1";
+  // Photo
+  ctx.fillStyle = "#f7f7f7";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
   roundRect(ctx, 50, 140, 170, 215, 4, true, true);
 
-  // Silhouette Avatar
+  // Avatar
   ctx.save();
   ctx.beginPath();
   ctx.arc(135, 215, 42, 0, Math.PI * 2);
-  ctx.fillStyle = "#94a3b8";
+  ctx.fillStyle = "#cccccc";
   ctx.fill();
   ctx.beginPath();
   ctx.arc(135, 335, 80, Math.PI * 1.25, Math.PI * 1.75);
   ctx.lineTo(210, 350);
   ctx.lineTo(60, 350);
-  ctx.fillStyle = "#64748b";
+  ctx.fillStyle = "#aaaaaa";
   ctx.fill();
   ctx.restore();
 
-  // Verified Badge (Emerald Green)
-  ctx.fillStyle = "#047857";
+  // Verified Badge
+  ctx.fillStyle = "#000000";
   ctx.fillRect(50, 325, 170, 30);
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.font = "bold 13px Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("✓ VERIFIED IDENTITY", 135, 345);
 
-  // Citizen Demographic Details
+  // Details
   ctx.textAlign = "left";
-  ctx.fillStyle = "#0f2b5c";
-  ctx.font = "bold 24px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 24px Arial, sans-serif";
   ctx.fillText(citizen.citizen_name || "Citizen Full Name", 255, 175);
 
-  ctx.fillStyle = "#64748b";
-  ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "16px Arial, sans-serif";
   ctx.fillText("जन्म तिथि / DOB :", 255, 215);
-  ctx.fillStyle = "#0f172a";
-  ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 16px Arial, sans-serif";
   ctx.fillText(citizen.dob ? formatDate(citizen.dob) : "01/01/2000", 410, 215);
 
-  ctx.fillStyle = "#64748b";
-  ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "16px Arial, sans-serif";
   ctx.fillText("लिंग / Gender :", 255, 250);
-  ctx.fillStyle = "#0f172a";
-  ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 16px Arial, sans-serif";
   ctx.fillText(citizen.gender || "Citizen", 410, 250);
 
-  ctx.fillStyle = "#64748b";
-  ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "16px Arial, sans-serif";
   ctx.fillText("मोबाइल / Mobile :", 255, 285);
-  ctx.fillStyle = "#0f172a";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 16px 'Courier New', monospace";
   ctx.fillText(`+91 XXXXXX${(citizen.mobile_number || "0000").slice(-4)}`, 410, 285);
 
-  ctx.fillStyle = "#64748b";
-  ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "16px Arial, sans-serif";
   ctx.fillText("केंद्र / Center :", 255, 320);
-  ctx.fillStyle = "#0f172a";
-  ctx.font = "14px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "14px Arial, sans-serif";
   ctx.fillText(centerText, 410, 320);
 
-  // Simulated QR Code
-  ctx.strokeStyle = "#0f2b5c";
+  // QR
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
   ctx.fillStyle = "#ffffff";
   roundRect(ctx, 770, 140, 175, 175, 4, true, true);
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       if ((r + c * 3 + citizen.citizen_id) % 3 !== 0) {
-        ctx.fillStyle = "#0f2b5c";
+        ctx.fillStyle = "#000000";
         ctx.fillRect(785 + c * 18, 155 + r * 18, 14, 14);
       }
     }
   }
 
-  // Large Aadhaar Number Box (Warm Saffron / Ivory Tint)
-  ctx.fillStyle = "#fffbeb";
-  ctx.strokeStyle = "#fde68a";
+  // Aadhaar Number Box
+  ctx.fillStyle = "#f5f5f5";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1.5;
   roundRect(ctx, 35, 415, 930, 110, 8, true, true);
 
-  ctx.fillStyle = "#b45309";
-  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#555555";
+  ctx.font = "bold 13px Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("आपका आधार क्रमांक / Your Aadhaar No. :", 500, 445);
 
-  ctx.fillStyle = "#0f2b5c";
+  ctx.fillStyle = "#000000";
   ctx.font = "bold 32px 'Courier New', Courier, monospace";
   ctx.fillText(aadhaarNumber, 500, 490);
 
   // Footer Slogan
-  ctx.strokeStyle = "#e2e8f0";
+  ctx.strokeStyle = "#000000";
   ctx.beginPath();
   ctx.moveTo(35, 545);
   ctx.lineTo(965, 545);
   ctx.stroke();
 
   ctx.textAlign = "left";
-  ctx.fillStyle = "#0f2b5c";
-  ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 16px Arial, sans-serif";
   ctx.fillText("मेरा आधार, मेरी पहचान", 50, 580);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#64748b";
-  ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = "#333333";
+  ctx.font = "bold 13px Arial, sans-serif";
   ctx.fillText("My Aadhaar, My Identity", 500, 580);
 
   ctx.textAlign = "right";
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "12px 'Segoe UI', Arial, sans-serif";
-  ctx.fillText("[DBMS Laboratory Project — Academic Evaluation]", 950, 580);
+  ctx.fillStyle = "#666666";
+  ctx.font = "12px Arial, sans-serif";
+  ctx.fillText("[DBMS Laboratory Evaluation Project]", 950, 580);
 
-  // Trigger download
+  // Download trigger
   const cleanName = (citizen.citizen_name || "Citizen").replace(/[^a-zA-Z0-9]/g, "_");
   const dataUrl = canvas.toDataURL("image/png");
   const downloadLink = document.createElement("a");
@@ -1672,7 +1225,7 @@ function downloadAadhaarCardPng() {
 }
 
 // ====================================================
-// 12. ACADEMIC CREDITS (TEACHER & 5 STUDENT MEMBERS)
+// 5. ACADEMIC CREDITS (TEACHER & 5 MEMBERS)
 // ====================================================
 const DEFAULT_CREDITS = {
   teacherName: "Prof. Faculty Guide",
@@ -1710,34 +1263,27 @@ function loadAcademicCredits() {
 
   const teacherNameEl = document.getElementById("displayTeacherName");
   const teacherDeptEl = document.getElementById("displayTeacherDept");
-  const footerTeacherEl = document.getElementById("footerTeacherName");
-  const footerTeamEl = document.getElementById("footerTeamNames");
   const gridEl = document.getElementById("homeStudentsGrid");
   const countBadge = document.getElementById("teamCountBadge");
 
   if (teacherNameEl) teacherNameEl.textContent = credits.teacherName;
   if (teacherDeptEl) teacherDeptEl.textContent = credits.teacherDept;
-  if (footerTeacherEl) footerTeacherEl.textContent = credits.teacherName;
 
   if (gridEl) {
     gridEl.innerHTML = credits.students
       .map((s, index) => {
         return `
-          <div class="student-profile-item">
-            <div class="student-avatar-badge">${index + 1}</div>
-            <div class="student-details">
-              <strong class="student-name">${escapeHtml(s.name || `Student ${index + 1}`)}</strong>
-              <span class="scholar-pill">Scholar No: ${escapeHtml(s.scholar || "-")}</span>
-            </div>
+          <div class="student-card">
+            <strong>${index + 1}. ${escapeHtml(s.name || `Student ${index + 1}`)}</strong>
+            <span>Scholar: ${escapeHtml(s.scholar || "-")}</span>
           </div>
         `;
       })
       .join("");
   }
 
-  const activeNames = credits.students.filter((s) => s.name && s.name.trim()).map((s) => s.name.trim());
-  if (countBadge) countBadge.textContent = `${activeNames.length || 5} Members`;
-  if (footerTeamEl) footerTeamEl.textContent = activeNames.slice(0, 3).join(", ") + (activeNames.length > 3 ? " & more" : "");
+  const activeCount = credits.students.filter((s) => s.name && s.name.trim()).length || 5;
+  if (countBadge) countBadge.textContent = `${activeCount} Members`;
 }
 
 function setupAcademicCreditsModal() {
@@ -1785,15 +1331,51 @@ function setupAcademicCreditsModal() {
         students.push({ name, scholar });
       }
 
-      const updated = {
-        teacherName,
-        teacherDept,
-        students
-      };
-
-      saveAcademicCredits(updated);
+      saveAcademicCredits({ teacherName, teacherDept, students });
       loadAcademicCredits();
       closeModal();
     });
   }
+}
+
+// ====================================================
+// 6. HEALTH CHECK
+// ====================================================
+function checkBackendHealth() {
+  const statusText = document.getElementById("backendStatusText");
+  const statusContainer = document.querySelector(".status-right");
+
+  if (statusText) statusText.textContent = "Backend: Connecting...";
+
+  if (statusContainer && !statusContainer.dataset.configured) {
+    statusContainer.dataset.configured = "true";
+    statusContainer.addEventListener("click", () => {
+      const current = localStorage.getItem("API_URL") || API_BASE_URL;
+      const custom = prompt("Enter Backend API Base URL (leave blank for automatic):", current);
+      if (custom !== null) {
+        if (custom.trim() === "") {
+          localStorage.removeItem("API_URL");
+        } else {
+          localStorage.setItem("API_URL", custom.trim().replace(/\/+$/, ""));
+        }
+        window.location.reload();
+      }
+    });
+  }
+
+  fetch(`${API_BASE_URL}/health`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "OK") {
+        if (statusText) {
+          const mode = data.database ? data.database.mode : "connected";
+          statusText.textContent = `Backend: Connected (${mode})`;
+        }
+        if (statusContainer) statusContainer.classList.add("online");
+      }
+    })
+    .catch(() => {
+      if (statusText) statusText.textContent = "Backend: Offline";
+      if (statusContainer) statusContainer.classList.remove("online");
+    });
 }
