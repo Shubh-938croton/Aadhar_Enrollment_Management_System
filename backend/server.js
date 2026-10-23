@@ -611,7 +611,7 @@ app.put(["/api/applications/:id/status", "/applications/:id/status"], function (
   const applicationId = req.params.id;
   const { status } = req.body;
 
-  const allowedStatuses = ["Pending", "Complete"];
+  const allowedStatuses = ["Pending", "Complete", "Approved", "Rejected"];
   if (!status || !allowedStatuses.includes(status)) {
     return res.status(400).json({
       success: false,
@@ -662,7 +662,7 @@ app.put(["/api/applications/:id", "/applications/:id"], function (req, res) {
     });
   }
 
-  const allowedStatuses = ["Pending", "Complete"];
+  const allowedStatuses = ["Pending", "Complete", "Approved", "Rejected"];
   const finalStatus = allowedStatuses.includes(status) ? status : "Pending";
 
   const sql = `
