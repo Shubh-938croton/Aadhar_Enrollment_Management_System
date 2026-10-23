@@ -305,6 +305,42 @@ body {
   color: #555555;
 }
 
+.table-actions-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-action-edit {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+.btn-action-edit:hover {
+  background: #dcfce7;
+}
+
+.btn-action-delete {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.btn-action-delete:hover {
+  background: #fee2e2;
+}
+
 /* ====================================================
    3. ACCORDION CRUD PANELS (Add, Delete, Edit)
    ==================================================== */
