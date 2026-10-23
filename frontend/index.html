@@ -3,170 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aadhaar Enrollment Management System — DBMS Laboratory</title>
+    <title>Aadhaar Enrollment System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Header Section -->
-    <header class="app-header">
-        <div class="header-inner">
-            <div class="header-title-group">
-                <span class="project-tag">DBMS LABORATORY PROJECT — CSE DEPARTMENT</span>
-                <h1 class="project-title">Aadhaar Enrollment Management System</h1>
-                <p class="project-subtitle">Relational Database Operations (Third Normal Form — 3NF Architecture)</p>
-            </div>
-            <div class="status-badge" id="backendStatusIndicator" title="Click to view/change Backend API URL">
-                <span class="status-dot"></span>
-                <span id="backendStatusText">Backend: Connecting...</span>
-            </div>
+    <!-- Top Status Bar -->
+    <div class="top-status-bar">
+        <div class="status-left">
+            <span>DBMS Laboratory Evaluation Project</span>
         </div>
-    </header>
-
-    <!-- Navigation Bar -->
-    <nav class="app-nav">
-        <div class="nav-inner">
-            <button type="button" class="nav-tab active" data-target="dashboard">
-                <span>🏠 Dashboard</span>
-            </button>
-            <span class="nav-divider">|</span>
-            <button type="button" class="nav-tab" data-target="Citizens">
-                <span>👥 Citizens</span>
-                <span class="tab-count" id="tabCountCitizens">0</span>
-            </button>
-            <button type="button" class="nav-tab" data-target="EnrollmentCenter">
-                <span>🏛️ Enrollment Centers</span>
-                <span class="tab-count" id="tabCountCenters">0</span>
-            </button>
-            <button type="button" class="nav-tab" data-target="AadharApplication">
-                <span>📝 Applications</span>
-                <span class="tab-count" id="tabCountApps">0</span>
-            </button>
-            <button type="button" class="nav-tab" data-target="BiometricRecord">
-                <span>🔐 Biometrics</span>
-                <span class="tab-count" id="tabCountBio">0</span>
-            </button>
+        <div class="status-right" title="Click to view/change Backend API URL">
+            <span class="status-dot"></span>
+            <span id="backendStatusText">Backend: Connecting...</span>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content Container -->
-    <main class="main-content">
+    <div class="main-container">
 
         <!-- ==============================================
-             1. DASHBOARD VIEW (Clean, Original Entity Overview)
+             1. DASHBOARD VIEW (Matching Reference Screenshot 5)
         ============================================== -->
         <section id="view-dashboard" class="page-view active">
-            <div class="dashboard-welcome">
-                <h2>Database Tables Overview</h2>
-                <p>Select any table below to perform live database operations: view records, insert new tuples, edit details, or remove data.</p>
-            </div>
+            <div class="dashboard-card">
+                <h1 class="dashboard-title">Aadhaar Enrollment Management System</h1>
+                <hr class="dashboard-divider">
 
-            <div class="entity-cards-grid">
-                <!-- Entity 1: Citizens -->
-                <div class="entity-card" data-section="Citizens">
-                    <div class="card-header-row">
-                        <div class="entity-icon-title">
-                            <span class="entity-icon">👥</span>
-                            <div>
-                                <h3 class="entity-name">Citizens</h3>
-                                <span class="entity-pk">Primary Key: <code>citizen_id</code></span>
+                <h3 class="tables-heading">Tables</h3>
+
+                <div class="tables-list">
+                    <div class="table-list-row">
+                        <span class="roman-index">i)</span>
+                        <a href="?section=Citizens" class="table-link" data-section="Citizens">Citizens</a>
+                    </div>
+                    <div class="table-list-row">
+                        <span class="roman-index">ii)</span>
+                        <a href="?section=EnrollmentCenter" class="table-link" data-section="EnrollmentCenter">Enrollment Centers</a>
+                    </div>
+                    <div class="table-list-row">
+                        <span class="roman-index">iii)</span>
+                        <a href="?section=AadharApplication" class="table-link" data-section="AadharApplication">Aadhaar Applications</a>
+                    </div>
+                    <div class="table-list-row">
+                        <span class="roman-index">iv)</span>
+                        <a href="?section=BiometricRecord" class="table-link" data-section="BiometricRecord">Biometric Records</a>
+                    </div>
+                </div>
+
+                <!-- Academic Submission Details (Highlighted at Bottom of Dashboard) -->
+                <div class="dashboard-credits-box">
+                    <div class="credits-box-header">
+                        <strong>Academic Project Submission — DBMS Laboratory</strong>
+                        <button type="button" class="btn-ref-small" id="openEditCreditsBtn">✎ Edit Faculty & Team</button>
+                    </div>
+                    <div class="credits-grid">
+                        <div class="credits-column">
+                            <span class="col-label">SUBMITTED TO (FACULTY GUIDE):</span>
+                            <div class="faculty-info">
+                                <strong id="displayTeacherName">Prof. Faculty Guide</strong>
+                                <div class="text-muted" id="displayTeacherDept">Department of Computer Science & Engineering</div>
                             </div>
                         </div>
-                        <span class="record-badge" id="badgeCitizens">0 Records</span>
-                    </div>
-                    <p class="entity-desc">Stores demographic identity records including full name, birth date, gender, and contact mobile number.</p>
-                    <div class="card-footer-row">
-                        <span class="columns-hint">Columns: <code>citizen_id, citizen_name, dob, gender, mobile</code></span>
-                        <button type="button" class="card-btn">Manage Table →</button>
-                    </div>
-                </div>
-
-                <!-- Entity 2: Enrollment Centers -->
-                <div class="entity-card" data-section="EnrollmentCenter">
-                    <div class="card-header-row">
-                        <div class="entity-icon-title">
-                            <span class="entity-icon">🏛️</span>
-                            <div>
-                                <h3 class="entity-name">Enrollment Centers</h3>
-                                <span class="entity-pk">Primary Key: <code>center_id</code></span>
+                        <div class="credits-column flex-2">
+                            <div class="team-label-wrap">
+                                <span class="col-label">SUBMITTED BY (PROJECT TEAM):</span>
+                                <span class="team-badge" id="teamCountBadge">5 Members</span>
                             </div>
-                        </div>
-                        <span class="record-badge" id="badgeCenters">0 Records</span>
-                    </div>
-                    <p class="entity-desc">Stores authorized government enrollment center locations, district allocations, and state jurisdictions.</p>
-                    <div class="card-footer-row">
-                        <span class="columns-hint">Columns: <code>center_id, center_name, district, state</code></span>
-                        <button type="button" class="card-btn">Manage Table →</button>
-                    </div>
-                </div>
-
-                <!-- Entity 3: Aadhaar Applications -->
-                <div class="entity-card" data-section="AadharApplication">
-                    <div class="card-header-row">
-                        <div class="entity-icon-title">
-                            <span class="entity-icon">📝</span>
-                            <div>
-                                <h3 class="entity-name">Aadhaar Applications</h3>
-                                <span class="entity-pk">PK: <code>application_id</code> | FK: <code>citizen_id, center_id</code></span>
+                            <div class="students-grid" id="homeStudentsGrid">
+                                <!-- Populated dynamically -->
                             </div>
-                        </div>
-                        <span class="record-badge" id="badgeApps">0 Records</span>
-                    </div>
-                    <p class="entity-desc">Relational bridge mapping citizen enrollment requests to specific centers, tracking application date and approval status.</p>
-                    <div class="card-footer-row">
-                        <span class="columns-hint">Columns: <code>application_id, citizen_id, center_id, date, status</code></span>
-                        <button type="button" class="card-btn">Manage Table →</button>
-                    </div>
-                </div>
-
-                <!-- Entity 4: Biometric Records -->
-                <div class="entity-card" data-section="BiometricRecord">
-                    <div class="card-header-row">
-                        <div class="entity-icon-title">
-                            <span class="entity-icon">🔐</span>
-                            <div>
-                                <h3 class="entity-name">Biometric Records</h3>
-                                <span class="entity-pk">PK: <code>biometric_id</code> | FK: <code>application_id</code></span>
-                            </div>
-                        </div>
-                        <span class="record-badge" id="badgeBio">0 Records</span>
-                    </div>
-                    <p class="entity-desc">Stores encrypted biometric security hashes (SHA-256 fingerprint and iris scan values) for identity verification.</p>
-                    <div class="card-footer-row">
-                        <span class="columns-hint">Columns: <code>biometric_id, application_id, fingerprint, iris</code></span>
-                        <button type="button" class="card-btn">Manage Table →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Prominently Highlighted Academic Project Submission Details -->
-            <div class="academic-credits-card">
-                <div class="credits-top-bar">
-                    <div class="credits-title-wrap">
-                        <strong class="credits-heading">🎓 Academic Project Submission — DBMS Laboratory</strong>
-                        <span class="credits-meta">B.Tech Computer Science & Engineering</span>
-                    </div>
-                    <button type="button" class="edit-credits-btn" id="openEditCreditsBtn">✎ Edit Faculty & Team</button>
-                </div>
-
-                <div class="credits-body-grid">
-                    <!-- Faculty Guide Section -->
-                    <div class="credits-box faculty-box">
-                        <span class="credits-label">SUBMITTED TO (FACULTY GUIDE):</span>
-                        <div class="faculty-details">
-                            <strong class="faculty-name" id="displayTeacherName">Prof. Faculty Guide</strong>
-                            <span class="faculty-dept" id="displayTeacherDept">Department of Computer Science & Engineering</span>
-                        </div>
-                    </div>
-
-                    <!-- Student Team Section -->
-                    <div class="credits-box team-box">
-                        <div class="team-header-row">
-                            <span class="credits-label">SUBMITTED BY (PROJECT TEAM):</span>
-                            <span class="team-badge" id="teamCountBadge">5 Members</span>
-                        </div>
-                        <div class="students-grid" id="homeStudentsGrid">
-                            <!-- Populated dynamically via JS -->
                         </div>
                     </div>
                 </div>
@@ -175,386 +80,502 @@
 
 
         <!-- ==============================================
-             2. CITIZENS TABLE VIEW
+             2. CITIZENS TABLE VIEW (Matching Reference Screenshot 4)
         ============================================== -->
         <section id="view-Citizens" class="page-view">
-            <div class="table-view-header">
-                <div class="header-breadcrumb">
-                    <button type="button" class="breadcrumb-back back-to-dashboard">← Back to Dashboard</button>
-                    <span class="breadcrumb-slash">/</span>
-                    <h2 class="table-view-title">Citizens Table (<code>Citizens</code>)</h2>
-                </div>
-                <div class="table-quick-actions">
-                    <button type="button" class="action-btn-primary" id="toggleAddCitizenBtn">
-                        <span class="btn-icon">+</span> Insert New Citizen
-                    </button>
-                </div>
+            <div class="view-header">
+                <h2>Citizens <a href="index.html" class="back-link">← Back to Dashboard</a></h2>
             </div>
 
-            <div id="citizenAlert" class="notification-alert"></div>
+            <div id="citizenAlert" class="ref-alert"></div>
 
-            <!-- Inline Add / Edit Form Panel -->
-            <div class="crud-form-panel hidden" id="citizenFormPanel">
-                <div class="form-panel-header">
-                    <strong id="citizenFormTitle">➕ Insert New Citizen Record</strong>
-                    <button type="button" class="close-panel-btn" id="cancelCitizenBtn">&times;</button>
+            <!-- Citizens Table -->
+            <table class="ref-table" id="citizensTable">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Mobile Number</th>
+                    </tr>
+                </thead>
+                <tbody id="citizensTableBody">
+                    <tr><td colspan="5" class="empty-cell">Loading records...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Accordion 1: Add a Record -->
+            <div class="accordion-item open" id="acc-add-citizen">
+                <div class="accordion-header" onclick="toggleAccordion('acc-add-citizen')">
+                    <span class="acc-indicator">-</span> Add a Record
                 </div>
-                <form id="citizenCrudForm" class="crud-form">
-                    <input type="hidden" id="editCitizenId" value="">
-                    <div class="form-fields-row">
-                        <div class="input-group">
-                            <label for="citizenName">Full Name <span class="req">*</span></label>
-                            <input type="text" id="citizenName" placeholder="e.g. Ramesh Kumar" required maxlength="100">
+                <div class="accordion-body">
+                    <form id="addCitizenForm" class="inline-crud-form">
+                        <div class="form-field">
+                            <label for="citizenName">Name</label>
+                            <input type="text" id="citizenName" placeholder="Full name" required maxlength="100">
                         </div>
-                        <div class="input-group">
-                            <label for="citizenDob">Date of Birth <span class="req">*</span></label>
+                        <div class="form-field">
+                            <label for="citizenDob">Date of Birth</label>
                             <input type="date" id="citizenDob" required>
                         </div>
-                        <div class="input-group">
-                            <label for="citizenGender">Gender <span class="req">*</span></label>
+                        <div class="form-field">
+                            <label for="citizenGender">Gender</label>
                             <select id="citizenGender" required>
-                                <option value="">-- Select --</option>
+                                <option value="">-- Select gender --</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Others">Others</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label for="citizenMobile">Mobile Number <span class="req">*</span></label>
-                            <input type="tel" id="citizenMobile" placeholder="10-digit number" required pattern="[0-9]{10}" maxlength="10">
+                        <div class="form-field">
+                            <label for="citizenMobile">Mobile Number</label>
+                            <input type="tel" id="citizenMobile" placeholder="10-digit mobile" required pattern="[0-9]{10}" maxlength="10">
                         </div>
-                    </div>
-                    <div class="form-buttons-row">
-                        <button type="submit" class="submit-btn" id="saveCitizenBtn">Save Record</button>
-                        <button type="button" class="cancel-btn" id="closeCitizenFormBtn">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Search and Filter Bar -->
-            <div class="table-controls-bar">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchCitizens" placeholder="Search citizens by name, ID, or mobile...">
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnAddCitizen">Add</button>
+                        </div>
+                    </form>
                 </div>
-                <span class="table-records-count">Showing <span id="countCitizens">0</span> records</span>
             </div>
 
-            <!-- Data Table -->
-            <div class="table-responsive-box">
-                <table class="data-table" id="citizensTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">ID (PK)</th>
-                            <th>Full Name</th>
-                            <th>Date of Birth</th>
-                            <th>Gender</th>
-                            <th>Mobile Number</th>
-                            <th style="width: 140px; text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="citizensTableBody">
-                        <tr><td colspan="6" class="empty-state">Loading records from database...</td></tr>
-                    </tbody>
-                </table>
+            <!-- Accordion 2: Delete a Record -->
+            <div class="accordion-item" id="acc-del-citizen">
+                <div class="accordion-header" onclick="toggleAccordion('acc-del-citizen')">
+                    <span class="acc-indicator">+</span> Delete a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="deleteCitizenForm" class="inline-crud-form">
+                        <div class="form-field flex-grow">
+                            <label for="deleteCitizenSelect">Select Citizen to Delete</label>
+                            <select id="deleteCitizenSelect" required>
+                                <option value="">-- Select citizen --</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn btn-danger" id="btnDeleteCitizen">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Accordion 3: Edit a Record -->
+            <div class="accordion-item" id="acc-edit-citizen">
+                <div class="accordion-header" onclick="toggleAccordion('acc-edit-citizen')">
+                    <span class="acc-indicator">+</span> Edit a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="editCitizenForm" class="inline-crud-form">
+                        <div class="form-field" style="min-width: 220px;">
+                            <label for="editCitizenSelect">Select Citizen to Edit</label>
+                            <select id="editCitizenSelect" required>
+                                <option value="">-- Choose citizen --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editCitizenName">Name</label>
+                            <input type="text" id="editCitizenName" placeholder="Full name" required maxlength="100">
+                        </div>
+                        <div class="form-field">
+                            <label for="editCitizenDob">Date of Birth</label>
+                            <input type="date" id="editCitizenDob" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="editCitizenGender">Gender</label>
+                            <select id="editCitizenGender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editCitizenMobile">Mobile Number</label>
+                            <input type="tel" id="editCitizenMobile" placeholder="10-digit mobile" required pattern="[0-9]{10}" maxlength="10">
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnUpdateCitizen">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
 
 
         <!-- ==============================================
-             3. ENROLLMENT CENTERS TABLE VIEW
+             3. ENROLLMENT CENTERS TABLE VIEW (Matching Reference Screenshot 2)
         ============================================== -->
         <section id="view-EnrollmentCenter" class="page-view">
-            <div class="table-view-header">
-                <div class="header-breadcrumb">
-                    <button type="button" class="breadcrumb-back back-to-dashboard">← Back to Dashboard</button>
-                    <span class="breadcrumb-slash">/</span>
-                    <h2 class="table-view-title">Enrollment Centers Table (<code>EnrollmentCenter</code>)</h2>
-                </div>
-                <div class="table-quick-actions">
-                    <button type="button" class="action-btn-primary" id="toggleAddCenterBtn">
-                        <span class="btn-icon">+</span> Insert New Center
-                    </button>
-                </div>
+            <div class="view-header">
+                <h2>Enrollment Centers <a href="index.html" class="back-link">← Back to Dashboard</a></h2>
             </div>
 
-            <div id="centerAlert" class="notification-alert"></div>
+            <div id="centerAlert" class="ref-alert"></div>
 
-            <!-- Inline Add / Edit Form Panel -->
-            <div class="crud-form-panel hidden" id="centerFormPanel">
-                <div class="form-panel-header">
-                    <strong id="centerFormTitle">➕ Insert New Enrollment Center</strong>
-                    <button type="button" class="close-panel-btn" id="cancelCenterBtn">&times;</button>
+            <!-- Centers Table -->
+            <table class="ref-table" id="centersTable">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Center Name</th>
+                        <th>District</th>
+                        <th>State</th>
+                    </tr>
+                </thead>
+                <tbody id="centersTableBody">
+                    <tr><td colspan="4" class="empty-cell">Loading records...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Accordion 1: Add a Record -->
+            <div class="accordion-item open" id="acc-add-center">
+                <div class="accordion-header" onclick="toggleAccordion('acc-add-center')">
+                    <span class="acc-indicator">-</span> Add a Record
                 </div>
-                <form id="centerCrudForm" class="crud-form">
-                    <input type="hidden" id="editCenterId" value="">
-                    <div class="form-fields-row">
-                        <div class="input-group flex-2">
-                            <label for="centerName">Center Name <span class="req">*</span></label>
+                <div class="accordion-body">
+                    <form id="addCenterForm" class="inline-crud-form">
+                        <div class="form-field">
+                            <label for="centerName">Center Name</label>
                             <input type="text" id="centerName" placeholder="e.g. City Central Kendra" required maxlength="60">
                         </div>
-                        <div class="input-group flex-1">
-                            <label for="centerDistrict">District <span class="req">*</span></label>
+                        <div class="form-field">
+                            <label for="centerDistrict">District</label>
                             <input type="text" id="centerDistrict" placeholder="e.g. Bhopal" required maxlength="60">
                         </div>
-                        <div class="input-group flex-1">
-                            <label for="centerState">State <span class="req">*</span></label>
+                        <div class="form-field">
+                            <label for="centerState">State</label>
                             <input type="text" id="centerState" placeholder="e.g. Madhya Pradesh" required maxlength="60">
                         </div>
-                    </div>
-                    <div class="form-buttons-row">
-                        <button type="submit" class="submit-btn" id="saveCenterBtn">Save Record</button>
-                        <button type="button" class="cancel-btn" id="closeCenterFormBtn">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Search and Filter Bar -->
-            <div class="table-controls-bar">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchCenters" placeholder="Search centers by name, district, or state...">
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnAddCenter">Add</button>
+                        </div>
+                    </form>
                 </div>
-                <span class="table-records-count">Showing <span id="countCenters">0</span> records</span>
             </div>
 
-            <!-- Data Table -->
-            <div class="table-responsive-box">
-                <table class="data-table" id="centersTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">ID (PK)</th>
-                            <th>Center Name</th>
-                            <th>District</th>
-                            <th>State</th>
-                            <th style="width: 140px; text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="centersTableBody">
-                        <tr><td colspan="5" class="empty-state">Loading records from database...</td></tr>
-                    </tbody>
-                </table>
+            <!-- Accordion 2: Delete a Record -->
+            <div class="accordion-item" id="acc-del-center">
+                <div class="accordion-header" onclick="toggleAccordion('acc-del-center')">
+                    <span class="acc-indicator">+</span> Delete a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="deleteCenterForm" class="inline-crud-form">
+                        <div class="form-field flex-grow">
+                            <label for="deleteCenterSelect">Select Center to Delete</label>
+                            <select id="deleteCenterSelect" required>
+                                <option value="">-- Select center --</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn btn-danger" id="btnDeleteCenter">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Accordion 3: Edit a Record -->
+            <div class="accordion-item" id="acc-edit-center">
+                <div class="accordion-header" onclick="toggleAccordion('acc-edit-center')">
+                    <span class="acc-indicator">+</span> Edit a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="editCenterForm" class="inline-crud-form">
+                        <div class="form-field" style="min-width: 220px;">
+                            <label for="editCenterSelect">Select Center to Edit</label>
+                            <select id="editCenterSelect" required>
+                                <option value="">-- Choose center --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editCenterName">Center Name</label>
+                            <input type="text" id="editCenterName" placeholder="Center name" required maxlength="60">
+                        </div>
+                        <div class="form-field">
+                            <label for="editCenterDistrict">District</label>
+                            <input type="text" id="editCenterDistrict" placeholder="District" required maxlength="60">
+                        </div>
+                        <div class="form-field">
+                            <label for="editCenterState">State</label>
+                            <input type="text" id="editCenterState" placeholder="State" required maxlength="60">
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnUpdateCenter">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
 
 
         <!-- ==============================================
-             4. AADHAAR APPLICATIONS TABLE VIEW
+             4. AADHAAR APPLICATIONS TABLE VIEW (Matching Reference Screenshot 1)
         ============================================== -->
         <section id="view-AadharApplication" class="page-view">
-            <div class="table-view-header">
-                <div class="header-breadcrumb">
-                    <button type="button" class="breadcrumb-back back-to-dashboard">← Back to Dashboard</button>
-                    <span class="breadcrumb-slash">/</span>
-                    <h2 class="table-view-title">Aadhaar Applications Table (<code>AadharApplication</code>)</h2>
+            <div class="view-header">
+                <h2>Aadhaar Applications <a href="index.html" class="back-link">← Back to Dashboard</a></h2>
+            </div>
+
+            <div id="applicationAlert" class="ref-alert"></div>
+
+            <!-- Applications Table -->
+            <table class="ref-table" id="applicationsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Citizen</th>
+                        <th>Center</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                    <tr><td colspan="5" class="empty-cell">Loading records...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Accordion 1: Add a Record -->
+            <div class="accordion-item open" id="acc-add-app">
+                <div class="accordion-header" onclick="toggleAccordion('acc-add-app')">
+                    <span class="acc-indicator">-</span> Add a Record
                 </div>
-                <div class="table-quick-actions">
-                    <button type="button" class="action-btn-primary" id="toggleAddAppBtn">
-                        <span class="btn-icon">+</span> Create Application
-                    </button>
+                <div class="accordion-body">
+                    <form id="addApplicationForm" class="inline-crud-form">
+                        <div class="form-field">
+                            <label for="appCitizenSelect">Citizen</label>
+                            <select id="appCitizenSelect" required>
+                                <option value="">-- Select citizen --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="appCenterSelect">Center</label>
+                            <select id="appCenterSelect" required>
+                                <option value="">-- Select center --</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnAddApp">Add</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <div id="applicationAlert" class="notification-alert"></div>
-
-            <!-- Inline Add / Edit Form Panel -->
-            <div class="crud-form-panel hidden" id="appFormPanel">
-                <div class="form-panel-header">
-                    <strong id="appFormTitle">➕ Create New Application</strong>
-                    <button type="button" class="close-panel-btn" id="cancelAppBtn">&times;</button>
+            <!-- Accordion 2: Delete a Record -->
+            <div class="accordion-item" id="acc-del-app">
+                <div class="accordion-header" onclick="toggleAccordion('acc-del-app')">
+                    <span class="acc-indicator">+</span> Delete a Record
                 </div>
-                <form id="appCrudForm" class="crud-form">
-                    <input type="hidden" id="editAppId" value="">
-                    <div class="form-fields-row">
-                        <div class="input-group flex-1">
-                            <label for="appCitizenSelect">Select Citizen (FK) <span class="req">*</span></label>
-                            <select id="appCitizenSelect" required>
-                                <option value="">-- Choose Registered Citizen --</option>
+                <div class="accordion-body">
+                    <form id="deleteAppForm" class="inline-crud-form">
+                        <div class="form-field flex-grow">
+                            <label for="deleteAppSelect">Select Application to Delete</label>
+                            <select id="deleteAppSelect" required>
+                                <option value="">-- Select application --</option>
                             </select>
                         </div>
-                        <div class="input-group flex-1">
-                            <label for="appCenterSelect">Select Center (FK) <span class="req">*</span></label>
-                            <select id="appCenterSelect" required>
-                                <option value="">-- Choose Enrollment Center --</option>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn btn-danger" id="btnDeleteApp">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Accordion 3: Edit a Record -->
+            <div class="accordion-item" id="acc-edit-app">
+                <div class="accordion-header" onclick="toggleAccordion('acc-edit-app')">
+                    <span class="acc-indicator">+</span> Edit a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="editAppForm" class="inline-crud-form">
+                        <div class="form-field" style="min-width: 220px;">
+                            <label for="editAppSelect">Select Application to Edit</label>
+                            <select id="editAppSelect" required>
+                                <option value="">-- Choose application --</option>
                             </select>
                         </div>
-                        <div class="input-group" id="appStatusFieldGroup" style="display: none;">
-                            <label for="appStatusSelect">Status <span class="req">*</span></label>
-                            <select id="appStatusSelect">
+                        <div class="form-field">
+                            <label for="editAppCitizen">Citizen</label>
+                            <select id="editAppCitizen" required>
+                                <option value="">-- Select citizen --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editAppCenter">Center</label>
+                            <select id="editAppCenter" required>
+                                <option value="">-- Select center --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editAppStatus">Status</label>
+                            <select id="editAppStatus" required>
                                 <option value="Pending">Pending</option>
                                 <option value="Approved">Approved</option>
-                                <option value="Complete">Complete</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-buttons-row">
-                        <button type="submit" class="submit-btn" id="saveAppBtn">Save Application</button>
-                        <button type="button" class="cancel-btn" id="closeAppFormBtn">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Search and Filter Bar -->
-            <div class="table-controls-bar">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchApps" placeholder="Search applications by applicant, center, or status...">
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnUpdateApp">Save</button>
+                        </div>
+                    </form>
                 </div>
-                <span class="table-records-count">Showing <span id="countApps">0</span> records</span>
-            </div>
-
-            <!-- Data Table -->
-            <div class="table-responsive-box">
-                <table class="data-table" id="applicationsTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">App ID</th>
-                            <th>Applicant Citizen (FK)</th>
-                            <th>Enrollment Center (FK)</th>
-                            <th>Application Date</th>
-                            <th>Status</th>
-                            <th style="width: 140px; text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applicationsTableBody">
-                        <tr><td colspan="6" class="empty-state">Loading records from database...</td></tr>
-                    </tbody>
-                </table>
             </div>
         </section>
 
 
         <!-- ==============================================
-             5. BIOMETRIC RECORDS TABLE VIEW
+             5. BIOMETRIC RECORDS TABLE VIEW (Matching Reference Screenshot 3)
         ============================================== -->
         <section id="view-BiometricRecord" class="page-view">
-            <div class="table-view-header">
-                <div class="header-breadcrumb">
-                    <button type="button" class="breadcrumb-back back-to-dashboard">← Back to Dashboard</button>
-                    <span class="breadcrumb-slash">/</span>
-                    <h2 class="table-view-title">Biometric Records Table (<code>BiometricRecord</code>)</h2>
-                </div>
-                <div class="table-quick-actions">
-                    <button type="button" class="action-btn-primary" id="toggleAddBioBtn">
-                        <span class="btn-icon">+</span> Add Biometric Record
-                    </button>
-                </div>
+            <div class="view-header">
+                <h2>Biometric Records <a href="index.html" class="back-link">← Back to Dashboard</a></h2>
             </div>
 
-            <div id="biometricAlert" class="notification-alert"></div>
+            <div id="biometricAlert" class="ref-alert"></div>
 
-            <!-- Inline Add / Edit Form Panel -->
-            <div class="crud-form-panel hidden" id="bioFormPanel">
-                <div class="form-panel-header">
-                    <strong id="bioFormTitle">➕ Insert Biometric Security Hashes</strong>
-                    <button type="button" class="close-panel-btn" id="cancelBioBtn">&times;</button>
+            <!-- Biometrics Table -->
+            <table class="ref-table" id="biometricsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Application ID</th>
+                        <th>Fingerprint Hash</th>
+                        <th>Iris Hash</th>
+                    </tr>
+                </thead>
+                <tbody id="biometricsTableBody">
+                    <tr><td colspan="4" class="empty-cell">Loading records...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Accordion 1: Add a Record -->
+            <div class="accordion-item open" id="acc-add-bio">
+                <div class="accordion-header" onclick="toggleAccordion('acc-add-bio')">
+                    <span class="acc-indicator">-</span> Add a Record
                 </div>
-                <form id="bioCrudForm" class="crud-form">
-                    <input type="hidden" id="editBioId" value="">
-                    <div class="form-fields-row">
-                        <div class="input-group flex-1" id="bioAppSelectGroup">
-                            <label for="bioAppSelect">Application ID (FK) <span class="req">*</span></label>
+                <div class="accordion-body">
+                    <form id="addBiometricForm" class="inline-crud-form">
+                        <div class="form-field">
+                            <label for="bioAppSelect">Application</label>
                             <select id="bioAppSelect" required>
-                                <option value="">-- Choose Application --</option>
+                                <option value="">-- Select application --</option>
                             </select>
                         </div>
-                        <div class="input-group flex-1">
-                            <label for="bioFingerprint">Fingerprint Hash (SHA-256)</label>
-                            <input type="text" id="bioFingerprint" placeholder="Auto-generated if left blank">
+                        <div class="form-field">
+                            <label for="bioFingerprint">Fingerprint Hash</label>
+                            <input type="text" id="bioFingerprint" placeholder="Auto-generated if empty">
                         </div>
-                        <div class="input-group flex-1">
-                            <label for="bioIris">Iris Scan Hash (SHA-256)</label>
-                            <input type="text" id="bioIris" placeholder="Auto-generated if left blank">
+                        <div class="form-field">
+                            <label for="bioIris">Iris Hash</label>
+                            <input type="text" id="bioIris" placeholder="Auto-generated if empty">
                         </div>
-                    </div>
-                    <div class="form-buttons-row">
-                        <button type="submit" class="submit-btn" id="saveBioBtn">Save Biometrics</button>
-                        <button type="button" class="cancel-btn" id="closeBioFormBtn">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Search and Filter Bar -->
-            <div class="table-controls-bar">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchBio" placeholder="Search biometrics by ID, application, or hash...">
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnAddBio">Add</button>
+                        </div>
+                    </form>
                 </div>
-                <span class="table-records-count">Showing <span id="countBio">0</span> records</span>
             </div>
 
-            <!-- Data Table -->
-            <div class="table-responsive-box">
-                <table class="data-table" id="biometricsTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">ID (PK)</th>
-                            <th>Application (FK)</th>
-                            <th>Fingerprint Hash</th>
-                            <th>Iris Hash</th>
-                            <th style="width: 140px; text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="biometricsTableBody">
-                        <tr><td colspan="5" class="empty-state">Loading records from database...</td></tr>
-                    </tbody>
-                </table>
+            <!-- Accordion 2: Delete a Record -->
+            <div class="accordion-item" id="acc-del-bio">
+                <div class="accordion-header" onclick="toggleAccordion('acc-del-bio')">
+                    <span class="acc-indicator">+</span> Delete a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="deleteBiometricForm" class="inline-crud-form">
+                        <div class="form-field flex-grow">
+                            <label for="deleteBioSelect">Select Record to Delete</label>
+                            <select id="deleteBioSelect" required>
+                                <option value="">-- Select biometric record --</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn btn-danger" id="btnDeleteBio">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Accordion 3: Edit a Record -->
+            <div class="accordion-item" id="acc-edit-bio">
+                <div class="accordion-header" onclick="toggleAccordion('acc-edit-bio')">
+                    <span class="acc-indicator">+</span> Edit a Record
+                </div>
+                <div class="accordion-body">
+                    <form id="editBiometricForm" class="inline-crud-form">
+                        <div class="form-field" style="min-width: 200px;">
+                            <label for="editBioSelect">Select Record to Edit</label>
+                            <select id="editBioSelect" required>
+                                <option value="">-- Choose record --</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="editBioFingerprint">Fingerprint Hash</label>
+                            <input type="text" id="editBioFingerprint" placeholder="SHA-256 Hash" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="editBioIris">Iris Hash</label>
+                            <input type="text" id="editBioIris" placeholder="SHA-256 Hash" required>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button type="submit" class="ref-btn" id="btnUpdateBio">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </section>
 
-    </main>
+    </div>
 
     <!-- Modal for Editing Faculty Guide & 5-Member Team Details -->
     <div class="modal-backdrop hidden" id="creditsModal">
-        <div class="modal-dialog">
+        <div class="modal-box">
             <div class="modal-header">
-                <h3>Edit Faculty Guide & Team Members (5 Students)</h3>
+                <h3>Edit Faculty Guide & Team Information</h3>
                 <button type="button" class="modal-close" id="closeCreditsModalBtn">&times;</button>
             </div>
             <form id="creditsForm" class="modal-body">
-                <div class="modal-field">
+                <div class="form-field">
                     <label for="inputTeacherName">Teacher / Faculty Guide Name:</label>
                     <input type="text" id="inputTeacherName" placeholder="e.g. Prof. Faculty Guide" required>
                 </div>
-                <div class="modal-field">
+                <div class="form-field">
                     <label for="inputTeacherDept">Department / Institution:</label>
                     <input type="text" id="inputTeacherDept" placeholder="e.g. Department of Computer Science & Engineering">
                 </div>
 
-                <div class="modal-section-title">Project Team Members (5 Students):</div>
+                <hr style="border:0; border-top:1px solid #ccc; margin:10px 0;">
+                <div style="font-weight:bold; font-size:13px;">Project Team Members (5 Students):</div>
 
-                <div class="member-inputs-list">
-                    <div class="member-input-item">
-                        <span class="member-badge">1</span>
+                <div class="member-inputs-container">
+                    <div class="member-input-row">
+                        <span class="member-tag">S1</span>
                         <input type="text" id="inputMember1" placeholder="Student 1 Name" required class="flex-1">
                         <input type="text" id="inputScholar1" placeholder="Scholar No. 1" required class="flex-1">
                     </div>
-                    <div class="member-input-item">
-                        <span class="member-badge">2</span>
+                    <div class="member-input-row">
+                        <span class="member-tag">S2</span>
                         <input type="text" id="inputMember2" placeholder="Student 2 Name" class="flex-1">
                         <input type="text" id="inputScholar2" placeholder="Scholar No. 2" class="flex-1">
                     </div>
-                    <div class="member-input-item">
-                        <span class="member-badge">3</span>
+                    <div class="member-input-row">
+                        <span class="member-tag">S3</span>
                         <input type="text" id="inputMember3" placeholder="Student 3 Name" class="flex-1">
                         <input type="text" id="inputScholar3" placeholder="Scholar No. 3" class="flex-1">
                     </div>
-                    <div class="member-input-item">
-                        <span class="member-badge">4</span>
+                    <div class="member-input-row">
+                        <span class="member-tag">S4</span>
                         <input type="text" id="inputMember4" placeholder="Student 4 Name" class="flex-1">
                         <input type="text" id="inputScholar4" placeholder="Scholar No. 4" class="flex-1">
                     </div>
-                    <div class="member-input-item">
-                        <span class="member-badge">5</span>
+                    <div class="member-input-row">
+                        <span class="member-tag">S5</span>
                         <input type="text" id="inputMember5" placeholder="Student 5 Name" class="flex-1">
                         <input type="text" id="inputScholar5" placeholder="Scholar No. 5" class="flex-1">
                     </div>
                 </div>
 
-                <div class="modal-actions">
-                    <button type="submit" class="submit-btn">Save Changes</button>
-                    <button type="button" class="cancel-btn" id="cancelCreditsModalBtn">Cancel</button>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                    <button type="submit" class="ref-btn">Save Changes</button>
+                    <button type="button" class="ref-btn" id="cancelCreditsModalBtn">Cancel</button>
                 </div>
             </form>
         </div>
