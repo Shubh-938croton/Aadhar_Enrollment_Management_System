@@ -1,7 +1,7 @@
 -- ====================================================
 -- Aadhaar Enrollment Management System
--- Database Schema Script
--- Educational Demonstration Project
+-- Database Schema Script (with ON DELETE CASCADE)
+-- Educational Demonstration Project — 3NF Architecture
 -- ====================================================
 
 CREATE DATABASE IF NOT EXISTS Aadhar
@@ -10,7 +10,7 @@ COLLATE utf8mb4_unicode_ci;
 
 USE Aadhar;
 
--- TABLE 1: Citizens
+-- TABLE 1: Citizens (Parent Entity)
 CREATE TABLE IF NOT EXISTS Citizens (
     citizen_id INT AUTO_INCREMENT PRIMARY KEY,
     citizen_name VARCHAR(100) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Citizens (
     mobile_number CHAR(10) NOT NULL
 );
 
--- TABLE 2: EnrollmentCenter
+-- TABLE 2: EnrollmentCenter (Parent Entity)
 CREATE TABLE IF NOT EXISTS EnrollmentCenter (
     center_id INT AUTO_INCREMENT PRIMARY KEY,
     center_name VARCHAR(60) NOT NULL,
@@ -27,28 +27,37 @@ CREATE TABLE IF NOT EXISTS EnrollmentCenter (
     state VARCHAR(60) NOT NULL
 );
 
--- TABLE 3: AadharApplication
+-- TABLE 3: AadharApplication (Child Entity with ON DELETE CASCADE)
 CREATE TABLE IF NOT EXISTS AadharApplication (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     citizen_id INT NOT NULL,
     center_id INT NOT NULL,
     application_date DATE NOT NULL,
-    status ENUM('Complete', 'Pending') NOT NULL,
+    status ENUM('Pending', 'Complete', 'Approved', 'Rejected') NOT NULL DEFAULT 'Pending',
 
-    FOREIGN KEY (citizen_id)
-        REFERENCES Citizens(citizen_id),
+    CONSTRAINT fk_application_citizen
+        FOREIGN KEY (citizen_id)
+        REFERENCES Citizens(citizen_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
 
-    FOREIGN KEY (center_id)
+    CONSTRAINT fk_application_center
+        FOREIGN KEY (center_id)
         REFERENCES EnrollmentCenter(center_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
--- TABLE 4: BiometricRecord (Demonstration of schema relationship only)
+-- TABLE 4: BiometricRecord (Child Entity with ON DELETE CASCADE)
 CREATE TABLE IF NOT EXISTS BiometricRecord (
     biometric_id INT AUTO_INCREMENT PRIMARY KEY,
     application_id INT NOT NULL,
     fingerprint_hash VARCHAR(255),
     iris_hash VARCHAR(255),
 
-    FOREIGN KEY (application_id)
+    CONSTRAINT fk_biometric_application
+        FOREIGN KEY (application_id)
         REFERENCES AadharApplication(application_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );

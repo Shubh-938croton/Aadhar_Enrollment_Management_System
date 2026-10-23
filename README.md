@@ -124,12 +124,18 @@ erDiagram
 
 ### Table Specifications
 
-| Table | Primary Key | Foreign Keys | Key Attributes |
-| :--- | :--- | :--- | :--- |
-| `Citizens` | `citizen_id` | *None* | `citizen_name`, `dob`, `gender`, `mobile_number` |
-| `EnrollmentCenter` | `center_id` | *None* | `center_name`, `district`, `state` |
-| `AadharApplication` | `application_id` | `citizen_id` → `Citizens`<br>`center_id` → `EnrollmentCenter` | `application_date`, `status` |
-| `BiometricRecord` | `biometric_id` | `application_id` → `AadharApplication` | `fingerprint_hash`, `iris_hash` |
+| Table | Primary Key | Foreign Keys | Cascade Action | Key Attributes |
+| :--- | :--- | :--- | :--- | :--- |
+| `Citizens` | `citizen_id` | *None* | *Parent Entity* | `citizen_name`, `dob`, `gender`, `mobile_number` |
+| `EnrollmentCenter` | `center_id` | *None* | *Parent Entity* | `center_name`, `district`, `state` |
+| `AadharApplication` | `application_id` | `citizen_id` → `Citizens`<br>`center_id` → `EnrollmentCenter` | **`ON DELETE CASCADE`**<br>**`ON UPDATE CASCADE`** | `application_date`, `status` |
+| `BiometricRecord` | `biometric_id` | `application_id` → `AadharApplication` | **`ON DELETE CASCADE`**<br>**`ON UPDATE CASCADE`** | `fingerprint_hash`, `iris_hash` |
+
+> [!NOTE]
+> **Referential Integrity & Cascading Deletes (`ON DELETE CASCADE`)**:
+> - **Citizen Deletion**: Removing a `Citizens` record automatically cascades to delete all linked `AadharApplication` entries and their associated `BiometricRecord` security hashes.
+> - **Center Deletion**: Removing an `EnrollmentCenter` automatically cascades to clean up all applications allocated to that center and their corresponding biometrics.
+> - **Application Deletion**: Removing an `AadharApplication` automatically purges the associated `BiometricRecord` to guarantee no orphaned rows exist in accordance with 3NF integrity rules.
 
 ---
 
